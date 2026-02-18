@@ -18,9 +18,19 @@
         
         .input-group { margin-bottom: 20px; }
         .input-group label { display: block; margin-bottom: 8px; color: #aaa; font-size: 0.9rem; font-weight: 600; }
-        input, select, textarea { width: 100%; background: #080808; border: 1px solid var(--border); color: #fff; padding: 12px; border-radius: 10px; transition: 0.3s; }
+        input[type="text"], input[type="number"], select, textarea { width: 100%; background: #080808; border: 1px solid var(--border); color: #fff; padding: 12px; border-radius: 10px; transition: 0.3s; }
         input:focus { border-color: var(--primary); }
         
+        /* Checkboxes dias */
+        .days-wrapper { display: flex; gap: 10px; flex-wrap: wrap; background: #080808; padding: 10px; border-radius: 10px; border: 1px solid var(--border); }
+        .day-option { display: flex; align-items: center; gap: 5px; cursor: pointer; color: #ccc; font-size: 0.9rem; }
+        .day-option input { width: 18px; height: 18px; accent-color: var(--primary); }
+
+        /* Cores */
+        .color-wrapper { display: flex; gap: 10px; }
+        .color-box { flex: 1; }
+        input[type="color"] { width: 100%; height: 45px; border: none; padding: 0; background: none; cursor: pointer; }
+
         .btn { background: var(--primary); color: #000; border: none; padding: 12px 25px; border-radius: 10px; font-weight: 800; cursor: pointer; width: 100%; text-transform: uppercase; transition: 0.2s; }
         .btn:hover { opacity: 0.9; transform: translateY(-2px); }
         .btn-outline { background: transparent; border: 1px solid #555; color: #ccc; }
@@ -32,12 +42,10 @@
 
         .item-list { background: var(--surface); padding: 15px; border-radius: 12px; border: 1px solid var(--border); margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; }
         
-        /* Upload Style */
         .file-upload { position: relative; overflow: hidden; display: inline-block; width: 100%; }
         .file-upload input[type=file] { font-size: 100px; position: absolute; left: 0; top: 0; opacity: 0; cursor: pointer; }
         .file-btn { background: #222; border: 1px dashed #555; color: #aaa; padding: 10px; width: 100%; text-align: center; border-radius: 10px; cursor: pointer; }
-        .file-btn:hover { border-color: var(--primary); color: var(--primary); }
-
+        
         #loading { position: fixed; inset: 0; background: var(--bg); z-index: 999; display: flex; align-items: center; justify-content: center; }
     </style>
 </head>
@@ -57,9 +65,9 @@
         </div>
 
         <div class="tabs">
-            <button class="btn active" onclick="setTab('loja')" id="tab-btn-loja">🏪 Loja</button>
+            <button class="btn active" onclick="setTab('loja')" id="tab-btn-loja">🏪 Loja & Cores</button>
             <button class="btn btn-outline" onclick="setTab('produtos')" id="tab-btn-produtos">🍔 Cardápio</button>
-            <button class="btn btn-outline" onclick="setTab('entregas')" id="tab-btn-entregas">🛵 Entregas</button>
+            <button class="btn btn-outline" onclick="setTab('entregas')" id="tab-btn-entregas">🛵 Entregas & Horários</button>
         </div>
 
         <div id="view-loja">
@@ -74,20 +82,31 @@
             </div>
 
             <div style="background: #1a1a1a; padding: 15px; border-radius: 10px; border: 1px solid #333; margin-bottom: 20px;">
-                <h4 style="color:var(--primary); margin-bottom: 10px;">🖨️ Configuração de Impressão (NFC/PC)</h4>
-                <div class="input-group">
-                    <label>Nome do Computador (Servidor de Impressão)</label>
-                    <input type="text" id="conf-print-pc" placeholder="Ex: CAIXA-01">
+                <h4 style="color:var(--primary); margin-bottom: 10px;">🎨 Personalização de Cores</h4>
+                <div class="color-wrapper">
+                    <div class="color-box">
+                        <label>Cor Principal (Botões)</label>
+                        <input type="color" id="conf-cor">
+                    </div>
+                    <div class="color-box">
+                        <label>Fundo do Site</label>
+                        <input type="color" id="conf-cor-bg" value="#121212">
+                    </div>
+                    <div class="color-box">
+                        <label>Cabeçalho/Cartões</label>
+                        <input type="color" id="conf-cor-header" value="#1e1e1e">
+                    </div>
                 </div>
-                <div class="input-group">
-                    <label>Nome da Impressora Térmica</label>
-                    <input type="text" id="conf-print-name" placeholder="Ex: POS-58 ou MP-4200">
-                </div>
+            </div>
+
+            <div style="background: #1a1a1a; padding: 15px; border-radius: 10px; border: 1px solid #333; margin-bottom: 20px;">
+                <h4 style="color:var(--primary); margin-bottom: 10px;">🖨️ Impressão (NFC/PC)</h4>
+                <div class="input-group"><label>Nome do PC</label><input type="text" id="conf-print-pc" placeholder="Ex: CAIXA-01"></div>
+                <div class="input-group"><label>Nome da Impressora</label><input type="text" id="conf-print-name" placeholder="Ex: MP-4200"></div>
             </div>
 
             <div class="input-group"><label>Logo (URL)</label><input type="text" id="conf-logo"></div>
             <div class="input-group"><label>Banner (URL)</label><input type="text" id="conf-banner"></div>
-            <div class="input-group"><label>Cor do Tema</label><input type="color" id="conf-cor" style="height:50px;"></div>
             
             <button class="btn" onclick="salvarLoja()">Salvar Dados</button>
         </div>
@@ -106,24 +125,21 @@
                     <datalist id="list-cats"><option value="Lanches"><option value="Bebidas"><option value="Porções"></datalist>
                 </div>
                 
-                <div class="input-group">
-                    <textarea id="prod-desc" placeholder="Descrição..." rows="2"></textarea>
-                </div>
+                <div class="input-group"><textarea id="prod-desc" placeholder="Descrição..." rows="2"></textarea></div>
 
                 <div class="input-group">
-                    <label>Imagem do Produto</label>
+                    <label>Imagem</label>
                     <div class="file-upload">
                         <div class="file-btn" id="btn-upload-text"><i class="fas fa-camera"></i> Escolher Foto ou Colar URL abaixo</div>
                         <input type="file" id="prod-file" accept="image/*" onchange="handleFileUpload(this)">
                     </div>
                     <input type="text" id="prod-img" placeholder="Ou cole a URL da imagem aqui" style="margin-top:5px;">
-                    <small id="upload-status" style="color: var(--primary); display:none;">Enviando imagem...</small>
+                    <small id="upload-status" style="color: var(--primary); display:none;">Enviando...</small>
                 </div>
                 
                 <div style="margin-top:10px; background: #000; padding: 10px; border-radius: 8px;">
-                    <label style="font-size:0.8rem; color:#aaa;">Adicionais (Opcional)</label>
-                    <input type="text" id="prod-adds" placeholder="Ex: Bacon:3.00, Ovo:2.00" style="border:none; border-bottom:1px solid #333;">
-                    <small style="color:#666; font-size:0.7rem;">Formato: Nome:Preço, Nome:Preço</small>
+                    <label style="font-size:0.8rem; color:#aaa;">Adicionais (Ex: Bacon:3.00, Ovo:2.00)</label>
+                    <input type="text" id="prod-adds" placeholder="Nome:Preço, Nome:Preço" style="border:none; border-bottom:1px solid #333;">
                 </div>
 
                 <button class="btn" onclick="addProduto()" style="margin-top:15px;">Cadastrar Produto</button>
@@ -133,12 +149,24 @@
 
         <div id="view-entregas" style="display:none;">
             <div style="background:var(--surface); padding:20px; border-radius:15px; margin-bottom:20px; border:1px solid #333;">
-                <h4 style="margin-bottom:15px; color:var(--primary)">🕒 Horário de Funcionamento</h4>
-                <div style="display:flex; gap:10px;">
-                    <div style="flex:1"><label>Abertura</label><input type="time" id="loja-abre"></div>
-                    <div style="flex:1"><label>Fechamento</label><input type="time" id="loja-fecha"></div>
+                <h4 style="margin-bottom:15px; color:var(--primary)">🕒 Horário e Dias</h4>
+                
+                <label style="color:#aaa; font-size:0.9rem; margin-bottom:10px; display:block;">Dias de Funcionamento:</label>
+                <div class="days-wrapper" id="days-container">
+                    <label class="day-option"><input type="checkbox" value="0"> Dom</label>
+                    <label class="day-option"><input type="checkbox" value="1"> Seg</label>
+                    <label class="day-option"><input type="checkbox" value="2"> Ter</label>
+                    <label class="day-option"><input type="checkbox" value="3"> Qua</label>
+                    <label class="day-option"><input type="checkbox" value="4"> Qui</label>
+                    <label class="day-option"><input type="checkbox" value="5"> Sex</label>
+                    <label class="day-option"><input type="checkbox" value="6"> Sáb</label>
                 </div>
-                <button class="btn" onclick="salvarHorario()" style="margin-top:10px;">Atualizar Horário</button>
+
+                <div style="display:flex; gap:10px; margin-top:20px;">
+                    <div style="flex:1"><label>Abertura (HH:MM)</label><input type="time" id="loja-abre"></div>
+                    <div style="flex:1"><label>Fechamento (HH:MM)</label><input type="time" id="loja-fecha"></div>
+                </div>
+                <button class="btn" onclick="salvarHorario()" style="margin-top:10px;">Salvar Horário</button>
             </div>
 
             <div style="background:var(--surface); padding:20px; border-radius:15px; margin-bottom:20px; border:1px solid #333;">
@@ -160,7 +188,6 @@
         import { getFirestore, doc, getDoc, updateDoc, setDoc } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js";
         import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-storage.js";
 
-        // CONFIGURAÇÃO FIREBASE
         const firebaseConfig = {
             apiKey: "AIzaSyBIvmoayNis2C2xLFQtpRzzrc4dWxGvotU",
             authDomain: "eatsmenu-62cfa.firebaseapp.com",
@@ -176,7 +203,7 @@
         const storage = getStorage(app);
         
         let userUid = null;
-        let data = { produtos: [], bairros: [] };
+        let data = { produtos: [], bairros: [], dias_func: [] };
 
         onAuthStateChanged(auth, async (user) => {
             if (user) {
@@ -194,49 +221,47 @@
                 data = snap.data();
                 if(!data.produtos) data.produtos = [];
                 if(!data.bairros) data.bairros = [];
+                if(!data.dias_func) data.dias_func = [0,1,2,3,4,5,6]; // Padrão: todos os dias
                 
-                // Preenche campos
+                // Campos Simples
                 const campos = ['conf-nome','conf-slug','conf-zap','conf-pix-key','conf-pix-name',
-                                'conf-logo','conf-banner','conf-cor', 'conf-print-pc', 'conf-print-name'];
+                                'conf-logo','conf-banner','conf-cor','conf-cor-bg','conf-cor-header',
+                                'conf-print-pc','conf-print-name'];
                 
                 campos.forEach(id => {
-                    const key = id.replace('conf-','').replace(/-/g,'_'); // conf-print-pc -> print_pc
+                    const key = id.replace('conf-','').replace(/-/g,'_');
                     if(document.getElementById(id)) document.getElementById(id).value = data[key] || "";
                 });
                 
+                // Horários
                 document.getElementById('loja-abre').value = data.hora_abre || "18:00";
                 document.getElementById('loja-fecha').value = data.hora_fecha || "23:00";
                 
+                // Dias de Funcionamento
+                document.querySelectorAll('#days-container input').forEach(chk => {
+                    chk.checked = data.dias_func.includes(parseInt(chk.value));
+                });
+
                 updateLink(data.slug);
                 renderProdutos();
                 renderBairros();
             }
         }
 
-        // --- UPLOAD IMAGEM ---
         window.handleFileUpload = async (input) => {
             if (input.files && input.files[0]) {
                 const file = input.files[0];
-                const status = document.getElementById('upload-status');
-                const btnText = document.getElementById('btn-upload-text');
-                
-                status.style.display = 'block';
-                btnText.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Enviando...';
-                
+                document.getElementById('upload-status').style.display = 'block';
                 try {
                     const storageRef = ref(storage, `imagens/${userUid}/${Date.now()}_${file.name}`);
                     await uploadBytes(storageRef, file);
                     const url = await getDownloadURL(storageRef);
-                    
                     document.getElementById('prod-img').value = url;
-                    status.innerText = "Imagem carregada com sucesso!";
-                    status.style.color = "#00e676";
-                    btnText.innerHTML = '<i class="fas fa-check"></i> Pronta para salvar';
+                    document.getElementById('upload-status').innerText = "Sucesso!";
+                    document.getElementById('upload-status').style.color = "#00e676";
                 } catch (error) {
-                    console.error("Erro no upload:", error);
-                    status.innerText = "Erro ao enviar imagem.";
-                    status.style.color = "red";
-                    btnText.innerHTML = '<i class="fas fa-camera"></i> Tentar Novamente';
+                    console.error(error);
+                    document.getElementById('upload-status').innerText = "Erro no envio.";
                 }
             }
         };
@@ -252,19 +277,27 @@
                 print_name: document.getElementById('conf-print-name').value,
                 logo: document.getElementById('conf-logo').value,
                 banner: document.getElementById('conf-banner').value,
-                cor: document.getElementById('conf-cor').value
+                cor: document.getElementById('conf-cor').value,
+                cor_bg: document.getElementById('conf-cor-bg').value,
+                cor_header: document.getElementById('conf-cor-header').value
             };
             await updateDoc(doc(db, "lojas", userUid), update);
             updateLink(update.slug);
-            toast("Dados Salvos!");
+            toast("Loja Salva!");
         };
 
         window.salvarHorario = async () => {
+            const diasSelecionados = [];
+            document.querySelectorAll('#days-container input:checked').forEach(chk => {
+                diasSelecionados.push(parseInt(chk.value));
+            });
+
             await updateDoc(doc(db, "lojas", userUid), {
                 hora_abre: document.getElementById('loja-abre').value,
-                hora_fecha: document.getElementById('loja-fecha').value
+                hora_fecha: document.getElementById('loja-fecha').value,
+                dias_func: diasSelecionados
             });
-            toast("Horário Atualizado!");
+            toast("Horário e Dias Atualizados!");
         };
 
         window.addProduto = async () => {
@@ -284,8 +317,6 @@
             document.getElementById('prod-nome').value = "";
             document.getElementById('prod-preco').value = "";
             document.getElementById('prod-img').value = "";
-            document.getElementById('prod-file').value = "";
-            document.getElementById('btn-upload-text').innerHTML = '<i class="fas fa-camera"></i> Escolher Foto';
             
             renderProdutos();
             toast("Produto Adicionado!");
@@ -306,15 +337,7 @@
             const div = document.getElementById('lista-produtos');
             div.innerHTML = "";
             data.produtos.forEach((p, idx) => {
-                const imgTag = p.img ? `<img src="${p.img}" style="width:40px;height:40px;border-radius:5px;object-fit:cover;margin-right:10px;">` : '';
-                div.innerHTML += `
-                <div class="item-list">
-                    <div style="display:flex;align-items:center;">
-                        ${imgTag}
-                        <div><strong>${p.nome}</strong><br><small>R$ ${p.preco.toFixed(2)}</small></div>
-                    </div>
-                    <button style="background:red; color:white; padding:5px; border:none; border-radius:5px;" onclick="delItem('produtos', ${idx})">Excluir</button>
-                </div>`;
+                div.innerHTML += `<div class="item-list"><div><strong>${p.nome}</strong><br><small>R$ ${p.preco}</small></div><button class="btn-danger" style="border:none;padding:5px 10px;border-radius:5px;cursor:pointer;" onclick="delItem('produtos', ${idx})">Excluir</button></div>`;
             });
         }
 
@@ -322,7 +345,7 @@
             const div = document.getElementById('lista-bairros');
             div.innerHTML = "";
             data.bairros.forEach((b, idx) => {
-                div.innerHTML += `<div class="item-list"><div>${b.nome} - R$ ${b.taxa.toFixed(2)}</div><button style="background:red; color:white; padding:5px; border:none; border-radius:5px;" onclick="delItem('bairros', ${idx})">Excluir</button></div>`;
+                div.innerHTML += `<div class="item-list"><div>${b.nome} - R$ ${b.taxa}</div><button class="btn-danger" style="border:none;padding:5px 10px;border-radius:5px;cursor:pointer;" onclick="delItem('bairros', ${idx})">Excluir</button></div>`;
             });
         }
 
@@ -347,7 +370,7 @@
         }
         window.limparSlug = (el) => el.value = el.value.toLowerCase().replace(/[^a-z0-9-]/g, '');
         window.logout = () => signOut(auth).then(() => window.location.href = "index.html");
-        function toast(msg, type="success") { Toastify({ text: msg, style: { background: type=="success"?"#00e676":"#ff1744", color:"#000" } }).showToast(); }
+        function toast(msg, type="success") { Toastify({ text: msg, style: { background: type==="success"?"#00e676":"#ff1744" } }).showToast(); }
     </script>
 </body>
 </html>
