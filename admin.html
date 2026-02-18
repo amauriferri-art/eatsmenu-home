@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Painel Admin - EatsMenu</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css">
+    
+    <style>
+        :root { --primary: #00e676; --bg: #050505; --surface: #121212; --border: #333; --text: #fff; }
+        * { box-sizing: border-box; font-family: 'Outfit', sans-serif; margin: 0; padding: 0; outline: none; }
+        body { background: var(--bg); color: var(--text); min-height: 100vh; display: flex; flex-direction: column; }
+        
+        .dash-header { background: var(--surface); padding: 15px 30px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border); }
+        .dash-container { max-width: 900px; margin: 0 auto; padding: 30px 20px; width: 100%; }
+        
+        .input-group { margin-bottom: 20px; }
+        .input-group label { display: block; margin-bottom: 8px; color: #aaa; font-size: 0.9rem; font-weight: 600; }
+        input, select, textarea { width: 100%; background: #080808; border: 1px solid var(--border); color: #fff; padding: 12px; border-radius: 10px; transition: 0.3s; }
+        input:focus { border-color: var(--primary); }
+        
+        .btn { background: var(--primary); color: #000; border: none; padding: 12px 25px; border-radius: 10px; font-weight: 800; cursor: pointer; width: 100%; text-transform: uppercase; transition: 0.2s; }
+        .btn-danger { background: #ff1744; color: white; width: auto; padding: 5px 15px; font-size: 0.8rem; }
+        .btn-outline { background: transparent; border: 1px solid #555; color: #ccc; }
+        .btn-outline.active { border-color: var(--primary); color: var(--primary); background: rgba(0,230,118,0.1); }
+
+        .tabs { display: flex; gap: 10px; margin-bottom: 25px; overflow-x: auto; }
+        .tabs button { flex: 1; white-space: nowrap; }
+
+        .item-list { background: var(--surface); padding: 15px; border-radius: 12px; border: 1px solid var(--border); margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; }
+        
+        #loading { position: fixed; inset: 0; background: var(--bg); z-index: 999; display: flex; align-items: center; justify-content: center; }
+    </style>
+</head>
+<body>
+
+    <div id="loading"><h3>Carregando Painel...</h3></div>
+
+    <div class="dash-header">
+        <h3 style="color:var(--primary)">EatsMenu <span style="color:#fff; font-size:0.8em">Admin</span></h3>
+        <button class="btn btn-danger" onclick="logout()">Sair</button>
+    </div>
+
+    <div class="dash-container">
+        <div style="background:#1a1a1a; padding:20px; border-radius:15px; margin-bottom:30px; text-align:center; border:1px dashed var(--primary);">
+            <p style="color:#aaa; margin-bottom:10px;">SEU CARDÁPIO ONLINE:</p>
+            <a id="link-loja" href="#" target="_blank" style="color:var(--primary); font-weight:800; font-size:1.2rem; text-decoration:none;">...</a>
+        </div>
+
+        <div class="tabs">
+            <button class="btn active" onclick="setTab('loja')" id="tab-btn-loja">🏪 Loja</button>
+            <button class="btn btn-outline" onclick="setTab('produtos')" id="tab-btn-produtos">🍔 Cardápio</button>
+            <button class="btn btn-outline" onclick="setTab('entregas')" id="tab-btn-entregas">🛵 Entregas & Horários</button>
+        </div>
+
+        <div id="view-loja">
+            <div class="input-group"><label>Nome da Loja</label><input type="text" id="conf-nome"></div>
+            <div class="input-group"><label>Link (Slug)</label><input type="text" id="conf-slug" onkeyup="limparSlug(this)"></div>
+            <div class="input-group"><label>WhatsApp (Ex: 55279...)</label><input type="text" id="conf-zap"></div>
+            
+            <div style="background: rgba(0,230,118,0.05); padding: 15px; border-radius: 10px; border: 1px dashed var(--primary); margin-bottom: 20px;">
+                <h4 style="color:var(--primary); margin-bottom: 10px;">Pagamento PIX</h4>
+                <div class="input-group"><label>Chave Pix</label><input type="text" id="conf-pix-key"></div>
+                <div class="input-group"><label>Nome do Beneficiário</label><input type="text" id="conf-pix-name"></div>
+            </div>
+
+            <div class="input-group"><label>Logo (URL)</label><input type="text" id="conf-logo"></div>
+            <div class="input-group"><label>Banner (URL)</label><input type="text" id="conf-banner"></div>
+            <div class="input-group"><label>Cor do Tema</label><input type="color" id="conf-cor" style="height:50px;"></div>
+            
+            <button class="btn" onclick="salvarLoja()">Salvar Dados</button>
+        </div>
+
+        <div id="view-produtos" style="display:none;">
+            <div style="background:var(--surface); padding:20px; border-radius:15px; margin-bottom:20px; border:1px solid #333;">
+                <h4 style="margin-bottom:15px; color:var(--primary)">+ Novo Produto</h4>
+                <div style="display:grid; grid-template-columns: 2fr 1fr; gap:10px;">
+                    <input type="text" id="prod-nome" placeholder="Nome">
+                    <input type="number" id="prod-preco" placeholder="Preço">
+                </div>
+                <input type="text" id="prod-cat" placeholder="Categoria (Lanches, Bebidas...)" list="list-cats" style="margin-top:10px;">
+                <datalist id="list-cats"><option value="Lanches"><option value="Bebidas"><option value="Porções"></datalist>
+                <textarea id="prod-desc" placeholder="Descrição..." style="margin-top:10px;" rows="2"></textarea>
+                <input type="text" id="prod-img" placeholder="URL da Imagem" style="margin-top:10px;">
+                
+                <div style="margin-top:10px; background: #000; padding: 10px; border-radius: 8px;">
+                    <label style="font-size:0.8rem; color:#aaa;">Adicionais (Formato: Nome:Preço, Nome:Preço)</label>
+                    <input type="text" id="prod-adds" placeholder="Ex: Bacon:3.00, Ovo:2.00" style="border:none; border-bottom:1px solid #333;">
+                </div>
+                <button class="btn" onclick="addProduto()" style="margin-top:15px;">Cadastrar</button>
+            </div>
+            <div id="lista-produtos"></div>
+        </div>
+
+        <div id="view-entregas" style="display:none;">
+            <div style="background:var(--surface); padding:20px; border-radius:15px; margin-bottom:20px; border:1px solid #333;">
+                <h4 style="margin-bottom:15px; color:var(--primary)">🕒 Horário de Funcionamento</h4>
+                <div style="display:flex; gap:10px;">
+                    <div style="flex:1"><label>Abertura</label><input type="time" id="loja-abre"></div>
+                    <div style="flex:1"><label>Fechamento</label><input type="time" id="loja-fecha"></div>
+                </div>
+                <button class="btn" onclick="salvarHorario()" style="margin-top:10px;">Atualizar Horário</button>
+            </div>
+
+            <div style="background:var(--surface); padding:20px; border-radius:15px; margin-bottom:20px; border:1px solid #333;">
+                <h4 style="margin-bottom:15px; color:var(--primary)">🛵 Taxas de Entrega</h4>
+                <div style="display:flex; gap:10px;">
+                    <input type="text" id="bairro-nome" placeholder="Nome do Bairro" style="flex:2;">
+                    <input type="number" id="bairro-taxa" placeholder="Valor R$" style="flex:1;">
+                </div>
+                <button class="btn" onclick="addBairro()" style="margin-top:10px;">Adicionar Bairro</button>
+            </div>
+            <div id="lista-bairros"></div>
+        </div>
+    </div>
+
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js";
+        import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-auth.js";
+        import { getFirestore, doc, getDoc, updateDoc, setDoc } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js";
+
+        // CONFIGURAÇÃO FIREBASE
+        const firebaseConfig = {
+            apiKey: "AIzaSyBIvmoayNis2C2xLFQtpRzzrc4dWxGvotU",
+            authDomain: "eatsmenu-62cfa.firebaseapp.com",
+            projectId: "eatsmenu-62cfa",
+            storageBucket: "eatsmenu-62cfa.firebasestorage.app",
+            messagingSenderId: "896131512194",
+            appId: "1:896131512194:web:51891cf2bd5a04c6c7819b"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+        let userUid = null;
+        let data = { produtos: [], bairros: [] };
+
+        onAuthStateChanged(auth, async (user) => {
+            if (user) {
+                userUid = user.uid;
+                await loadData();
+                document.getElementById('loading').style.display = 'none';
+            } else {
+                window.location.href = 'index.html';
+            }
+        });
+
+        async function loadData() {
+            const snap = await getDoc(doc(db, "lojas", userUid));
+            if (snap.exists()) {
+                data = snap.data();
+                if(!data.produtos) data.produtos = [];
+                if(!data.bairros) data.bairros = [];
+                
+                document.getElementById('conf-nome').value = data.nome || "";
+                document.getElementById('conf-slug').value = data.slug || "";
+                document.getElementById('conf-zap').value = data.whatsapp || "";
+                document.getElementById('conf-pix-key').value = data.pix_key || "";
+                document.getElementById('conf-pix-name').value = data.pix_name || "";
+                document.getElementById('conf-logo').value = data.logo || "";
+                document.getElementById('conf-banner').value = data.banner || "";
+                document.getElementById('conf-cor').value = data.cor || "#00e676";
+                document.getElementById('loja-abre').value = data.hora_abre || "18:00";
+                document.getElementById('loja-fecha').value = data.hora_fecha || "23:00";
+                
+                updateLink(data.slug);
+                renderProdutos();
+                renderBairros();
+            }
+        }
+
+        window.salvarLoja = async () => {
+            const update = {
+                nome: document.getElementById('conf-nome').value,
+                slug: document.getElementById('conf-slug').value,
+                whatsapp: document.getElementById('conf-zap').value,
+                pix_key: document.getElementById('conf-pix-key').value,
+                pix_name: document.getElementById('conf-pix-name').value,
+                logo: document.getElementById('conf-logo').value,
+                banner: document.getElementById('conf-banner').value,
+                cor: document.getElementById('conf-cor').value
+            };
+            await updateDoc(doc(db, "lojas", userUid), update);
+            updateLink(update.slug);
+            toast("Dados Salvos!");
+        };
+
+        window.salvarHorario = async () => {
+            await updateDoc(doc(db, "lojas", userUid), {
+                hora_abre: document.getElementById('loja-abre').value,
+                hora_fecha: document.getElementById('loja-fecha').value
+            });
+            toast("Horário Atualizado!");
+        };
+
+        window.addProduto = async () => {
+            const prod = {
+                nome: document.getElementById('prod-nome').value,
+                preco: parseFloat(document.getElementById('prod-preco').value),
+                cat: document.getElementById('prod-cat').value,
+                desc: document.getElementById('prod-desc').value,
+                img: document.getElementById('prod-img').value,
+                adds: document.getElementById('prod-adds').value
+            };
+            if(!prod.nome || !prod.preco) return toast("Preencha nome e preço", "error");
+            data.produtos.push(prod);
+            await updateDoc(doc(db, "lojas", userUid), { produtos: data.produtos });
+            document.getElementById('prod-nome').value = "";
+            renderProdutos();
+            toast("Produto Adicionado!");
+        };
+
+        window.addBairro = async () => {
+            const nome = document.getElementById('bairro-nome').value;
+            const taxa = parseFloat(document.getElementById('bairro-taxa').value);
+            if(!nome) return toast("Preencha o nome", "error");
+            data.bairros.push({ nome, taxa: taxa || 0 });
+            await updateDoc(doc(db, "lojas", userUid), { bairros: data.bairros });
+            document.getElementById('bairro-nome').value = "";
+            renderBairros();
+            toast("Bairro Adicionado!");
+        };
+
+        function renderProdutos() {
+            const div = document.getElementById('lista-produtos');
+            div.innerHTML = "";
+            data.produtos.forEach((p, idx) => {
+                div.innerHTML += `<div class="item-list"><div><strong>${p.nome}</strong><br><small>R$ ${p.preco}</small></div><button class="btn btn-danger" onclick="delItem('produtos', ${idx})">X</button></div>`;
+            });
+        }
+
+        function renderBairros() {
+            const div = document.getElementById('lista-bairros');
+            div.innerHTML = "";
+            data.bairros.forEach((b, idx) => {
+                div.innerHTML += `<div class="item-list"><div>${b.nome} - R$ ${b.taxa.toFixed(2)}</div><button class="btn btn-danger" onclick="delItem('bairros', ${idx})">X</button></div>`;
+            });
+        }
+
+        window.delItem = async (tipo, idx) => {
+            if(confirm("Excluir?")) {
+                data[tipo].splice(idx, 1);
+                await updateDoc(doc(db, "lojas", userUid), { [tipo]: data[tipo] });
+                tipo === 'produtos' ? renderProdutos() : renderBairros();
+            }
+        };
+
+        function updateLink(slug) {
+            const url = `https://${slug}.eatsmenu.com.br`;
+            document.getElementById('link-loja').href = url;
+            document.getElementById('link-loja').innerText = url;
+        }
+        window.setTab = (tab) => {
+            ['loja', 'produtos', 'entregas'].forEach(t => {
+                document.getElementById('view-'+t).style.display = t === tab ? 'block' : 'none';
+                document.getElementById('tab-btn-'+t).className = t === tab ? 'btn active' : 'btn btn-outline';
+            });
+        }
+        window.limparSlug = (el) => el.value = el.value.toLowerCase().replace(/[^a-z0-9-]/g, '');
+        window.logout = () => signOut(auth).then(() => window.location.href = "index.html");
+        function toast(msg, type="success") { Toastify({ text: msg, style: { background: type=="success"?"#00e676":"#ff1744", color:"#000" } }).showToast(); }
+    </script>
+</body>
+</html>
