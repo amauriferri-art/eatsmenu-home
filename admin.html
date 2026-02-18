@@ -21,16 +21,17 @@
         input[type="text"], input[type="number"], select, textarea { width: 100%; background: #080808; border: 1px solid var(--border); color: #fff; padding: 12px; border-radius: 10px; transition: 0.3s; }
         input:focus { border-color: var(--primary); }
         
-        /* Checkboxes Dias */
+        /* Checkboxes dias */
         .days-wrapper { display: flex; gap: 10px; flex-wrap: wrap; background: #080808; padding: 15px; border-radius: 10px; border: 1px solid var(--border); }
-        .day-option { display: flex; align-items: center; gap: 8px; cursor: pointer; color: #fff; font-weight: 600; background: #222; padding: 8px 15px; border-radius: 20px; border: 1px solid #333; }
+        .day-option { display: flex; align-items: center; gap: 8px; cursor: pointer; color: #fff; font-weight: 600; background: #222; padding: 8px 15px; border-radius: 20px; border: 1px solid #333; transition: 0.2s; }
         .day-option:has(input:checked) { background: rgba(0, 230, 118, 0.2); border-color: var(--primary); color: var(--primary); }
-        .day-option input { display: none; } /* Esconde o checkbox padrão */
+        .day-option input { display: none; } 
 
         /* Cores */
-        .color-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 15px; }
+        .color-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 15px; }
         .color-box { background: #222; padding: 10px; border-radius: 10px; text-align: center; border: 1px solid #333; }
-        input[type="color"] { width: 100%; height: 40px; border: none; padding: 0; background: none; cursor: pointer; margin-top: 5px; }
+        .color-box label { font-size: 0.85rem; margin-bottom: 5px; display: block; }
+        input[type="color"] { width: 100%; height: 40px; border: none; padding: 0; background: none; cursor: pointer; }
 
         .btn { background: var(--primary); color: #000; border: none; padding: 12px 25px; border-radius: 10px; font-weight: 800; cursor: pointer; width: 100%; text-transform: uppercase; transition: 0.2s; }
         .btn:hover { opacity: 0.9; transform: translateY(-2px); }
@@ -76,11 +77,17 @@
             <div class="input-group"><label>Link (Slug)</label><input type="text" id="conf-slug" onkeyup="limparSlug(this)"></div>
             <div class="input-group"><label>WhatsApp (Ex: 55279...)</label><input type="text" id="conf-zap"></div>
             
+            <div style="background: rgba(0,230,118,0.05); padding: 15px; border-radius: 10px; border: 1px dashed var(--primary); margin-bottom: 20px;">
+                <h4 style="color:var(--primary); margin-bottom: 10px;">Pagamento PIX</h4>
+                <div class="input-group"><label>Chave Pix</label><input type="text" id="conf-pix-key"></div>
+                <div class="input-group"><label>Nome do Beneficiário</label><input type="text" id="conf-pix-name"></div>
+            </div>
+
             <div style="background: #1a1a1a; padding: 15px; border-radius: 10px; border: 1px solid #333; margin-bottom: 20px;">
-                <h4 style="color:var(--primary); margin-bottom: 15px;">🎨 Cores do Site</h4>
+                <h4 style="color:var(--primary); margin-bottom: 15px;">🎨 Personalização Total</h4>
                 <div class="color-grid">
                     <div class="color-box">
-                        <label>Principal (Botões)</label>
+                        <label>Botões (Principal)</label>
                         <input type="color" id="conf-cor" value="#00e676">
                     </div>
                     <div class="color-box">
@@ -91,13 +98,11 @@
                         <label>Cartões/Header</label>
                         <input type="color" id="conf-cor-header" value="#1e1e1e">
                     </div>
+                    <div class="color-box">
+                        <label>Texto Geral</label>
+                        <input type="color" id="conf-cor-text" value="#ffffff">
+                    </div>
                 </div>
-            </div>
-
-            <div style="background: rgba(0,230,118,0.05); padding: 15px; border-radius: 10px; border: 1px dashed var(--primary); margin-bottom: 20px;">
-                <h4 style="color:var(--primary); margin-bottom: 10px;">Pagamento PIX</h4>
-                <div class="input-group"><label>Chave Pix</label><input type="text" id="conf-pix-key"></div>
-                <div class="input-group"><label>Nome do Beneficiário</label><input type="text" id="conf-pix-name"></div>
             </div>
 
             <div style="background: #1a1a1a; padding: 15px; border-radius: 10px; border: 1px solid #333; margin-bottom: 20px;">
@@ -115,21 +120,26 @@
         <div id="view-produtos" style="display:none;">
             <div style="background:var(--surface); padding:20px; border-radius:15px; margin-bottom:20px; border:1px solid #333;">
                 <h4 style="margin-bottom:15px; color:var(--primary)">+ Novo Produto</h4>
+                
                 <div style="display:grid; grid-template-columns: 2fr 1fr; gap:10px;">
                     <div class="input-group"><input type="text" id="prod-nome" placeholder="Nome"></div>
                     <div class="input-group"><input type="number" id="prod-preco" placeholder="Preço"></div>
                 </div>
-                <div class="input-group"><input type="text" id="prod-cat" placeholder="Categoria (Lanches, Bebidas...)" list="list-cats"></div>
-                <datalist id="list-cats"><option value="Lanches"><option value="Bebidas"><option value="Porções"></datalist>
+                
+                <div class="input-group">
+                    <input type="text" id="prod-cat" placeholder="Categoria (Lanches, Bebidas...)" list="list-cats">
+                    <datalist id="list-cats"><option value="Lanches"><option value="Bebidas"><option value="Porções"></datalist>
+                </div>
+                
                 <div class="input-group"><textarea id="prod-desc" placeholder="Descrição..." rows="2"></textarea></div>
 
                 <div class="input-group">
                     <label>Imagem</label>
                     <div class="file-upload">
-                        <div class="file-btn" id="btn-upload-text"><i class="fas fa-camera"></i> Escolher Foto ou Colar URL</div>
+                        <div class="file-btn" id="btn-upload-text"><i class="fas fa-camera"></i> Escolher Foto ou Colar URL abaixo</div>
                         <input type="file" id="prod-file" accept="image/*" onchange="handleFileUpload(this)">
                     </div>
-                    <input type="text" id="prod-img" placeholder="URL da imagem" style="margin-top:5px;">
+                    <input type="text" id="prod-img" placeholder="Ou cole a URL da imagem aqui" style="margin-top:5px;">
                     <small id="upload-status" style="color: var(--primary); display:none;">Enviando...</small>
                 </div>
                 
@@ -145,31 +155,31 @@
 
         <div id="view-entregas" style="display:none;">
             <div style="background:var(--surface); padding:20px; border-radius:15px; margin-bottom:20px; border:1px solid #333;">
-                <h4 style="margin-bottom:15px; color:var(--primary)">🕒 Horário de Funcionamento</h4>
+                <h4 style="margin-bottom:15px; color:var(--primary)">🕒 Horário e Dias</h4>
                 
-                <label style="color:#aaa; font-size:0.9rem; margin-bottom:10px; display:block;">Marque os dias que a loja abre:</label>
+                <label style="color:#aaa; font-size:0.9rem; margin-bottom:10px; display:block;">Dias de Funcionamento:</label>
                 <div class="days-wrapper" id="days-container">
-                    <label class="day-option"><input type="checkbox" value="0"> Domingo</label>
-                    <label class="day-option"><input type="checkbox" value="1"> Segunda</label>
-                    <label class="day-option"><input type="checkbox" value="2"> Terça</label>
-                    <label class="day-option"><input type="checkbox" value="3"> Quarta</label>
-                    <label class="day-option"><input type="checkbox" value="4"> Quinta</label>
-                    <label class="day-option"><input type="checkbox" value="5"> Sexta</label>
-                    <label class="day-option"><input type="checkbox" value="6"> Sábado</label>
+                    <label class="day-option"><input type="checkbox" value="0"> Dom</label>
+                    <label class="day-option"><input type="checkbox" value="1"> Seg</label>
+                    <label class="day-option"><input type="checkbox" value="2"> Ter</label>
+                    <label class="day-option"><input type="checkbox" value="3"> Qua</label>
+                    <label class="day-option"><input type="checkbox" value="4"> Qui</label>
+                    <label class="day-option"><input type="checkbox" value="5"> Sex</label>
+                    <label class="day-option"><input type="checkbox" value="6"> Sáb</label>
                 </div>
 
                 <div style="display:flex; gap:10px; margin-top:20px;">
                     <div style="flex:1"><label>Abertura (HH:MM)</label><input type="time" id="loja-abre"></div>
                     <div style="flex:1"><label>Fechamento (HH:MM)</label><input type="time" id="loja-fecha"></div>
                 </div>
-                <button class="btn" onclick="salvarHorario()" style="margin-top:15px;">SALVAR DIAS E HORÁRIOS</button>
+                <button class="btn" onclick="salvarHorario()" style="margin-top:10px;">Salvar Configurações de Tempo</button>
             </div>
 
             <div style="background:var(--surface); padding:20px; border-radius:15px; margin-bottom:20px; border:1px solid #333;">
                 <h4 style="margin-bottom:15px; color:var(--primary)">🛵 Taxas de Entrega</h4>
                 <div style="display:flex; gap:10px;">
                     <input type="text" id="bairro-nome" placeholder="Nome do Bairro" style="flex:2;">
-                    <input type="number" id="bairro-taxa" placeholder="Taxa R$" style="flex:1;">
+                    <input type="number" id="bairro-taxa" placeholder="Valor R$" style="flex:1;">
                 </div>
                 <button class="btn" onclick="addBairro()" style="margin-top:10px;">Adicionar Bairro</button>
             </div>
@@ -184,6 +194,7 @@
         import { getFirestore, doc, getDoc, updateDoc, setDoc } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js";
         import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-storage.js";
 
+        // CONFIGURAÇÃO FIREBASE
         const firebaseConfig = {
             apiKey: "AIzaSyBIvmoayNis2C2xLFQtpRzzrc4dWxGvotU",
             authDomain: "eatsmenu-62cfa.firebaseapp.com",
@@ -217,10 +228,11 @@
                 data = snap.data();
                 if(!data.produtos) data.produtos = [];
                 if(!data.bairros) data.bairros = [];
-                if(!data.dias_func) data.dias_func = [0,1,2,3,4,5,6]; // Padrão: todos os dias
+                if(!data.dias_func) data.dias_func = [0,1,2,3,4,5,6];
                 
+                // Preenche campos
                 const campos = ['conf-nome','conf-slug','conf-zap','conf-pix-key','conf-pix-name',
-                                'conf-logo','conf-banner','conf-cor','conf-cor-bg','conf-cor-header',
+                                'conf-logo','conf-banner','conf-cor','conf-cor-bg','conf-cor-header','conf-cor-text',
                                 'conf-print-pc','conf-print-name'];
                 
                 campos.forEach(id => {
@@ -228,10 +240,11 @@
                     if(document.getElementById(id)) document.getElementById(id).value = data[key] || "";
                 });
                 
+                // Horários
                 document.getElementById('loja-abre').value = data.hora_abre || "18:00";
                 document.getElementById('loja-fecha').value = data.hora_fecha || "23:00";
                 
-                // Marcar os checkboxes dos dias
+                // Dias
                 document.querySelectorAll('#days-container input').forEach(chk => {
                     chk.checked = data.dias_func.includes(parseInt(chk.value));
                 });
@@ -273,7 +286,8 @@
                 banner: document.getElementById('conf-banner').value,
                 cor: document.getElementById('conf-cor').value,
                 cor_bg: document.getElementById('conf-cor-bg').value,
-                cor_header: document.getElementById('conf-cor-header').value
+                cor_header: document.getElementById('conf-cor-header').value,
+                cor_text: document.getElementById('conf-cor-text').value
             };
             await updateDoc(doc(db, "lojas", userUid), update);
             updateLink(update.slug);
@@ -307,7 +321,6 @@
             data.produtos.push(prod);
             await updateDoc(doc(db, "lojas", userUid), { produtos: data.produtos });
             
-            // Limpa form
             document.getElementById('prod-nome').value = "";
             document.getElementById('prod-preco').value = "";
             document.getElementById('prod-img').value = "";
@@ -364,7 +377,7 @@
         }
         window.limparSlug = (el) => el.value = el.value.toLowerCase().replace(/[^a-z0-9-]/g, '');
         window.logout = () => signOut(auth).then(() => window.location.href = "index.html");
-        function toast(msg, type="success") { Toastify({ text: msg, style: { background: type==="success"?"#00e676":"#ff1744", color:"#000" } }).showToast(); }
+        function toast(msg, type="success") { Toastify({ text: msg, style: { background: type==="success"?"#00e676":"#ff1744" } }).showToast(); }
     </script>
 </body>
 </html>
