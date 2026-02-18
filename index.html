@@ -3,149 +3,116 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Carregando...</title>
+    <title>EatsMenu - Crie seu Cardápio Digital Grátis</title>
+    <meta name="description" content="Sistema de cardápio digital e pedidos via WhatsApp. Sem taxas, sem maquininha.">
+    
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css">
     
     <style>
-        :root { --primary: #00e676; --bg: #121212; --surface: #1e1e1e; --text: #fff; --border: #333; }
-        body.light-mode { --bg: #f4f4f4; --surface: #fff; --text: #1a1a1a; --border: #ddd; }
+        :root { --primary: #00e676; --bg: #050505; --text: #fff; --border: #333; }
+        body { margin: 0; font-family: 'Outfit', sans-serif; background: var(--bg); color: var(--text); overflow-x: hidden; }
         
-        * { margin:0; padding:0; box-sizing:border-box; font-family:'Poppins',sans-serif; outline:none; -webkit-tap-highlight-color:transparent; }
-        body { background:var(--bg); color:var(--text); padding-bottom:80px; transition:background 0.3s; }
-        .hidden { display:none!important; }
-
-        #loading { position:fixed; inset:0; background:#000; z-index:999; display:flex; align-items:center; justify-content:center; }
-
-        /* Header */
-        .header { background:var(--surface); padding-bottom:20px; border-radius:0 0 30px 30px; border-bottom:2px solid var(--primary); position:relative; }
-        .banner { height:160px; background-size:cover; background-position:center; position:relative; }
-        .banner::after { content:''; position:absolute; inset:0; background:linear-gradient(to bottom, transparent, rgba(0,0,0,0.8)); }
-        .info { text-align:center; margin-top:-60px; position:relative; z-index:2; padding:0 20px; }
-        .logo { width:110px; height:110px; border-radius:50%; border:4px solid var(--surface); background:#000; object-fit:cover; }
-        .status { display:inline-block; padding:5px 15px; border-radius:20px; border:1px solid var(--primary); color:var(--primary); font-weight:bold; font-size:0.8rem; margin-top:10px; }
-        .status.closed { border-color:red; color:red; }
-
-        /* Theme Toggle */
-        .theme-btn { position:absolute; top:20px; right:20px; width:40px; height:40px; background:rgba(0,0,0,0.6); border-radius:50%; display:flex; align-items:center; justify-content:center; color:#fff; cursor:pointer; z-index:10; }
-
-        /* Categories */
-        .cat-bar { position:sticky; top:0; z-index:90; background:var(--bg); padding:15px 20px; display:flex; gap:10px; overflow-x:auto; border-bottom:1px solid var(--border); backdrop-filter:blur(10px); }
-        .cat-item { padding:8px 20px; border-radius:50px; background:var(--surface); border:1px solid var(--border); white-space:nowrap; cursor:pointer; transition:0.3s; }
-        .cat-item.active { background:var(--primary); color:#000; border-color:var(--primary); font-weight:bold; }
-
-        /* Products */
-        .container { max-width:600px; margin:0 auto; padding:20px; }
-        .sec-title { font-size:1.4rem; font-weight:800; margin:30px 0 15px; border-left:5px solid var(--primary); padding-left:10px; }
-        .card { background:var(--surface); padding:15px; border-radius:15px; margin-bottom:15px; display:flex; gap:15px; border:1px solid var(--border); cursor:pointer; }
-        .card-info { flex:1; }
-        .card-img { width:90px; height:90px; border-radius:12px; background-size:cover; background-position:center; background-color:#333; }
-
+        .navbar { padding: 20px 5%; display: flex; justify-content: space-between; align-items: center; position: fixed; width: 100%; top: 0; background: rgba(0,0,0,0.8); backdrop-filter: blur(10px); z-index: 100; border-bottom: 1px solid rgba(255,255,255,0.05); }
+        .logo { font-size: 1.5rem; font-weight: 800; color: #fff; text-transform: uppercase; }
+        .logo span { color: var(--primary); }
+        
+        .hero { padding: 180px 20px 100px; text-align: center; min-height: 100vh; background: radial-gradient(circle at top, rgba(0,230,118,0.1), #000 70%); }
+        .hero h1 { font-size: 3.5rem; margin-bottom: 20px; line-height: 1.1; }
+        .hero h1 span { color: var(--primary); }
+        .hero p { color: #aaa; max-width: 600px; margin: 0 auto 40px; font-size: 1.2rem; }
+        
+        .btn-cta { background: var(--primary); color: #000; padding: 15px 40px; border-radius: 50px; font-weight: 800; border: none; cursor: pointer; font-size: 1.1rem; box-shadow: 0 0 20px rgba(0,230,118,0.4); transition: 0.3s; }
+        .btn-cta:hover { transform: scale(1.05); box-shadow: 0 0 40px rgba(0,230,118,0.6); }
+        
+        .features { padding: 80px 5%; background: #080808; }
+        .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 30px; max-width: 1200px; margin: 0 auto; }
+        .card { background: #121212; padding: 40px; border-radius: 20px; border: 1px solid #222; text-align: left; }
+        .card i { font-size: 2rem; color: var(--primary); margin-bottom: 20px; }
+        .card h3 { font-size: 1.5rem; margin-bottom: 10px; }
+        
         /* Modal */
-        .modal { position:fixed; inset:0; background:rgba(0,0,0,0.9); z-index:100; display:none; align-items:flex-end; justify-content:center; }
-        .modal.open { display:flex; animation:slideUp 0.3s; }
-        @keyframes slideUp { from{transform:translateY(100%)} to{transform:translateY(0)} }
-        .modal-body { background:var(--surface); width:100%; max-width:600px; border-radius:25px 25px 0 0; padding:25px; max-height:90vh; overflow-y:auto; border-top:2px solid var(--primary); }
-
-        /* Floating Cart */
-        .cart-float { position:fixed; bottom:20px; left:20px; right:20px; max-width:500px; margin:0 auto; background:#111; color:var(--primary); border:2px solid var(--primary); padding:15px 25px; border-radius:50px; display:none; justify-content:space-between; align-items:center; font-weight:800; cursor:pointer; box-shadow:0 5px 20px rgba(0,230,118,0.3); z-index:95; }
-
-        .add-item { display:flex; justify-content:space-between; padding:10px; border-bottom:1px dashed var(--border); align-items:center; }
-        .form-input { width:100%; padding:12px; background:var(--bg); border:1px solid var(--border); color:var(--text); border-radius:8px; margin-bottom:10px; }
+        .modal { position: fixed; inset: 0; background: rgba(0,0,0,0.9); z-index: 200; display: none; align-items: center; justify-content: center; }
+        .auth-box { background: #111; padding: 40px; border-radius: 20px; width: 100%; max-width: 400px; border: 1px solid #333; position: relative; }
+        .input-field { width: 100%; padding: 15px; margin-bottom: 15px; background: #000; border: 1px solid #333; color: #fff; border-radius: 10px; }
+        .slug-group { display: flex; align-items: center; background: #000; border: 1px solid #333; border-radius: 10px; margin-bottom: 15px; }
+        .slug-group input { border: none; background: transparent; text-align: right; margin: 0; }
+        .slug-group span { padding: 0 15px; color: #666; }
+        
+        .hidden { display: none; }
+        #loading-screen { position: fixed; inset: 0; background: #000; z-index: 9999; display: flex; align-items: center; justify-content: center; }
     </style>
 </head>
 <body>
 
-    <div id="loading"><h3 style="color:#fff">Carregando...</h3></div>
+    <div id="loading-screen"><i class="fas fa-circle-notch fa-spin" style="font-size: 2rem; color: var(--primary);"></i></div>
 
-    <div class="header">
-        <div class="theme-btn" onclick="toggleTheme()"><i class="fas fa-adjust"></i></div>
-        <div class="banner" id="banner"></div>
-        <div class="info">
-            <img src="" class="logo" id="logo">
-            <h1 style="margin:10px 0 5px" id="nome">...</h1>
-            <div id="status" class="status">ABERTO AGORA</div>
+    <nav class="navbar">
+        <div class="logo">EATS<span>MENU</span></div>
+        <div>
+            <button onclick="openAuth('login')" style="background:transparent; border:1px solid #fff; color:#fff; padding:8px 25px; border-radius:50px; cursor:pointer; margin-right:10px;">Entrar</button>
+            <button onclick="openAuth('cadastro')" class="btn-cta" style="padding:8px 25px; font-size:0.9rem;">Criar Conta</button>
         </div>
-        <div style="padding:0 20px; margin-top:15px;">
-            <input type="text" class="form-input" placeholder="O que você procura?" onkeyup="filtrar(this.value)">
-        </div>
+    </nav>
+
+    <div class="hero">
+        <h1>Seu Delivery <br><span>Profissional e Automático</span></h1>
+        <p>Transforme seu WhatsApp em uma máquina de vendas. Cardápio digital completo, gestão de entregas e pagamentos. Tudo grátis.</p>
+        <button class="btn-cta" onclick="openAuth('cadastro')">CRIAR MINHA LOJA AGORA</button>
     </div>
 
-    <div class="cat-bar" id="cat-list"></div>
-    <div class="container" id="prod-list"></div>
-
-    <div class="cart-float" id="cart-btn" onclick="openCart()">
-        <span><i class="fas fa-shopping-bag"></i> <span id="cart-qtd">0</span></span>
-        <span id="cart-total">R$ 0,00</span>
-    </div>
-
-    <div class="modal" id="modal-prod">
-        <div class="modal-body">
-            <div style="display:flex; justify-content:space-between;">
-                <h2 id="md-title">...</h2>
-                <span onclick="closeModal('modal-prod')" style="font-size:1.5rem; cursor:pointer">×</span>
+    <section class="features">
+        <div class="grid">
+            <div class="card">
+                <i class="fas fa-rocket"></i>
+                <h3>Rápido e Fácil</h3>
+                <p>Crie sua conta e monte seu cardápio em menos de 5 minutos.</p>
             </div>
-            <p id="md-desc" style="color:var(--text-sec); margin:10px 0;">...</p>
-            <h3 id="md-price" style="color:var(--primary); margin-bottom:20px;">R$ 0,00</h3>
-
-            <div id="md-adds-area" style="display:none; margin-bottom:20px;">
-                <label style="font-weight:bold; color:var(--primary)">Adicionais:</label>
-                <div id="md-adds-list"></div>
+            <div class="card">
+                <i class="fab fa-whatsapp"></i>
+                <h3>Pedidos no Zap</h3>
+                <p>Receba pedidos organizados com endereço e total calculado.</p>
             </div>
-
-            <textarea id="md-obs" class="form-input" rows="2" placeholder="Observações (Ex: Sem cebola)"></textarea>
-
-            <div style="display:flex; gap:10px; align-items:center;">
-                <button onclick="mudaQtd(-1)" style="padding:10px 15px;">-</button>
-                <span id="md-qtd" style="font-weight:bold">1</span>
-                <button onclick="mudaQtd(1)" style="padding:10px 15px;">+</button>
-                <button onclick="addCart()" style="flex:1; background:var(--primary); border:none; padding:15px; border-radius:10px; font-weight:800; cursor:pointer;">ADICIONAR</button>
+            <div class="card">
+                <i class="fas fa-qrcode"></i>
+                <h3>QR Code e Link</h3>
+                <p>Compartilhe seu link exclusivo ou coloque QR Codes nas mesas.</p>
             </div>
         </div>
-    </div>
+    </section>
 
-    <div class="modal" id="modal-cart">
-        <div class="modal-body">
-            <h2>Seu Pedido</h2>
-            <div id="cart-items" style="margin:20px 0; border-bottom:1px dashed var(--border); padding-bottom:20px;"></div>
+    <div class="modal" id="auth-modal">
+        <div class="auth-box">
+            <span onclick="document.getElementById('auth-modal').style.display='none'" style="position:absolute; top:15px; right:20px; cursor:pointer; font-size:1.5rem;">×</span>
+            <h2 id="auth-title" style="margin-bottom:20px; text-align:center;">Criar Loja</h2>
             
-            <label>Entrega:</label>
-            <select id="cli-tipo" class="form-input" onchange="calcTotal()">
-                <option value="retirada">Retirada no Balcão</option>
-                <option value="entrega">Entrega</option>
-            </select>
-
-            <div id="area-entrega" class="hidden">
-                <label>Bairro:</label>
-                <select id="cli-bairro" class="form-input" onchange="calcTotal()"><option value="-1">Selecione...</option></select>
-                <button onclick="gps()" style="width:100%; padding:10px; background:#2196F3; color:#fff; border:none; border-radius:8px; margin-bottom:10px;"><i class="fas fa-map-marker-alt"></i> Usar GPS</button>
-                <input id="cli-rua" class="form-input" placeholder="Rua e Número">
+            <div id="form-cadastro">
+                <input class="input-field" id="cad-nome" placeholder="Nome do Estabelecimento">
+                <div class="slug-group">
+                    <input class="input-field" id="cad-slug" placeholder="seulink" onkeyup="this.value=this.value.toLowerCase().replace(/[^a-z0-9-]/g,'')">
+                    <span>.eatsmenu.com.br</span>
+                </div>
+                <input class="input-field" id="cad-email" placeholder="E-mail">
+                <input class="input-field" id="cad-pass" type="password" placeholder="Senha">
+                <button class="btn-cta" style="width:100%" onclick="fCadastro()">CRIAR CONTA</button>
+                <p style="text-align:center; margin-top:15px; color:#aaa; cursor:pointer;" onclick="toggleAuth('login')">Já tenho conta</p>
             </div>
 
-            <input id="cli-nome" class="form-input" placeholder="Seu Nome">
-            <label>Pagamento:</label>
-            <select id="cli-pag" class="form-input" onchange="checkPag()">
-                <option>Pix</option><option>Cartão</option><option>Dinheiro</option>
-            </select>
-            
-            <div id="area-troco" class="hidden"><input id="cli-troco" class="form-input" placeholder="Troco para quanto?"></div>
-            <div id="area-pix" class="hidden" style="padding:10px; background:rgba(0,230,118,0.1); border-radius:10px; margin-bottom:10px;">
-                <small>Chave PIX:</small><br><strong id="pix-key">...</strong>
+            <div id="form-login" class="hidden">
+                <input class="input-field" id="log-email" placeholder="E-mail">
+                <input class="input-field" id="log-pass" type="password" placeholder="Senha">
+                <button class="btn-cta" style="width:100%" onclick="fLogin()">ENTRAR</button>
+                <p style="text-align:center; margin-top:15px; color:#aaa; cursor:pointer;" onclick="toggleAuth('cadastro')">Criar conta</p>
             </div>
-
-            <div style="display:flex; justify-content:space-between; font-size:1.3rem; font-weight:800; margin:20px 0; border-top:1px dashed var(--border); padding-top:15px;">
-                <span>Total:</span><span id="final-total" style="color:var(--primary)">R$ 0,00</span>
-            </div>
-
-            <button onclick="sendZap()" style="width:100%; background:#25D366; border:none; padding:15px; border-radius:10px; font-weight:800; color:#fff; cursor:pointer;"><i class="fab fa-whatsapp"></i> ENVIAR PEDIDO</button>
         </div>
     </div>
 
     <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js";
-        import { getFirestore, collection, query, where, getDocs } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js";
+        import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-auth.js";
+        import { getFirestore, doc, setDoc } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyBIvmoayNis2C2xLFQtpRzzrc4dWxGvotU",
@@ -157,198 +124,75 @@
         };
 
         const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
         const db = getFirestore(app);
-        
-        let loja = null, cart = [], curr = null, qtd = 1, gpsLoc = "";
 
-        // Inicializa
-        (async function init() {
-            const params = new URLSearchParams(window.location.search);
-            const slug = params.get('loja');
-            if(!slug) return alert("Loja não especificada");
-
-            const q = query(collection(db, "lojas"), where("slug", "==", slug));
-            const snap = await getDocs(q);
+        // --- ROTEADOR INTELIGENTE (CORRIGIDO) ---
+        (function router() {
+            const host = window.location.hostname;
             
-            if(!snap.empty) {
-                loja = snap.docs[0].data();
-                renderLoja();
-                document.getElementById('loading').style.display='none';
+            // LISTA DE DOMÍNIOS QUE *DEVEM* FICAR NA HOME (Marketing)
+            // Se for um desses, para o loading e não faz nada.
+            if (host === 'eatsmenu.com.br' || 
+                host === 'www.eatsmenu.com.br' || 
+                host.includes('localhost') || 
+                host.includes('vercel.app')) {
+                
+                document.getElementById('loading-screen').style.display = 'none';
+                return; // FIM DO SCRIPT: Fica na Home
+            } 
+            
+            // SE NÃO FOR A HOME, ENTÃO É SUBDOMÍNIO (LOJA)
+            const parts = host.split('.');
+            // Exemplo: pizzaria.eatsmenu.com.br (4 partes)
+            // Só redireciona se tiver 4 partes ou mais, o que garante que tem subdomínio
+            if (parts.length > 3) { 
+                const slug = parts[0];
+                if (!['admin', 'painel', 'app', 'login'].includes(slug)) {
+                    // Redireciona para o cardápio
+                    window.location.replace(`cardapio.html?loja=${slug}`);
+                }
             } else {
-                document.body.innerHTML = "<h1 style='color:white;text-align:center;margin-top:50px'>Loja não encontrada</h1>";
+                // Caso raro onde pode ter passado, garante home
+                document.getElementById('loading-screen').style.display = 'none';
             }
         })();
 
-        function renderLoja() {
-            document.title = loja.nome;
-            if(loja.cor) document.documentElement.style.setProperty('--primary', loja.cor);
-            
-            document.getElementById('nome').innerText = loja.nome;
-            if(loja.logo) document.getElementById('logo').src = loja.logo;
-            if(loja.banner) document.getElementById('banner').style.backgroundImage = `url('${loja.banner}')`;
-            if(loja.pix_key) document.getElementById('pix-key').innerText = loja.pix_key;
-
-            checkOpen();
-            
-            const cats = [...new Set((loja.produtos||[]).map(p=>p.cat))];
-            document.getElementById('cat-list').innerHTML = cats.map(c => `<div class="cat-item" onclick="scrollToCat('${c}')">${c}</div>`).join('');
-            
-            renderProds(loja.produtos);
-
-            const sel = document.getElementById('cli-bairro');
-            (loja.bairros||[]).forEach((b,i) => sel.innerHTML += `<option value="${i}">${b.nome} (+R$${b.taxa})</option>`);
+        window.openAuth = (t) => { document.getElementById('auth-modal').style.display='flex'; toggleAuth(t); }
+        
+        window.toggleAuth = (t) => {
+            document.getElementById('form-login').classList.toggle('hidden', t !== 'login');
+            document.getElementById('form-cadastro').classList.toggle('hidden', t !== 'cadastro');
+            document.getElementById('auth-title').innerText = t==='login'?'Acessar Painel':'Criar Loja';
         }
 
-        window.renderProds = (lista) => {
-            const div = document.getElementById('prod-list');
-            div.innerHTML = "";
-            const cats = [...new Set(lista.map(p=>p.cat))];
-            cats.forEach(c => {
-                div.innerHTML += `<div id="cat-${c}" class="sec-title">${c}</div>`;
-                lista.filter(p=>p.cat===c).forEach(p => {
-                    const data = encodeURIComponent(JSON.stringify(p));
-                    div.innerHTML += `
-                    <div class="card" onclick="openProd('${data}')">
-                        <div class="card-info">
-                            <strong>${p.nome}</strong>
-                            <p style="font-size:0.8rem; color:var(--text-sec)">${p.desc||''}</p>
-                            <div style="color:var(--primary); font-weight:bold">R$ ${p.preco.toFixed(2)}</div>
-                        </div>
-                        <div class="card-img" style="background-image:url('${p.img}')"></div>
-                    </div>`;
+        window.fCadastro = () => {
+            const nome = document.getElementById('cad-nome').value;
+            const slug = document.getElementById('cad-slug').value.toLowerCase().replace(/[^a-z0-9-]/g, '');
+            const email = document.getElementById('cad-email').value;
+            const pass = document.getElementById('cad-pass').value;
+            
+            if(!nome||!slug||!email||!pass) return notify("Preencha tudo", "error");
+
+            createUserWithEmailAndPassword(auth, email, pass).then(async(c)=>{
+                await setDoc(doc(db,"lojas",c.user.uid), { 
+                    nome, slug, email, produtos:[], bairros:[], cor:"#00e676", 
+                    hora_abre:"18:00", hora_fecha:"23:00", data_criacao: new Date()
                 });
-            });
+                notify("Loja criada com sucesso!");
+                setTimeout(() => window.location.href="admin.html", 1500);
+            }).catch(e=>notify(e.message, "error"));
         }
 
-        window.openProd = (data) => {
-            curr = JSON.parse(decodeURIComponent(data));
-            qtd = 1;
-            document.getElementById('md-title').innerText = curr.nome;
-            document.getElementById('md-desc').innerText = curr.desc||'';
-            document.getElementById('md-price').innerText = `R$ ${curr.preco.toFixed(2)}`;
-            document.getElementById('md-qtd').innerText = 1;
-            document.getElementById('md-obs').value = '';
-            
-            const list = document.getElementById('md-adds-list');
-            list.innerHTML = "";
-            if(curr.adds) {
-                document.getElementById('md-adds-area').style.display='block';
-                curr.adds.split(',').forEach(a => {
-                    const [n, p] = a.split(':');
-                    if(n&&p) list.innerHTML += `<div class="add-item"><label>${n}</label><div>+R$${p} <input type="checkbox" class="add-chk" value="${p}" data-name="${n}"></div></div>`;
-                });
-            } else {
-                document.getElementById('md-adds-area').style.display='none';
-            }
-            document.getElementById('modal-prod').classList.add('open');
+        window.fLogin = () => {
+            const email = document.getElementById('log-email').value;
+            const pass = document.getElementById('log-pass').value;
+            signInWithEmailAndPassword(auth, email, pass).then(()=>window.location.href="admin.html").catch(e=>notify("Erro no login", "error"));
         }
 
-        window.addCart = () => {
-            let addTotal = 0, addNames = [];
-            document.querySelectorAll('.add-chk:checked').forEach(c => {
-                addTotal += parseFloat(c.value);
-                addNames.push(c.getAttribute('data-name'));
-            });
-            cart.push({ ...curr, qtd, obs:document.getElementById('md-obs').value, addNames, totalItem: (curr.preco+addTotal)*qtd });
-            closeModal('modal-prod');
-            updateCart();
-            Toastify({text:"Adicionado!", style:{background:"var(--primary)", color:"#000"}}).showToast();
+        function notify(msg, type="success") {
+            Toastify({ text: msg, style: { background: type==="success"?"#00e676":"#ff1744", color:"#000", fontWeight:"bold" } }).showToast();
         }
-
-        function updateCart() {
-            const count = cart.reduce((a,b)=>a+b.qtd,0);
-            const total = cart.reduce((a,b)=>a+b.totalItem,0);
-            if(count>0) {
-                document.getElementById('cart-btn').style.display='flex';
-                document.getElementById('cart-qtd').innerText = count;
-                document.getElementById('cart-total').innerText = `R$ ${total.toFixed(2)}`;
-            } else document.getElementById('cart-btn').style.display='none';
-        }
-
-        window.openCart = () => {
-            const list = document.getElementById('cart-items');
-            list.innerHTML = "";
-            cart.forEach((i, idx) => {
-                list.innerHTML += `<div style="display:flex; justify-content:space-between; margin-bottom:10px;"><div><b>${i.qtd}x ${i.nome}</b><br><small>${i.addNames.join(', ')}</small></div><div>R$ ${i.totalItem.toFixed(2)} <span style="color:red;cursor:pointer" onclick="rmCart(${idx})">X</span></div></div>`;
-            });
-            calcTotal();
-            document.getElementById('modal-cart').classList.add('open');
-        }
-
-        window.calcTotal = () => {
-            const sub = cart.reduce((a,b)=>a+b.totalItem,0);
-            let taxa = 0;
-            if(document.getElementById('cli-tipo').value === 'entrega') {
-                document.getElementById('area-entrega').classList.remove('hidden');
-                const idx = document.getElementById('cli-bairro').value;
-                if(idx!=-1) taxa = loja.bairros[idx].taxa;
-            } else document.getElementById('area-entrega').classList.add('hidden');
-            
-            document.getElementById('final-total').innerText = `R$ ${(sub+taxa).toFixed(2)}`;
-            return {sub, taxa, total: sub+taxa};
-        }
-
-        window.sendZap = () => {
-            const nome = document.getElementById('cli-nome').value;
-            const vals = calcTotal();
-            if(!nome) return alert("Digite seu nome");
-
-            let msg = `*PEDIDO - ${loja.nome}* 🚀\n\n*Cliente:* ${nome}\n*Tipo:* ${document.getElementById('cli-tipo').value}\n`;
-            
-            if(document.getElementById('cli-tipo').value === 'entrega') {
-                const bIdx = document.getElementById('cli-bairro').value;
-                const bairro = bIdx!=-1 ? loja.bairros[bIdx].nome : "";
-                msg += `*Endereço:* ${document.getElementById('cli-rua').value} - ${bairro}\n`;
-                if(gpsLoc) msg += `*GPS:* ${gpsLoc}\n`;
-            }
-
-            msg += `\n*ITENS:*\n`;
-            cart.forEach(i => {
-                msg += `${i.qtd}x ${i.nome} - R$ ${i.totalItem.toFixed(2)}\n`;
-                if(i.addNames.length) msg += `  + ${i.addNames.join(', ')}\n`;
-                if(i.obs) msg += `  Obs: ${i.obs}\n`;
-            });
-
-            msg += `\nSubtotal: R$ ${vals.sub.toFixed(2)}`;
-            if(vals.taxa>0) msg += `\nTaxa: R$ ${vals.taxa.toFixed(2)}`;
-            msg += `\n*TOTAL: R$ ${vals.total.toFixed(2)}*`;
-            
-            const pag = document.getElementById('cli-pag').value;
-            msg += `\n*Pagamento:* ${pag}`;
-            if(pag==='Dinheiro') msg += ` (Troco para: ${document.getElementById('cli-troco').value})`;
-
-            window.open(`https://wa.me/${loja.whatsapp}?text=${encodeURIComponent(msg)}`, '_blank');
-        }
-
-        window.checkPag = () => {
-            const p = document.getElementById('cli-pag').value;
-            document.getElementById('area-pix').style.display = p==='Pix'?'block':'none';
-            document.getElementById('area-troco').style.display = p==='Dinheiro'?'block':'none';
-        }
-
-        window.gps = () => navigator.geolocation.getCurrentPosition(p => {
-            gpsLoc = `https://maps.google.com/?q=${p.coords.latitude},${p.coords.longitude}`;
-            Toastify({text:"Localização salva!"}).showToast();
-        });
-
-        function checkOpen() {
-            const now = new Date();
-            const h = now.getHours() + ':' + String(now.getMinutes()).padStart(2,'0');
-            const st = document.getElementById('status');
-            if(h >= (loja.hora_abre||"00:00") && h <= (loja.hora_fecha||"23:59")) {
-                st.innerText = "ABERTO";
-            } else {
-                st.innerText = "FECHADO"; st.classList.add('closed');
-                document.getElementById('prod-list').style.opacity = "0.5";
-            }
-        }
-
-        window.rmCart = (i) => { cart.splice(i,1); window.openCart(); updateCart(); }
-        window.mudaQtd = (v) => { if(qtd+v>=1) qtd+=v; document.getElementById('md-qtd').innerText = qtd; }
-        window.closeModal = (id) => document.getElementById(id).classList.remove('open');
-        window.filtrar = (v) => renderProds(loja.produtos.filter(p=>p.nome.toLowerCase().includes(v.toLowerCase())));
-        window.scrollToCat = (c) => document.getElementById('cat-'+c).scrollIntoView({behavior:'smooth', block:'center'});
-        window.toggleTheme = () => document.body.classList.toggle('light-mode');
     </script>
 </body>
 </html>
