@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Carregando...</title>
+    <title>Carregando Cardápio...</title>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css">
@@ -13,7 +13,7 @@
         body.light-mode { --bg: #f4f4f4; --surface: #fff; --text: #1a1a1a; --border: #ddd; }
         
         * { margin:0; padding:0; box-sizing:border-box; font-family:'Poppins',sans-serif; outline:none; -webkit-tap-highlight-color:transparent; }
-        body { background:var(--bg); color:var(--text); padding-bottom:80px; transition:background 0.3s; }
+        body { background:var(--bg); color:var(--text); padding-bottom:100px; transition:background 0.3s; }
         .hidden { display:none!important; }
 
         #loading { position:fixed; inset:0; background:#000; z-index:999; display:flex; align-items:center; justify-content:center; }
@@ -27,7 +27,6 @@
         .status { display:inline-block; padding:5px 15px; border-radius:20px; border:1px solid var(--primary); color:var(--primary); font-weight:bold; font-size:0.8rem; margin-top:10px; }
         .status.closed { border-color:red; color:red; }
 
-        /* Theme Toggle */
         .theme-btn { position:absolute; top:20px; right:20px; width:40px; height:40px; background:rgba(0,0,0,0.6); border-radius:50%; display:flex; align-items:center; justify-content:center; color:#fff; cursor:pointer; z-index:10; }
 
         /* Categories */
@@ -38,7 +37,7 @@
         /* Products */
         .container { max-width:600px; margin:0 auto; padding:20px; }
         .sec-title { font-size:1.4rem; font-weight:800; margin:30px 0 15px; border-left:5px solid var(--primary); padding-left:10px; }
-        .card { background:var(--surface); padding:15px; border-radius:15px; margin-bottom:15px; display:flex; gap:15px; border:1px solid var(--border); cursor:pointer; }
+        .card { background:var(--surface); padding:15px; border-radius:15px; margin-bottom:15px; display:flex; gap:15px; border:1px solid var(--border); cursor:pointer; position: relative; overflow: hidden;}
         .card-info { flex:1; }
         .card-img { width:90px; height:90px; border-radius:12px; background-size:cover; background-position:center; background-color:#333; }
 
@@ -48,9 +47,8 @@
         @keyframes slideUp { from{transform:translateY(100%)} to{transform:translateY(0)} }
         .modal-body { background:var(--surface); width:100%; max-width:600px; border-radius:25px 25px 0 0; padding:25px; max-height:90vh; overflow-y:auto; border-top:2px solid var(--primary); }
 
-        /* Floating Cart */
+        /* Cart & Form */
         .cart-float { position:fixed; bottom:20px; left:20px; right:20px; max-width:500px; margin:0 auto; background:#111; color:var(--primary); border:2px solid var(--primary); padding:15px 25px; border-radius:50px; display:none; justify-content:space-between; align-items:center; font-weight:800; cursor:pointer; box-shadow:0 5px 20px rgba(0,230,118,0.3); z-index:95; }
-
         .add-item { display:flex; justify-content:space-between; padding:10px; border-bottom:1px dashed var(--border); align-items:center; }
         .form-input { width:100%; padding:12px; background:var(--bg); border:1px solid var(--border); color:var(--text); border-radius:8px; margin-bottom:10px; }
     </style>
@@ -132,6 +130,7 @@
             <div id="area-troco" class="hidden"><input id="cli-troco" class="form-input" placeholder="Troco para quanto?"></div>
             <div id="area-pix" class="hidden" style="padding:10px; background:rgba(0,230,118,0.1); border-radius:10px; margin-bottom:10px;">
                 <small>Chave PIX:</small><br><strong id="pix-key">...</strong>
+                <br><small id="pix-name"></small>
             </div>
 
             <div style="display:flex; justify-content:space-between; font-size:1.3rem; font-weight:800; margin:20px 0; border-top:1px dashed var(--border); padding-top:15px;">
@@ -186,7 +185,10 @@
             document.getElementById('nome').innerText = loja.nome;
             if(loja.logo) document.getElementById('logo').src = loja.logo;
             if(loja.banner) document.getElementById('banner').style.backgroundImage = `url('${loja.banner}')`;
-            if(loja.pix_key) document.getElementById('pix-key').innerText = loja.pix_key;
+            if(loja.pix_key) {
+                document.getElementById('pix-key').innerText = loja.pix_key;
+                document.getElementById('pix-name').innerText = loja.pix_name || "";
+            }
 
             checkOpen();
             
@@ -207,6 +209,8 @@
                 div.innerHTML += `<div id="cat-${c}" class="sec-title">${c}</div>`;
                 lista.filter(p=>p.cat===c).forEach(p => {
                     const data = encodeURIComponent(JSON.stringify(p));
+                    const imgTag = p.img ? `<div class="card-img" style="background-image:url('${p.img}')"></div>` : `<div class="card-img" style="background:#333"></div>`;
+                    
                     div.innerHTML += `
                     <div class="card" onclick="openProd('${data}')">
                         <div class="card-info">
@@ -214,7 +218,7 @@
                             <p style="font-size:0.8rem; color:var(--text-sec)">${p.desc||''}</p>
                             <div style="color:var(--primary); font-weight:bold">R$ ${p.preco.toFixed(2)}</div>
                         </div>
-                        <div class="card-img" style="background-image:url('${p.img}')"></div>
+                        ${imgTag}
                     </div>`;
                 });
             });
@@ -234,8 +238,12 @@
             if(curr.adds) {
                 document.getElementById('md-adds-area').style.display='block';
                 curr.adds.split(',').forEach(a => {
-                    const [n, p] = a.split(':');
-                    if(n&&p) list.innerHTML += `<div class="add-item"><label>${n}</label><div>+R$${p} <input type="checkbox" class="add-chk" value="${p}" data-name="${n}"></div></div>`;
+                    const parts = a.split(':');
+                    if(parts.length === 2) {
+                        const n = parts[0].trim();
+                        const p = parseFloat(parts[1]);
+                        list.innerHTML += `<div class="add-item"><label>${n}</label><div>+R$${p.toFixed(2)} <input type="checkbox" class="add-chk" value="${p}" data-name="${n}"></div></div>`;
+                    }
                 });
             } else {
                 document.getElementById('md-adds-area').style.display='none';
@@ -316,6 +324,11 @@
             const pag = document.getElementById('cli-pag').value;
             msg += `\n*Pagamento:* ${pag}`;
             if(pag==='Dinheiro') msg += ` (Troco para: ${document.getElementById('cli-troco').value})`;
+
+            // ADICIONA DADOS DA IMPRESSORA SE EXISTIREM
+            if(loja.print_pc && loja.print_name) {
+                msg += `\n\n--- IMPRESSÃO ---\nPC: ${loja.print_pc}\nPRINTER: ${loja.print_name}`;
+            }
 
             window.open(`https://wa.me/${loja.whatsapp}?text=${encodeURIComponent(msg)}`, '_blank');
         }
