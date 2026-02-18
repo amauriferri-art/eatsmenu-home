@@ -21,17 +21,11 @@
         input[type="text"], input[type="number"], select, textarea { width: 100%; background: #080808; border: 1px solid var(--border); color: #fff; padding: 12px; border-radius: 10px; transition: 0.3s; }
         input:focus { border-color: var(--primary); }
         
-        /* Checkboxes dias */
+        /* Checkboxes Dias */
         .days-wrapper { display: flex; gap: 10px; flex-wrap: wrap; background: #080808; padding: 15px; border-radius: 10px; border: 1px solid var(--border); }
         .day-option { display: flex; align-items: center; gap: 8px; cursor: pointer; color: #fff; font-weight: 600; background: #222; padding: 8px 15px; border-radius: 20px; border: 1px solid #333; transition: 0.2s; }
         .day-option:has(input:checked) { background: rgba(0, 230, 118, 0.2); border-color: var(--primary); color: var(--primary); }
         .day-option input { display: none; } 
-
-        /* Cores */
-        .color-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 15px; }
-        .color-box { background: #222; padding: 10px; border-radius: 10px; text-align: center; border: 1px solid #333; }
-        .color-box label { font-size: 0.85rem; margin-bottom: 5px; display: block; }
-        input[type="color"] { width: 100%; height: 40px; border: none; padding: 0; background: none; cursor: pointer; }
 
         .btn { background: var(--primary); color: #000; border: none; padding: 12px 25px; border-radius: 10px; font-weight: 800; cursor: pointer; width: 100%; text-transform: uppercase; transition: 0.2s; }
         .btn:hover { opacity: 0.9; transform: translateY(-2px); }
@@ -67,9 +61,9 @@
         </div>
 
         <div class="tabs">
-            <button class="btn active" onclick="setTab('loja')" id="tab-btn-loja">🏪 Loja & Visual</button>
+            <button class="btn active" onclick="setTab('loja')" id="tab-btn-loja">🏪 Loja</button>
             <button class="btn btn-outline" onclick="setTab('produtos')" id="tab-btn-produtos">🍔 Cardápio</button>
-            <button class="btn btn-outline" onclick="setTab('entregas')" id="tab-btn-entregas">🛵 Entregas & Horários</button>
+            <button class="btn btn-outline" onclick="setTab('entregas')" id="tab-btn-entregas">🛵 Entregas</button>
         </div>
 
         <div id="view-loja">
@@ -84,28 +78,6 @@
             </div>
 
             <div style="background: #1a1a1a; padding: 15px; border-radius: 10px; border: 1px solid #333; margin-bottom: 20px;">
-                <h4 style="color:var(--primary); margin-bottom: 15px;">🎨 Personalização Total</h4>
-                <div class="color-grid">
-                    <div class="color-box">
-                        <label>Botões (Principal)</label>
-                        <input type="color" id="conf-cor" value="#00e676">
-                    </div>
-                    <div class="color-box">
-                        <label>Fundo do Site</label>
-                        <input type="color" id="conf-cor-bg" value="#121212">
-                    </div>
-                    <div class="color-box">
-                        <label>Cartões/Header</label>
-                        <input type="color" id="conf-cor-header" value="#1e1e1e">
-                    </div>
-                    <div class="color-box">
-                        <label>Texto Geral</label>
-                        <input type="color" id="conf-cor-text" value="#ffffff">
-                    </div>
-                </div>
-            </div>
-
-            <div style="background: #1a1a1a; padding: 15px; border-radius: 10px; border: 1px solid #333; margin-bottom: 20px;">
                 <h4 style="color:var(--primary); margin-bottom: 10px;">🖨️ Impressão (NFC/PC)</h4>
                 <div class="input-group"><label>Nome do PC</label><input type="text" id="conf-print-pc" placeholder="Ex: CAIXA-01"></div>
                 <div class="input-group"><label>Nome da Impressora</label><input type="text" id="conf-print-name" placeholder="Ex: MP-4200"></div>
@@ -113,6 +85,14 @@
 
             <div class="input-group"><label>Logo (URL)</label><input type="text" id="conf-logo"></div>
             <div class="input-group"><label>Banner (URL)</label><input type="text" id="conf-banner"></div>
+            
+            <div class="input-group">
+                <label>Cor Principal (Botões e Destaques)</label>
+                <div style="display:flex; align-items:center; gap:10px; background:#080808; padding:10px; border-radius:10px; border:1px solid #333;">
+                    <input type="color" id="conf-cor" style="width:50px; height:40px; border:none; background:none; cursor:pointer;">
+                    <span style="color:#aaa; font-size:0.9rem;">Escolha a cor da sua marca</span>
+                </div>
+            </div>
             
             <button class="btn" onclick="salvarLoja()">Salvar Dados</button>
         </div>
@@ -136,7 +116,7 @@
                 <div class="input-group">
                     <label>Imagem</label>
                     <div class="file-upload">
-                        <div class="file-btn" id="btn-upload-text"><i class="fas fa-camera"></i> Escolher Foto ou Colar URL abaixo</div>
+                        <div class="file-btn" id="btn-upload-text"><i class="fas fa-camera"></i> Escolher Foto ou Colar URL</div>
                         <input type="file" id="prod-file" accept="image/*" onchange="handleFileUpload(this)">
                     </div>
                     <input type="text" id="prod-img" placeholder="Ou cole a URL da imagem aqui" style="margin-top:5px;">
@@ -155,9 +135,9 @@
 
         <div id="view-entregas" style="display:none;">
             <div style="background:var(--surface); padding:20px; border-radius:15px; margin-bottom:20px; border:1px solid #333;">
-                <h4 style="margin-bottom:15px; color:var(--primary)">🕒 Horário e Dias</h4>
+                <h4 style="margin-bottom:15px; color:var(--primary)">🕒 Horário de Funcionamento</h4>
                 
-                <label style="color:#aaa; font-size:0.9rem; margin-bottom:10px; display:block;">Dias de Funcionamento:</label>
+                <label style="color:#aaa; font-size:0.9rem; margin-bottom:10px; display:block;">Marque os dias que a loja abre:</label>
                 <div class="days-wrapper" id="days-container">
                     <label class="day-option"><input type="checkbox" value="0"> Dom</label>
                     <label class="day-option"><input type="checkbox" value="1"> Seg</label>
@@ -172,7 +152,7 @@
                     <div style="flex:1"><label>Abertura (HH:MM)</label><input type="time" id="loja-abre"></div>
                     <div style="flex:1"><label>Fechamento (HH:MM)</label><input type="time" id="loja-fecha"></div>
                 </div>
-                <button class="btn" onclick="salvarHorario()" style="margin-top:10px;">Salvar Configurações de Tempo</button>
+                <button class="btn" onclick="salvarHorario()" style="margin-top:10px;">Salvar Configurações</button>
             </div>
 
             <div style="background:var(--surface); padding:20px; border-radius:15px; margin-bottom:20px; border:1px solid #333;">
@@ -230,21 +210,17 @@
                 if(!data.bairros) data.bairros = [];
                 if(!data.dias_func) data.dias_func = [0,1,2,3,4,5,6];
                 
-                // Preenche campos
                 const campos = ['conf-nome','conf-slug','conf-zap','conf-pix-key','conf-pix-name',
-                                'conf-logo','conf-banner','conf-cor','conf-cor-bg','conf-cor-header','conf-cor-text',
-                                'conf-print-pc','conf-print-name'];
+                                'conf-logo','conf-banner','conf-cor','conf-print-pc','conf-print-name'];
                 
                 campos.forEach(id => {
                     const key = id.replace('conf-','').replace(/-/g,'_');
                     if(document.getElementById(id)) document.getElementById(id).value = data[key] || "";
                 });
                 
-                // Horários
                 document.getElementById('loja-abre').value = data.hora_abre || "18:00";
                 document.getElementById('loja-fecha').value = data.hora_fecha || "23:00";
                 
-                // Dias
                 document.querySelectorAll('#days-container input').forEach(chk => {
                     chk.checked = data.dias_func.includes(parseInt(chk.value));
                 });
@@ -284,10 +260,7 @@
                 print_name: document.getElementById('conf-print-name').value,
                 logo: document.getElementById('conf-logo').value,
                 banner: document.getElementById('conf-banner').value,
-                cor: document.getElementById('conf-cor').value,
-                cor_bg: document.getElementById('conf-cor-bg').value,
-                cor_header: document.getElementById('conf-cor-header').value,
-                cor_text: document.getElementById('conf-cor-text').value
+                cor: document.getElementById('conf-cor').value
             };
             await updateDoc(doc(db, "lojas", userUid), update);
             updateLink(update.slug);
