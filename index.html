@@ -5,145 +5,156 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>EatsMenu - Seu Cardápio Digital Profissional</title>
     
-    <meta name="description" content="Sistema de delivery completo para restaurantes. Cardápio digital, pedidos no WhatsApp e gestão sem taxas. Comece grátis.">
+    <meta name="description" content="Sistema de delivery completo. Cardápio digital, gestão de pedidos e impressão. Profissionalize seu negócio.">
     
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css">
     
     <style>
-        /* === ESTILO GERAL (DARK NEON) === */
+        /* === ESTILO BASE (DARK PREMIUM) === */
         :root {
             --primary: #00e676;
-            --primary-dark: #00b359;
-            --bg-dark: #050505;
+            --primary-glow: rgba(0, 230, 118, 0.4);
+            --bg: #050505;
             --surface: #121212;
-            --text-main: #ffffff;
+            --text: #fff;
             --text-sec: #a0a0a0;
-            --border: #333;
+            --border: #2a2a2a;
         }
 
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Outfit', sans-serif; outline: none; }
-        body { background-color: var(--bg-dark); color: var(--text-main); overflow-x: hidden; }
-        a { text-decoration: none; color: inherit; transition: 0.3s; }
+        html { scroll-behavior: smooth; }
+        body { background-color: var(--bg); color: var(--text); overflow-x: hidden; line-height: 1.6; }
         
         .hidden { display: none !important; }
-
-        /* LOADING */
-        #loading-screen { position: fixed; inset: 0; background: #000; z-index: 9999; display: flex; align-items: center; justify-content: center; flex-direction: column; }
-        .spinner { width: 50px; height: 50px; border: 4px solid #333; border-top: 4px solid var(--primary); border-radius: 50%; animation: spin 1s infinite; }
-        @keyframes spin { to { transform: rotate(360deg); } }
+        .container { max-width: 1200px; margin: 0 auto; padding: 0 20px; }
 
         /* NAVBAR */
         .navbar {
-            padding: 20px 5%; position: fixed; top: 0; width: 100%; z-index: 100;
-            display: flex; justify-content: space-between; align-items: center;
-            background: rgba(5,5,5,0.85); backdrop-filter: blur(10px);
-            border-bottom: 1px solid rgba(255,255,255,0.05);
+            padding: 15px 0; position: fixed; top: 0; width: 100%; z-index: 100;
+            background: rgba(5, 5, 5, 0.9); backdrop-filter: blur(15px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
         }
-        .logo { font-size: 1.5rem; font-weight: 800; text-transform: uppercase; letter-spacing: 1px; color: #fff; }
+        .nav-content { display: flex; justify-content: space-between; align-items: center; }
+        .logo { font-size: 1.5rem; font-weight: 800; letter-spacing: 1px; color: #fff; text-decoration: none; display: flex; align-items: center; gap: 5px; }
         .logo span { color: var(--primary); }
         
-        .nav-links { display: flex; gap: 30px; }
-        .nav-links a { font-size: 0.95rem; font-weight: 500; color: var(--text-sec); }
+        .nav-links { display: none; gap: 25px; align-items: center; } 
+        .nav-links a { color: var(--text-sec); text-decoration: none; font-weight: 600; transition: 0.3s; font-size: 0.9rem; }
         .nav-links a:hover { color: var(--primary); }
 
-        .btn-login { background: transparent; border: 1px solid #fff; color: #fff; padding: 8px 25px; border-radius: 50px; cursor: pointer; font-weight: 600; margin-right: 10px; transition: 0.3s; }
+        .btn-login { background: transparent; border: 1px solid #fff; color: #fff; padding: 8px 20px; border-radius: 50px; cursor: pointer; font-weight: 600; transition: 0.3s; font-size: 0.9rem; text-decoration: none; }
         .btn-login:hover { border-color: var(--primary); color: var(--primary); }
+
+        .btn-support-nav {
+            background: rgba(37, 211, 102, 0.1); color: #25D366; 
+            border: 1px solid #25D366; padding: 8px 20px; border-radius: 50px; 
+            text-decoration: none; font-weight: 700; font-size: 0.9rem; transition: 0.3s;
+            display: flex; align-items: center; gap: 8px;
+        }
+        .btn-support-nav:hover { background: #25D366; color: #000; }
+
+        /* HERO */
+        .hero { 
+            padding: 160px 0 80px; text-align: center; 
+            background: radial-gradient(circle at top, rgba(0,230,118,0.08), #000 70%); 
+        }
+        .hero h1 { font-size: 2.8rem; font-weight: 800; line-height: 1.1; margin-bottom: 20px; }
+        .hero h1 span { color: var(--primary); text-shadow: 0 0 40px rgba(0,230,118,0.2); }
+        .hero p { color: var(--text-sec); font-size: 1.1rem; max-width: 600px; margin: 0 auto 30px; }
         
         .btn-cta { 
-            background: var(--primary); color: #000; padding: 10px 30px; 
-            border-radius: 50px; border: none; font-weight: 800; cursor: pointer; 
-            box-shadow: 0 0 20px rgba(0,230,118,0.3); transition: 0.3s;
+            background: var(--primary); color: #000; padding: 16px 35px; 
+            border-radius: 12px; border: none; font-weight: 800; cursor: pointer; 
+            box-shadow: 0 0 30px rgba(0,230,118,0.3); transition: 0.3s; font-size: 1.1rem;
+            text-transform: uppercase; letter-spacing: 0.5px;
         }
-        .btn-cta:hover { transform: translateY(-3px); box-shadow: 0 0 40px rgba(0,230,118,0.6); }
+        .btn-cta:hover { transform: translateY(-3px); box-shadow: 0 0 50px rgba(0,230,118,0.5); }
 
-        /* HERO SECTION */
-        .hero { 
-            padding: 180px 5% 100px; text-align: center; min-height: 90vh;
-            background: radial-gradient(circle at top, rgba(0,230,118,0.1), #000 70%);
-            display: flex; flex-direction: column; align-items: center;
-        }
-        .tag-promo { background: rgba(0,230,118,0.1); color: var(--primary); padding: 5px 15px; border-radius: 20px; font-size: 0.8rem; font-weight: 700; margin-bottom: 20px; border: 1px solid rgba(0,230,118,0.3); }
-        
-        .hero h1 { font-size: 4rem; line-height: 1.1; margin-bottom: 20px; font-weight: 800; }
-        .hero h1 span { color: var(--primary); text-shadow: 0 0 30px rgba(0,230,118,0.3); }
-        .hero p { font-size: 1.2rem; color: var(--text-sec); max-width: 700px; margin-bottom: 40px; }
-        
-        .hero-btn-main { 
-            padding: 18px 50px; background: var(--primary); color: #000; 
-            border-radius: 12px; font-weight: 800; font-size: 1.2rem; border: none; 
-            cursor: pointer; box-shadow: 0 0 40px rgba(0,230,118,0.4); transition: 0.3s;
-            display: flex; align-items: center; gap: 10px;
-        }
-        .hero-btn-main:hover { transform: scale(1.05); }
-
-        /* PREVIEW MOCKUP */
-        .mockup-container {
-            margin-top: 80px; width: 100%; max-width: 1000px; height: 600px;
-            background: #111; border: 1px solid #333; border-radius: 20px;
-            display: flex; align-items: center; justify-content: center;
-            box-shadow: 0 -20px 80px -20px rgba(0,230,118,0.15);
-            transform: perspective(1000px) rotateX(5deg); transition: 0.5s;
-            overflow: hidden; /* Importante para o iframe não vazar */
-        }
-        .mockup-container:hover { transform: perspective(1000px) rotateX(0deg); border-color: var(--primary); }
-
-        /* STATS */
-        .stats-bar { display: flex; justify-content: center; gap: 60px; padding: 60px 5%; background: #080808; border-top: 1px solid #222; border-bottom: 1px solid #222; flex-wrap: wrap; }
-        .stat-item { text-align: center; }
-        .stat-num { display: block; font-size: 2.5rem; font-weight: 800; color: #fff; }
-        .stat-label { color: var(--primary); font-size: 0.9rem; text-transform: uppercase; font-weight: 700; letter-spacing: 1px; }
-
-        /* FEATURES */
-        .section { padding: 100px 5%; }
+        /* COMO FUNCIONA */
+        .how-it-works { padding: 100px 0; background: #080808; border-top: 1px solid #1a1a1a; }
         .section-header { text-align: center; margin-bottom: 60px; }
-        .section-header h2 { font-size: 2.5rem; margin-bottom: 15px; }
-        .section-header p { color: var(--text-sec); font-size: 1.1rem; }
-
-        .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 30px; max-width: 1200px; margin: 0 auto; }
-        .card { 
-            background: var(--surface); padding: 40px; border-radius: 20px; 
-            border: 1px solid #222; transition: 0.3s; position: relative; overflow: hidden;
+        .section-header h2 { font-size: 2.2rem; margin-bottom: 10px; }
+        .section-header p { color: var(--text-sec); }
+        
+        .steps-grid { display: grid; grid-template-columns: 1fr; gap: 30px; }
+        .step-card { 
+            background: var(--surface); padding: 35px; border-radius: 20px; 
+            border: 1px solid var(--border); transition: 0.3s; position: relative; overflow: hidden;
         }
-        .card:hover { transform: translateY(-10px); border-color: var(--primary); box-shadow: 0 10px 40px -10px rgba(0,230,118,0.2); }
-        .card i { font-size: 2.5rem; color: var(--primary); margin-bottom: 25px; }
-        .card h3 { font-size: 1.5rem; margin-bottom: 15px; }
-        .card p { color: var(--text-sec); line-height: 1.6; }
+        .step-card:hover { border-color: var(--primary); transform: translateY(-5px); }
+        .step-number { 
+            position: absolute; top: -20px; right: -20px; font-size: 8rem; 
+            font-weight: 800; color: rgba(255,255,255,0.03); z-index: 0;
+        }
+        .step-content { position: relative; z-index: 1; }
+        .step-card i { font-size: 2rem; color: var(--primary); margin-bottom: 20px; display: block; }
+        .step-card h3 { font-size: 1.4rem; margin-bottom: 10px; }
+        .step-card p { color: var(--text-sec); font-size: 0.95rem; line-height: 1.5; }
 
-        /* FAQ */
-        .faq-box { max-width: 800px; margin: 0 auto; }
-        .faq-item { background: var(--surface); border: 1px solid #333; margin-bottom: 15px; border-radius: 12px; overflow: hidden; }
-        .faq-question { padding: 20px; cursor: pointer; font-weight: 600; display: flex; justify-content: space-between; align-items: center; }
-        .faq-answer { padding: 0 20px; max-height: 0; overflow: hidden; transition: 0.3s; color: var(--text-sec); }
-        .faq-item.active .faq-answer { padding-bottom: 20px; max-height: 200px; }
-        .faq-icon { transition: 0.3s; }
-        .faq-item.active .faq-icon { transform: rotate(180deg); color: var(--primary); }
+        /* DEMONSTRAÇÃO */
+        .demo-section { padding: 80px 0 100px; text-align: center; overflow: hidden; }
+        .demo-title { font-size: 1.5rem; font-weight: 700; margin-bottom: 30px; color: var(--text-sec); text-transform: uppercase; letter-spacing: 2px; }
+        
+        .mockup-container {
+            width: 100%; 
+            /* Tamanhos automáticos para se adaptar */
+            max-width: 450px; 
+            height: 70vh; 
+            min-height: 600px;
+            margin: 0 auto; 
+            background: #000; 
+            border: 8px solid #222; 
+            border-radius: 30px; 
+            position: relative; 
+            overflow: hidden;
+            box-shadow: 0 20px 80px -20px rgba(0, 230, 118, 0.15);
+            transition: 0.3s;
+        }
+        .mockup-container iframe { width: 100%; height: 100%; border: none; background: #fff; }
 
-        /* FOOTER */
-        footer { background: #080808; padding: 50px 5%; text-align: center; border-top: 1px solid #222; color: #666; }
+        /* FLOAT BUTTON SUPORTE */
+        .float-support {
+            position: fixed; bottom: 20px; right: 20px; z-index: 200;
+            background: #25D366; color: #fff; padding: 12px 20px;
+            border-radius: 50px; font-weight: 700; text-decoration: none;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.5); display: flex; align-items: center; gap: 10px;
+            transition: 0.3s; font-size: 0.9rem;
+        }
+        .float-support:hover { transform: scale(1.05); background: #20b857; }
 
-        /* MODAL */
-        .modal { position: fixed; inset: 0; background: rgba(0,0,0,0.9); z-index: 2000; display: none; align-items: center; justify-content: center; backdrop-filter: blur(5px); }
-        .auth-box { background: #121212; width: 100%; max-width: 450px; padding: 40px; border-radius: 24px; border: 1px solid #333; position: relative; box-shadow: 0 0 50px rgba(0,0,0,0.8); }
-        .close-btn { position: absolute; top: 20px; right: 20px; cursor: pointer; font-size: 1.5rem; color: #666; }
+        /* MODAL AUTH */
+        .modal { position: fixed; inset: 0; background: rgba(0,0,0,0.9); z-index: 2000; display: none; align-items: center; justify-content: center; backdrop-filter: blur(8px); }
+        .auth-box { background: #121212; width: 90%; max-width: 420px; padding: 30px; border-radius: 20px; border: 1px solid var(--border); position: relative; }
+        .close-btn { position: absolute; top: 15px; right: 20px; font-size: 1.5rem; cursor: pointer; color: #666; }
         
         .input-group { margin-bottom: 15px; }
-        .input-group label { display: block; margin-bottom: 8px; font-weight: 600; color: #ccc; font-size: 0.9rem; }
-        .input-field { width: 100%; padding: 15px; background: #000; border: 1px solid #333; color: #fff; border-radius: 10px; font-size: 1rem; }
+        .input-group label { display: block; margin-bottom: 5px; font-weight: 600; font-size: 0.85rem; color: var(--text-sec); }
+        .input-field { width: 100%; padding: 12px; background: #080808; border: 1px solid #333; color: #fff; border-radius: 8px; font-size: 1rem; }
         .input-field:focus { border-color: var(--primary); }
         
-        .slug-wrapper { display: flex; align-items: center; background: #000; border: 1px solid #333; border-radius: 10px; }
-        .slug-wrapper input { border: none; margin: 0; text-align: right; background: transparent; }
-        .slug-wrapper span { color: #666; padding: 0 15px; user-select: none; }
+        .slug-wrapper { display: flex; align-items: center; background: #080808; border: 1px solid #333; border-radius: 8px; overflow: hidden; }
+        .slug-wrapper input { border: none; text-align: right; flex: 1; padding: 12px 5px 12px 12px; }
+        .slug-wrapper span { padding: 0 12px; color: #666; font-weight: 600; font-size: 0.9rem; background: #111; height: 100%; display: flex; align-items: center; border-left: 1px solid #333; }
 
-        .btn-submit { width: 100%; padding: 15px; background: var(--primary); color: #000; font-weight: 800; border: none; border-radius: 10px; cursor: pointer; font-size: 1.1rem; margin-top: 10px; }
-        .btn-submit:hover { box-shadow: 0 0 20px rgba(0,230,118,0.4); }
+        .btn-submit { width: 100%; padding: 14px; background: var(--primary); color: #000; font-weight: 800; border: none; border-radius: 8px; cursor: pointer; font-size: 1rem; margin-top: 10px; }
+        .btn-submit:hover { box-shadow: 0 0 20px var(--primary-glow); }
 
-        @media(max-width: 768px) {
-            .nav-links { display: none; }
-            .hero h1 { font-size: 2.8rem; }
-            .stats-bar { gap: 30px; }
+        footer { padding: 40px 0; text-align: center; border-top: 1px solid #1a1a1a; color: #666; font-size: 0.85rem; background: #050505; }
+
+        /* RESPONSIVIDADE */
+        @media(min-width: 768px) {
+            .hero h1 { font-size: 4rem; }
+            .nav-links { display: flex; }
+            .steps-grid { grid-template-columns: repeat(3, 1fr); }
+            /* Ajuste para PC: Celular maior */
+            .mockup-container { max-width: 420px; height: 850px; border-width: 12px; }
+        }
+        
+        @media(max-width: 767px) {
+            .mockup-container { width: 95%; height: 75vh; border-width: 5px; }
+            .hero { padding-top: 120px; }
         }
     </style>
 </head>
@@ -154,119 +165,108 @@
         <p style="margin-top: 15px; font-weight: 600; color: #fff; letter-spacing: 2px;">CARREGANDO...</p>
     </div>
 
+    <a href="https://wa.me/5527995809348" target="_blank" class="float-support">
+        <i class="fab fa-whatsapp" style="font-size: 1.2rem;"></i> Fale Conosco
+    </a>
+
     <div id="app-marketing" class="hidden">
         
         <nav class="navbar">
-            <div class="logo">EATS<span>MENU</span></div>
-            <div class="nav-links">
-                <a href="#beneficios">Benefícios</a>
-                <a href="#funciona">Como Funciona</a>
-                <a href="#faq">Dúvidas</a>
-            </div>
-            <div>
-                <button onclick="openAuth('login')" class="btn-login">Entrar</button>
-                <button onclick="openAuth('cadastro')" class="btn-cta">Criar Conta</button>
+            <div class="container nav-content">
+                <a href="#" class="logo">EATS<span>MENU</span></a>
+                <div class="nav-links">
+                    <a href="#como-funciona">Como Funciona</a>
+                    <a href="#demonstracao">Ver Demonstração</a>
+                    <a href="https://wa.me/5527995809348" target="_blank" class="btn-support-nav">
+                        <i class="fab fa-whatsapp"></i> Suporte
+                    </a>
+                </div>
+                <div>
+                    <button onclick="openAuth('login')" class="btn-login">Área do Cliente</button>
+                </div>
             </div>
         </nav>
 
         <section class="hero">
-            <span class="tag-promo">🚀 Sistema 100% Gratuito</span>
-            <h1>Seu Delivery no <br><span>Piloto Automático</span></h1>
-            <p>Transforme seu WhatsApp em uma máquina de vendas. Cardápio digital profissional, gestão de pedidos e impressão automática. Sem taxas, sem burocracia.</p>
-            
-            <button class="hero-btn-main" onclick="openAuth('cadastro')">
-                <i class="fas fa-rocket"></i> QUERO CRIAR MINHA LOJA
-            </button>
-
-            <div class="mockup-container">
-                <iframe 
-                    src="https://amauriferri-art.github.io/pastelanches-/" 
-                    title="Demonstração" 
-                    style="width: 100%; height: 100%; border: none; background: #121212;">
-                </iframe>
+            <div class="container">
+                <h1>Seu Delivery no <br><span>Piloto Automático</span></h1>
+                <p>Automatize seus pedidos do WhatsApp com um cardápio digital profissional. Sem taxas por venda, sem burocracia e com painel completo.</p>
+                <button class="btn-cta" onclick="openAuth('cadastro')">CRIAR MINHA LOJA AGORA</button>
             </div>
         </section>
 
         <div class="stats-bar">
             <div class="stat-item">
                 <span class="stat-num">0%</span>
-                <span class="stat-label">de Taxas</span>
+                <span class="stat-label">de Comissões</span>
             </div>
             <div class="stat-item">
-                <span class="stat-num">+1k</span>
+                <span class="stat-num">+500</span>
                 <span class="stat-label">Lojas Ativas</span>
             </div>
             <div class="stat-item">
                 <span class="stat-num">24h</span>
-                <span class="stat-label">Suporte</span>
+                <span class="stat-label">Online</span>
             </div>
         </div>
 
-        <section class="section" id="beneficios">
-            <div class="section-header">
-                <h2>Por que escolher a EatsMenu?</h2>
-                <p>Tudo o que você precisa para profissionalizar seu atendimento.</p>
-            </div>
-            
-            <div class="grid">
-                <div class="card">
-                    <i class="fas fa-bolt"></i>
-                    <h3>Instalação Relâmpago</h3>
-                    <p>Crie sua conta e cadastre seus produtos em menos de 5 minutos.</p>
+        <section class="how-it-works" id="como-funciona">
+            <div class="container">
+                <div class="section-header">
+                    <h2>Controle Total na <span>Dashboard</span></h2>
+                    <p>Veja como é simples colocar seu delivery no ar em 3 passos.</p>
                 </div>
-                <div class="card">
-                    <i class="fab fa-whatsapp"></i>
-                    <h3>Pedidos no Zap</h3>
-                    <p>Receba pedidos formatados: "1x Burger, Sem Cebola, Troco pra 50".</p>
-                </div>
-                <div class="card">
-                    <i class="fas fa-paint-brush"></i>
-                    <h3>Design Premium</h3>
-                    <p>Visual moderno e escuro que valoriza as fotos dos seus produtos.</p>
-                </div>
-                <div class="card">
-                    <i class="fas fa-globe"></i>
-                    <h3>Link Personalizado</h3>
-                    <p>Seu site com seu nome (ex: <b>pizzaria.eatsmenu.com.br</b>).</p>
-                </div>
-                <div class="card">
-                    <i class="fas fa-qrcode"></i>
-                    <h3>QR Code de Mesa</h3>
-                    <p>Gere códigos para os clientes pedirem direto da mesa.</p>
-                </div>
-                <div class="card">
-                    <i class="fas fa-sliders-h"></i>
-                    <h3>Painel Completo</h3>
-                    <p>Edite preços, taxas de entrega e horários em tempo real.</p>
+                
+                <div class="steps-grid">
+                    <div class="step-card">
+                        <span class="step-number">1</span>
+                        <div class="step-content">
+                            <i class="fas fa-edit"></i>
+                            <h3>Personalize</h3>
+                            <p>No painel, defina o nome da sua loja, cores, logo e banner. É como editar seu perfil em uma rede social.</p>
+                        </div>
+                    </div>
+                    <div class="step-card">
+                        <span class="step-number">2</span>
+                        <div class="step-content">
+                            <i class="fas fa-list"></i>
+                            <h3>Cadastre Produtos</h3>
+                            <p>Adicione fotos, preços e categorias. Tudo atualizado em tempo real no site do seu cliente.</p>
+                        </div>
+                    </div>
+                    <div class="step-card">
+                        <span class="step-number">3</span>
+                        <div class="step-content">
+                            <i class="fas fa-rocket"></i>
+                            <h3>Venda Automática</h3>
+                            <p>Envie seu link. O cliente pede, o sistema organiza e o pedido chega pronto para impressão no seu WhatsApp.</p>
+                        </div>
+                    </div>
                 </div>
             </div>
         </section>
 
-        <section class="section" id="faq" style="background: #080808;">
-            <div class="section-header">
-                <h2>Tudo o que você precisa saber</h2>
-            </div>
-            <div class="faq-box">
-                <div class="faq-item" onclick="this.classList.toggle('active')">
-                    <div class="faq-question">É realmente grátis? <i class="fas fa-chevron-down faq-icon"></i></div>
-                    <div class="faq-answer">Sim! Você pode usar o sistema sem pagar mensalidade ou taxas sobre pedidos.</div>
+        <section class="demo-section" id="demonstracao">
+            <div class="container">
+                <h2 class="demo-title">Site demonstração de um de nossos clientes</h2>
+                
+                <div class="mockup-container">
+                    <iframe 
+                        src="https://amauriferri-art.github.io/pastelanches-/" 
+                        title="Demonstração Real" 
+                        loading="lazy">
+                    </iframe>
                 </div>
-                <div class="faq-item" onclick="this.classList.toggle('active')">
-                    <div class="faq-question">Preciso de computador? <i class="fas fa-chevron-down faq-icon"></i></div>
-                    <div class="faq-answer">Não. Nosso painel é 100% otimizado para celular.</div>
-                </div>
-                <div class="faq-item" onclick="this.classList.toggle('active')">
-                    <div class="faq-question">Como recebo o dinheiro? <i class="fas fa-chevron-down faq-icon"></i></div>
-                    <div class="faq-answer">O pagamento é direto entre você e seu cliente (Pix ou Dinheiro). Não intermediamos valores.</div>
-                </div>
+                
+                <p style="margin-top: 30px; color: #666; font-size: 0.9rem;">
+                    *Este cardápio é totalmente responsivo e se adapta a qualquer celular.
+                </p>
             </div>
         </section>
 
         <footer>
-            <div class="logo" style="justify-content:center; display:flex; margin-bottom: 20px; filter: grayscale(1);">
-                EATS<span>MENU</span>
-            </div>
             <p>&copy; 2026 EatsMenu Tecnologia. Todos os direitos reservados.</p>
+            <p style="margin-top: 10px; opacity: 0.5;">Suporte: (27) 99580-9348</p>
         </footer>
 
     </div>
@@ -274,7 +274,7 @@
     <div class="modal" id="auth-modal">
         <div class="auth-box">
             <span class="close-btn" onclick="document.getElementById('auth-modal').style.display='none'">×</span>
-            <h2 id="auth-title" style="margin-bottom:20px; color:var(--primary);">Criar Loja</h2>
+            <h2 id="auth-title" style="margin-bottom: 20px; color: var(--primary); text-align:center;">Criar Loja</h2>
             
             <div id="form-cadastro">
                 <div class="input-group">
@@ -282,9 +282,9 @@
                     <input class="input-field" id="cad-nome" placeholder="Ex: Burger King">
                 </div>
                 <div class="input-group">
-                    <label>Seu Link Exclusivo</label>
+                    <label>Link Exclusivo</label>
                     <div class="slug-wrapper">
-                        <input class="input-field" id="cad-slug" placeholder="seulink" onkeyup="this.value=this.value.toLowerCase().replace(/[^a-z0-9-]/g,'')">
+                        <input class="input-field" id="cad-slug" placeholder="seunome" onkeyup="this.value=this.value.toLowerCase().replace(/[^a-z0-9-]/g,'')">
                         <span>.eatsmenu.com.br</span>
                     </div>
                 </div>
@@ -296,8 +296,8 @@
                     <label>Senha</label>
                     <input class="input-field" id="cad-pass" type="password" placeholder="Mínimo 6 dígitos">
                 </div>
-                <button class="btn-submit" onclick="fCadastro()">CRIAR CONTA AGORA</button>
-                <p style="text-align:center; margin-top:15px; color:#666; cursor:pointer;" onclick="toggleAuth('login')">Já tenho conta. <b>Entrar</b></p>
+                <button class="btn-submit" onclick="fCadastro()">CRIAR LOJA AGORA</button>
+                <p style="text-align:center; margin-top:15px; color:#666; font-size:0.9rem; cursor:pointer;" onclick="toggleAuth('login')">Já tenho conta. <b>Fazer Login</b></p>
             </div>
 
             <div id="form-login" class="hidden">
@@ -309,8 +309,8 @@
                     <label>Senha</label>
                     <input class="input-field" id="log-pass" type="password" placeholder="Sua senha">
                 </div>
-                <button class="btn-submit" onclick="fLogin()">ENTRAR NO PAINEL</button>
-                <p style="text-align:center; margin-top:15px; color:#666; cursor:pointer;" onclick="toggleAuth('cadastro')">Não tenho loja. <b>Criar</b></p>
+                <button class="btn-submit" onclick="fLogin()">ACESSAR PAINEL</button>
+                <p style="text-align:center; margin-top:15px; color:#666; font-size:0.9rem; cursor:pointer;" onclick="toggleAuth('cadastro')">Não tenho loja. <b>Criar Grátis</b></p>
             </div>
         </div>
     </div>
@@ -334,45 +334,30 @@
         const auth = getAuth(app);
         const db = getFirestore(app);
 
-        // --- ROTEADOR INTELIGENTE (CORRIGIDO) ---
+        // --- ROTEADOR INTELIGENTE ---
         (function router() {
             const host = window.location.hostname;
-            
-            // LISTA BRANCA: Se for um desses domínios, MOSTRA A HOME DE MARKETING.
-            // Isso evita o erro de "Loja não encontrada" no domínio principal.
-            if (host === 'eatsmenu.com.br' || 
-                host === 'www.eatsmenu.com.br' || 
-                host.includes('localhost') || 
-                host.includes('vercel.app')) {
-                
-                // Mostra a Home
+            if (host === 'eatsmenu.com.br' || host === 'www.eatsmenu.com.br' || host.includes('localhost') || host.includes('vercel.app')) {
                 document.getElementById('loading-screen').style.display = 'none';
                 document.getElementById('app-marketing').classList.remove('hidden');
                 return;
             }
-            
-            // SE NÃO CAIU ACIMA, É UM SUBDOMÍNIO DE LOJA (ex: pizzaria.eatsmenu.com.br)
-            // Lógica: Se não é o principal, assumimos que é loja.
             const parts = host.split('.');
-            
-            // Proteção extra para não quebrar em domínios estranhos
-            if(parts.length > 3) {
+            if(parts.length > 3) { // Subdomínio detectado
                 const slug = parts[0];
                 if (!['admin', 'painel', 'app', 'login'].includes(slug)) {
-                    // Redireciona para o arquivo de cardápio passando o nome da loja
                     window.location.replace(`cardapio.html?loja=${slug}`);
                 }
             } else {
-                // Fallback seguro
                 document.getElementById('loading-screen').style.display = 'none';
                 document.getElementById('app-marketing').classList.remove('hidden');
             }
         })();
 
-        // --- FUNÇÕES UI ---
+        // --- UI ---
         window.openAuth = (tab) => {
             document.getElementById('auth-modal').style.display = 'flex';
-            window.toggleAuth(tab);
+            toggleAuth(tab);
         }
         
         window.toggleAuth = (tab) => {
@@ -381,7 +366,7 @@
             document.getElementById('auth-title').innerText = tab === 'login' ? 'Acessar Painel' : 'Criar Loja';
         }
 
-        // --- FIREBASE AUTH ---
+        // --- FIREBASE ---
         window.fCadastro = () => {
             const nome = document.getElementById('cad-nome').value;
             const slug = document.getElementById('cad-slug').value.toLowerCase().replace(/[^a-z0-9-]/g, '');
@@ -389,7 +374,6 @@
             const pass = document.getElementById('cad-pass').value;
 
             if(!nome || !slug || !email || !pass) return notify("Preencha todos os campos!", "error");
-            if(slug.length < 3) return notify("Link da loja muito curto", "error");
 
             const btn = document.querySelector('#form-cadastro .btn-submit');
             btn.innerText = "CRIANDO...";
@@ -411,7 +395,7 @@
                 setTimeout(() => window.location.href = "admin.html", 1500);
             }).catch(e => {
                 notify("Erro: " + e.message, "error");
-                btn.innerText = "CRIAR CONTA AGORA";
+                btn.innerText = "CRIAR LOJA AGORA";
                 btn.disabled = false;
             });
         }
@@ -419,7 +403,6 @@
         window.fLogin = () => {
             const email = document.getElementById('log-email').value;
             const pass = document.getElementById('log-pass').value;
-            
             if(!email || !pass) return notify("Preencha e-mail e senha", "error");
 
             const btn = document.querySelector('#form-login .btn-submit');
@@ -430,7 +413,7 @@
                 .then(() => window.location.href = "admin.html")
                 .catch(() => {
                     notify("E-mail ou senha incorretos", "error");
-                    btn.innerText = "ENTRAR NO PAINEL";
+                    btn.innerText = "ACESSAR PAINEL";
                     btn.disabled = false;
                 });
         }
