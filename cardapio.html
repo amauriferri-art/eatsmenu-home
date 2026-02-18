@@ -10,9 +10,9 @@
     <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css">
     
     <style>
-        /* === TEMA E VARIÁVEIS === */
+        /* === TEMA DINÂMICO === */
         :root {
-            --primary: #00e676;
+            --primary: #00e676; /* Será substituído pelo Painel */
             --bg: #121212;
             --surface: #1e1e1e;
             --surface-light: #2c2c2c;
@@ -22,7 +22,7 @@
             --danger: #ff1744;
         }
 
-        /* Modo Claro (ativado via JS) */
+        /* Modo Claro (Classe ativada via JS) */
         body.light-mode {
             --bg: #f4f4f4;
             --surface: #ffffff;
@@ -36,8 +36,11 @@
         body { background: var(--bg); color: var(--text); padding-bottom: 100px; transition: background 0.3s; }
         .hidden { display: none !important; }
 
+        /* LOADER */
+        #loading { position: fixed; inset: 0; background: #000; z-index: 9999; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+
         /* HEADER */
-        .header { background: var(--surface); padding-bottom: 20px; border-radius: 0 0 25px 25px; border-bottom: 2px solid var(--primary); position: relative; }
+        .header { background: var(--surface); padding-bottom: 20px; border-radius: 0 0 25px 25px; border-bottom: 2px solid var(--primary); position: relative; box-shadow: 0 10px 30px rgba(0,0,0,0.2); }
         .banner { height: 160px; background-size: cover; background-position: center; position: relative; }
         .banner::after { content: ''; position: absolute; inset: 0; background: linear-gradient(to bottom, transparent, rgba(0,0,0,0.9)); }
         
@@ -47,7 +50,7 @@
         .status-badge { display: inline-block; padding: 4px 15px; border-radius: 20px; border: 1px solid var(--primary); color: var(--primary); font-weight: 700; font-size: 0.8rem; margin-top: 5px; text-transform: uppercase; }
         .status-badge.closed { border-color: var(--danger); color: var(--danger); }
 
-        /* THEME TOGGLE */
+        /* THEME BTN */
         .theme-btn { position: absolute; top: 20px; right: 20px; width: 40px; height: 40px; border-radius: 50%; background: rgba(0,0,0,0.6); color: #fff; display: flex; align-items: center; justify-content: center; cursor: pointer; z-index: 10; border: 1px solid rgba(255,255,255,0.2); backdrop-filter: blur(4px); }
 
         /* CATEGORIAS */
@@ -77,7 +80,7 @@
         .modal-title { font-size: 1.2rem; font-weight: 700; }
         .btn-close { font-size: 1.5rem; background: none; border: none; color: var(--text-sec); cursor: pointer; padding: 5px; }
 
-        /* INPUTS E FORMULARIOS */
+        /* INPUTS */
         .form-group { margin-bottom: 15px; }
         .label { font-size: 0.9rem; font-weight: 600; color: var(--text-sec); display: block; margin-bottom: 5px; }
         .input { width: 100%; padding: 14px; background: var(--bg); border: 1px solid var(--border); color: var(--text); border-radius: 10px; font-size: 1rem; }
@@ -95,7 +98,7 @@
         .toggle-opt { flex: 1; padding: 10px; text-align: center; border-radius: 8px; cursor: pointer; font-size: 0.9rem; font-weight: 600; color: var(--text-sec); border: 1px solid transparent; transition: 0.2s; }
         .toggle-opt.active { background: var(--surface-light); color: var(--primary); border-color: var(--primary); box-shadow: 0 2px 5px rgba(0,0,0,0.2); }
 
-        /* BOTÃO FLUTUANTE SACOLA */
+        /* SACOLA FLUTUANTE */
         .cart-float { position: fixed; bottom: 20px; left: 20px; right: 20px; max-width: 500px; margin: 0 auto; background: #111; color: var(--primary); border: 2px solid var(--primary); padding: 15px 25px; border-radius: 50px; display: none; justify-content: space-between; align-items: center; font-weight: 800; cursor: pointer; box-shadow: 0 5px 20px rgba(0, 230, 118, 0.3); z-index: 95; animation: popIn 0.3s; }
         @keyframes popIn { from{transform: scale(0.8); opacity: 0;} to{transform: scale(1); opacity: 1;} }
 
@@ -110,13 +113,11 @@
 
         .add-item { display: flex; justify-content: space-between; padding: 10px; background: var(--surface-light); border-radius: 8px; margin-bottom: 8px; align-items: center; }
         .add-item input { width: 20px; height: 20px; accent-color: var(--primary); }
-
-        #loading-screen { position: fixed; inset: 0; background: #000; z-index: 9999; display: flex; flex-direction: column; align-items: center; justify-content: center; }
     </style>
 </head>
 <body>
 
-    <div id="loading-screen">
+    <div id="loading">
         <i class="fas fa-circle-notch fa-spin" style="font-size: 2rem; color: #00e676; margin-bottom: 15px;"></i>
         <p style="color: #fff; font-weight: 600;">Carregando Loja...</p>
     </div>
@@ -150,10 +151,10 @@
     <div class="modal" id="modal-prod">
         <div class="modal-body">
             <div class="modal-header">
-                <h3 id="md-nome">Nome do Produto</h3>
+                <h3 id="md-nome">...</h3>
                 <button class="btn-close" onclick="fecharModal('modal-prod')">×</button>
             </div>
-            <p id="md-desc" style="color:var(--text-sec); margin-bottom:15px; font-size:0.9rem;">Descrição...</p>
+            <p id="md-desc" style="color:var(--text-sec); margin-bottom:15px; font-size:0.9rem;">...</p>
             <h2 id="md-preco" style="color:var(--primary); margin-bottom:20px;">R$ 0,00</h2>
 
             <div id="area-adds" class="hidden" style="margin-bottom: 20px;">
@@ -210,7 +211,7 @@
                 <input id="cli-nome" class="input" placeholder="Digite seu nome">
             </div>
             <div class="form-group">
-                <label class="label">Seu WhatsApp (com DDD):</label>
+                <label class="label">WhatsApp (com DDD):</label>
                 <input id="cli-tel" type="tel" class="input" placeholder="(00) 90000-0000">
             </div>
 
@@ -275,7 +276,7 @@
             </div>
 
             <button class="btn-main" style="background:#25D366; color:white; box-shadow: 0 4px 15px rgba(37,211,102,0.4);" onclick="enviarPedido()">
-                <i class="fab fa-whatsapp" style="font-size:1.4rem"></i> ENVIAR PEDIDO
+                <i class="fab fa-whatsapp" style="font-size:1.4rem"></i> ENVIAR NO ZAP
             </button>
         </div>
     </div>
@@ -312,11 +313,11 @@
             if(!snap.empty) {
                 loja = snap.docs[0].data();
                 renderizarLoja();
-                carregarDadosSalvos(); // Puxa nome/tel do navegador
+                carregarDadosSalvos(); // Puxa dados do localStorage
             } else {
                 erro("Loja não encontrada");
             }
-            document.getElementById('loading-screen').style.display = 'none';
+            document.getElementById('loading').style.display = 'none';
         })();
 
         function erro(msg) {
@@ -325,10 +326,12 @@
 
         function renderizarLoja() {
             document.title = loja.nome;
-            // Cores
-            if(loja.cor) document.documentElement.style.setProperty('--primary', loja.cor);
-            if(loja.cor_bg) document.documentElement.style.setProperty('--bg', loja.cor_bg);
-            if(loja.cor_header) document.documentElement.style.setProperty('--surface', loja.cor_header);
+            // Cores Personalizadas
+            const root = document.documentElement;
+            if(loja.cor) root.style.setProperty('--primary', loja.cor);
+            if(loja.cor_bg) root.style.setProperty('--bg', loja.cor_bg);
+            if(loja.cor_header) root.style.setProperty('--surface', loja.cor_header);
+            if(loja.cor_text) root.style.setProperty('--text', loja.cor_text);
 
             // Infos
             document.getElementById('loja-nome').innerText = loja.nome;
@@ -380,6 +383,42 @@
             });
         }
 
+        // --- LÓGICA DE HORÁRIO ---
+        function checkHorario() {
+            const now = new Date();
+            const diaSemana = now.getDay(); 
+            const horaAtual = now.getHours().toString().padStart(2, '0') + ':' + now.getMinutes().toString().padStart(2, '0');
+
+            const abre = loja.hora_abre || "00:00";
+            const fecha = loja.hora_fecha || "23:59";
+            
+            // SE A LOJA NÃO TIVER DIAS CONFIGURADOS, ASSUME TODOS
+            const diasFunc = loja.dias_func && loja.dias_func.length > 0 ? loja.dias_func : [0,1,2,3,4,5,6];
+            const diaAberto = diasFunc.includes(diaSemana);
+
+            let isOpen = false;
+            
+            // Madrugada (Ex: 18:00 a 02:00)
+            if (fecha < abre) {
+                if (horaAtual >= abre || horaAtual <= fecha) isOpen = true;
+            } else {
+                if (horaAtual >= abre && horaAtual <= fecha) isOpen = true;
+            }
+
+            const st = document.getElementById('loja-status');
+            if (diaAberto && isOpen) {
+                st.innerText = "ABERTO AGORA";
+                st.classList.remove('closed');
+                return true;
+            } else {
+                st.innerText = "FECHADO";
+                st.classList.add('closed');
+                document.getElementById('prod-list').style.opacity = "0.5";
+                document.getElementById('prod-list').style.pointerEvents = "none";
+                return false;
+            }
+        }
+
         // --- FLUXO DE COMPRA ---
         window.openProd = (data) => {
             currProd = JSON.parse(decodeURIComponent(data));
@@ -390,7 +429,6 @@
             document.getElementById('md-qtd').innerText = 1;
             document.getElementById('md-obs').value = '';
             
-            // Adicionais (Parse da string do admin)
             const list = document.getElementById('lista-adds');
             list.innerHTML = "";
             if(currProd.adds) {
@@ -406,15 +444,14 @@
             } else {
                 document.getElementById('area-adds').classList.add('hidden');
             }
-            
             abrirModal('modal-prod');
         }
 
         window.addCart = () => {
-            let addsTotal = 0, addsNames = [];
+            let addTotal = 0, addNames = [];
             document.querySelectorAll('.add-chk:checked').forEach(chk => {
-                addsTotal += parseFloat(chk.value);
-                addsNames.push(chk.getAttribute('data-name'));
+                addTotal += parseFloat(chk.value);
+                addNames.push(chk.getAttribute('data-name'));
             });
             
             cart.push({
@@ -422,7 +459,7 @@
                 qtd,
                 obs: document.getElementById('md-obs').value,
                 addsNames,
-                total: (currProd.preco + addsTotal) * qtd
+                total: (currProd.preco + addTotal) * qtd
             });
             
             fecharModal('modal-prod');
@@ -445,7 +482,6 @@
                 fecharModal('modal-checkout');
             }
 
-            // Render Lista na Sacola
             const list = document.getElementById('lista-itens-carrinho');
             list.innerHTML = "";
             cart.forEach((i, idx) => {
@@ -468,7 +504,7 @@
         window.rmItem = (i) => { cart.splice(i,1); atualizarCartUI(); }
         window.irParaCheckout = () => { fecharModal('modal-carrinho'); abrirModal('modal-checkout'); calcTotal(); }
 
-        // --- CHECKOUT ---
+        // --- CHECKOUT & ENTREGA ---
         window.mudarEntrega = (tipo) => {
             tipoEntrega = tipo;
             document.getElementById('btn-retirada').className = `toggle-opt ${tipo==='retirada'?'active':''}`;
@@ -507,8 +543,8 @@
                 document.getElementById('resumo-taxa-row').classList.add('hidden');
             }
             
-            document.getElementById('resumo-sub').innerText = `R$ ${sub.toFixed(2)}`;
-            document.getElementById('resumo-total').innerText = `R$ ${(sub+taxa).toFixed(2)}`;
+            document.getElementById('resumo-subtotal').innerText = `R$ ${sub.toFixed(2)}`;
+            document.getElementById('resumo-total-final').innerText = `R$ ${(sub+taxa).toFixed(2)}`;
             return {sub, taxa, total: sub+taxa};
         }
 
@@ -518,6 +554,7 @@
             document.getElementById('box-troco').classList.toggle('hidden', p !== 'Dinheiro');
         }
 
+        // --- ENVIAR PEDIDO ---
         window.enviarPedido = () => {
             if(!checkHorario()) { notify("Loja fechada agora!", "error"); return; }
             
@@ -564,42 +601,14 @@
             msg += `\n\n*Pagamento:* ${pag}`;
             if(pag === 'Dinheiro') msg += ` (Troco para: ${document.getElementById('cli-troco').value})`;
 
-            window.open(`https://wa.me/${loja.whatsapp}?text=${encodeURIComponent(msg)}`, '_blank');
-            
-            // Limpa carrinho após enviar
-            cart = [];
-            atualizarCartUI();
-        }
-
-        // --- EXTRAS ---
-        function checkHorario() {
-            const now = new Date();
-            const h = now.getHours() + ':' + String(now.getMinutes()).padStart(2,'0');
-            const d = now.getDay();
-            
-            // Verifica Dias
-            const diasFunc = loja.dias_func || [0,1,2,3,4,5,6];
-            const diaOk = diasFunc.includes(d);
-            
-            // Verifica Hora
-            const abre = loja.hora_abre || "00:00";
-            const fecha = loja.hora_fecha || "23:59";
-            const horaOk = h >= abre && h <= fecha;
-
-            const st = document.getElementById('loja-status');
-            if(diaOk && horaOk) {
-                st.innerText = "Aberto Agora";
-                st.classList.remove('closed');
-                return true;
-            } else {
-                st.innerText = "Fechado";
-                st.classList.add('closed');
-                document.getElementById('prod-list').style.opacity = "0.5";
-                document.getElementById('prod-list').style.pointerEvents = "none";
-                return false;
+            if(loja.print_pc && loja.print_name) {
+                msg += `\n\n--- IMPRESSÃO ---\nPC: ${loja.print_pc}\nPRINTER: ${loja.print_name}`;
             }
+
+            window.open(`https://wa.me/${loja.whatsapp}?text=${encodeURIComponent(msg)}`, '_blank');
         }
 
+        // --- UTILS ---
         function salvarDadosLocais() {
             const dados = {
                 nome: document.getElementById('cli-nome').value,
@@ -611,7 +620,7 @@
             localStorage.setItem('user_data', JSON.stringify(dados));
         }
 
-        function carregarDadosSalvos() {
+        function carregarDadosLocais() {
             const dados = JSON.parse(localStorage.getItem('user_data'));
             if(dados) {
                 document.getElementById('cli-nome').value = dados.nome || '';
@@ -624,16 +633,15 @@
 
         window.pegarGPS = () => {
             if(!navigator.geolocation) return notify("GPS não suportado", "error");
-            document.querySelector('.btn-gps').innerText = "Aguarde...";
+            document.querySelector('#form-gps button').innerText = "Aguarde...";
             navigator.geolocation.getCurrentPosition(p => {
                 gpsLink = `https://maps.google.com/?q=${p.coords.latitude},${p.coords.longitude}`;
                 document.getElementById('gps-msg').style.display = 'block';
-                document.querySelector('.btn-gps').innerText = "Atualizar Localização";
+                document.querySelector('#form-gps button').innerText = "Atualizar Localização";
                 notify("Localização salva!");
             }, () => notify("Erro ao pegar GPS. Permita o acesso.", "error"));
         }
 
-        // Utils
         window.abrirModal = (id) => document.getElementById(id).classList.add('open');
         window.fecharModal = (id) => document.getElementById(id).classList.remove('open');
         window.mudaQtd = (v) => { if(qtd+v>=1) qtd+=v; document.getElementById('md-qtd').innerText = qtd; }
