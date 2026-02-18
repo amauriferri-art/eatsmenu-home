@@ -80,11 +80,12 @@
 
         /* PREVIEW MOCKUP */
         .mockup-container {
-            margin-top: 80px; width: 100%; max-width: 1000px; height: 500px;
+            margin-top: 80px; width: 100%; max-width: 1000px; height: 600px;
             background: #111; border: 1px solid #333; border-radius: 20px;
             display: flex; align-items: center; justify-content: center;
             box-shadow: 0 -20px 80px -20px rgba(0,230,118,0.15);
             transform: perspective(1000px) rotateX(5deg); transition: 0.5s;
+            overflow: hidden; /* Importante para o iframe não vazar */
         }
         .mockup-container:hover { transform: perspective(1000px) rotateX(0deg); border-color: var(--primary); }
 
@@ -178,10 +179,11 @@
             </button>
 
             <div class="mockup-container">
-                <div style="text-align: center; opacity: 0.5;">
-                    <i class="fas fa-mobile-alt" style="font-size: 5rem; margin-bottom: 20px;"></i>
-                    <h2>PREVIEW DO SISTEMA</h2>
-                </div>
+                <iframe 
+                    src="https://amauriferri-art.github.io/pastelanches-/" 
+                    title="Demonstração" 
+                    style="width: 100%; height: 100%; border: none; background: #121212;">
+                </iframe>
             </div>
         </section>
 
@@ -332,7 +334,7 @@
         const auth = getAuth(app);
         const db = getFirestore(app);
 
-        // --- ROTEADOR INTELIGENTE CORRIGIDO ---
+        // --- ROTEADOR INTELIGENTE (CORRIGIDO) ---
         (function router() {
             const host = window.location.hostname;
             
@@ -354,10 +356,12 @@
             const parts = host.split('.');
             
             // Proteção extra para não quebrar em domínios estranhos
-            if(parts.length > 2) {
+            if(parts.length > 3) {
                 const slug = parts[0];
-                // Redireciona para o arquivo de cardápio passando o nome da loja
-                window.location.replace(`cardapio.html?loja=${slug}`);
+                if (!['admin', 'painel', 'app', 'login'].includes(slug)) {
+                    // Redireciona para o arquivo de cardápio passando o nome da loja
+                    window.location.replace(`cardapio.html?loja=${slug}`);
+                }
             } else {
                 // Fallback seguro
                 document.getElementById('loading-screen').style.display = 'none';
