@@ -4,9 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Painel Admin - EatsMenu</title>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     
     <style>
         :root { --primary: #00e676; --bg: #050505; --surface: #121212; --border: #333; --text: #fff; }
@@ -22,15 +22,22 @@
         input:focus { border-color: var(--primary); }
         
         .btn { background: var(--primary); color: #000; border: none; padding: 12px 25px; border-radius: 10px; font-weight: 800; cursor: pointer; width: 100%; text-transform: uppercase; transition: 0.2s; }
-        .btn-danger { background: #ff1744; color: white; width: auto; padding: 5px 15px; font-size: 0.8rem; }
+        .btn:hover { opacity: 0.9; transform: translateY(-2px); }
         .btn-outline { background: transparent; border: 1px solid #555; color: #ccc; }
         .btn-outline.active { border-color: var(--primary); color: var(--primary); background: rgba(0,230,118,0.1); }
+        .btn-danger { background: #ff1744; color: white; width: auto; padding: 5px 15px; font-size: 0.8rem; }
 
         .tabs { display: flex; gap: 10px; margin-bottom: 25px; overflow-x: auto; }
         .tabs button { flex: 1; white-space: nowrap; }
 
         .item-list { background: var(--surface); padding: 15px; border-radius: 12px; border: 1px solid var(--border); margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; }
         
+        /* Upload Style */
+        .file-upload { position: relative; overflow: hidden; display: inline-block; width: 100%; }
+        .file-upload input[type=file] { font-size: 100px; position: absolute; left: 0; top: 0; opacity: 0; cursor: pointer; }
+        .file-btn { background: #222; border: 1px dashed #555; color: #aaa; padding: 10px; width: 100%; text-align: center; border-radius: 10px; cursor: pointer; }
+        .file-btn:hover { border-color: var(--primary); color: var(--primary); }
+
         #loading { position: fixed; inset: 0; background: var(--bg); z-index: 999; display: flex; align-items: center; justify-content: center; }
     </style>
 </head>
@@ -52,7 +59,7 @@
         <div class="tabs">
             <button class="btn active" onclick="setTab('loja')" id="tab-btn-loja">🏪 Loja</button>
             <button class="btn btn-outline" onclick="setTab('produtos')" id="tab-btn-produtos">🍔 Cardápio</button>
-            <button class="btn btn-outline" onclick="setTab('entregas')" id="tab-btn-entregas">🛵 Entregas & Horários</button>
+            <button class="btn btn-outline" onclick="setTab('entregas')" id="tab-btn-entregas">🛵 Entregas</button>
         </div>
 
         <div id="view-loja">
@@ -66,6 +73,18 @@
                 <div class="input-group"><label>Nome do Beneficiário</label><input type="text" id="conf-pix-name"></div>
             </div>
 
+            <div style="background: #1a1a1a; padding: 15px; border-radius: 10px; border: 1px solid #333; margin-bottom: 20px;">
+                <h4 style="color:var(--primary); margin-bottom: 10px;">🖨️ Configuração de Impressão (NFC/PC)</h4>
+                <div class="input-group">
+                    <label>Nome do Computador (Servidor de Impressão)</label>
+                    <input type="text" id="conf-print-pc" placeholder="Ex: CAIXA-01">
+                </div>
+                <div class="input-group">
+                    <label>Nome da Impressora Térmica</label>
+                    <input type="text" id="conf-print-name" placeholder="Ex: POS-58 ou MP-4200">
+                </div>
+            </div>
+
             <div class="input-group"><label>Logo (URL)</label><input type="text" id="conf-logo"></div>
             <div class="input-group"><label>Banner (URL)</label><input type="text" id="conf-banner"></div>
             <div class="input-group"><label>Cor do Tema</label><input type="color" id="conf-cor" style="height:50px;"></div>
@@ -76,20 +95,38 @@
         <div id="view-produtos" style="display:none;">
             <div style="background:var(--surface); padding:20px; border-radius:15px; margin-bottom:20px; border:1px solid #333;">
                 <h4 style="margin-bottom:15px; color:var(--primary)">+ Novo Produto</h4>
+                
                 <div style="display:grid; grid-template-columns: 2fr 1fr; gap:10px;">
-                    <input type="text" id="prod-nome" placeholder="Nome">
-                    <input type="number" id="prod-preco" placeholder="Preço">
+                    <div class="input-group"><input type="text" id="prod-nome" placeholder="Nome"></div>
+                    <div class="input-group"><input type="number" id="prod-preco" placeholder="Preço"></div>
                 </div>
-                <input type="text" id="prod-cat" placeholder="Categoria (Lanches, Bebidas...)" list="list-cats" style="margin-top:10px;">
-                <datalist id="list-cats"><option value="Lanches"><option value="Bebidas"><option value="Porções"></datalist>
-                <textarea id="prod-desc" placeholder="Descrição..." style="margin-top:10px;" rows="2"></textarea>
-                <input type="text" id="prod-img" placeholder="URL da Imagem" style="margin-top:10px;">
+                
+                <div class="input-group">
+                    <input type="text" id="prod-cat" placeholder="Categoria (Lanches, Bebidas...)" list="list-cats">
+                    <datalist id="list-cats"><option value="Lanches"><option value="Bebidas"><option value="Porções"></datalist>
+                </div>
+                
+                <div class="input-group">
+                    <textarea id="prod-desc" placeholder="Descrição..." rows="2"></textarea>
+                </div>
+
+                <div class="input-group">
+                    <label>Imagem do Produto</label>
+                    <div class="file-upload">
+                        <div class="file-btn" id="btn-upload-text"><i class="fas fa-camera"></i> Escolher Foto ou Colar URL abaixo</div>
+                        <input type="file" id="prod-file" accept="image/*" onchange="handleFileUpload(this)">
+                    </div>
+                    <input type="text" id="prod-img" placeholder="Ou cole a URL da imagem aqui" style="margin-top:5px;">
+                    <small id="upload-status" style="color: var(--primary); display:none;">Enviando imagem...</small>
+                </div>
                 
                 <div style="margin-top:10px; background: #000; padding: 10px; border-radius: 8px;">
-                    <label style="font-size:0.8rem; color:#aaa;">Adicionais (Formato: Nome:Preço, Nome:Preço)</label>
+                    <label style="font-size:0.8rem; color:#aaa;">Adicionais (Opcional)</label>
                     <input type="text" id="prod-adds" placeholder="Ex: Bacon:3.00, Ovo:2.00" style="border:none; border-bottom:1px solid #333;">
+                    <small style="color:#666; font-size:0.7rem;">Formato: Nome:Preço, Nome:Preço</small>
                 </div>
-                <button class="btn" onclick="addProduto()" style="margin-top:15px;">Cadastrar</button>
+
+                <button class="btn" onclick="addProduto()" style="margin-top:15px;">Cadastrar Produto</button>
             </div>
             <div id="lista-produtos"></div>
         </div>
@@ -121,6 +158,7 @@
         import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js";
         import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-auth.js";
         import { getFirestore, doc, getDoc, updateDoc, setDoc } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js";
+        import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-storage.js";
 
         // CONFIGURAÇÃO FIREBASE
         const firebaseConfig = {
@@ -135,6 +173,8 @@
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
         const db = getFirestore(app);
+        const storage = getStorage(app);
+        
         let userUid = null;
         let data = { produtos: [], bairros: [] };
 
@@ -155,14 +195,15 @@
                 if(!data.produtos) data.produtos = [];
                 if(!data.bairros) data.bairros = [];
                 
-                document.getElementById('conf-nome').value = data.nome || "";
-                document.getElementById('conf-slug').value = data.slug || "";
-                document.getElementById('conf-zap').value = data.whatsapp || "";
-                document.getElementById('conf-pix-key').value = data.pix_key || "";
-                document.getElementById('conf-pix-name').value = data.pix_name || "";
-                document.getElementById('conf-logo').value = data.logo || "";
-                document.getElementById('conf-banner').value = data.banner || "";
-                document.getElementById('conf-cor').value = data.cor || "#00e676";
+                // Preenche campos
+                const campos = ['conf-nome','conf-slug','conf-zap','conf-pix-key','conf-pix-name',
+                                'conf-logo','conf-banner','conf-cor', 'conf-print-pc', 'conf-print-name'];
+                
+                campos.forEach(id => {
+                    const key = id.replace('conf-','').replace(/-/g,'_'); // conf-print-pc -> print_pc
+                    if(document.getElementById(id)) document.getElementById(id).value = data[key] || "";
+                });
+                
                 document.getElementById('loja-abre').value = data.hora_abre || "18:00";
                 document.getElementById('loja-fecha').value = data.hora_fecha || "23:00";
                 
@@ -172,6 +213,34 @@
             }
         }
 
+        // --- UPLOAD IMAGEM ---
+        window.handleFileUpload = async (input) => {
+            if (input.files && input.files[0]) {
+                const file = input.files[0];
+                const status = document.getElementById('upload-status');
+                const btnText = document.getElementById('btn-upload-text');
+                
+                status.style.display = 'block';
+                btnText.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Enviando...';
+                
+                try {
+                    const storageRef = ref(storage, `imagens/${userUid}/${Date.now()}_${file.name}`);
+                    await uploadBytes(storageRef, file);
+                    const url = await getDownloadURL(storageRef);
+                    
+                    document.getElementById('prod-img').value = url;
+                    status.innerText = "Imagem carregada com sucesso!";
+                    status.style.color = "#00e676";
+                    btnText.innerHTML = '<i class="fas fa-check"></i> Pronta para salvar';
+                } catch (error) {
+                    console.error("Erro no upload:", error);
+                    status.innerText = "Erro ao enviar imagem.";
+                    status.style.color = "red";
+                    btnText.innerHTML = '<i class="fas fa-camera"></i> Tentar Novamente';
+                }
+            }
+        };
+
         window.salvarLoja = async () => {
             const update = {
                 nome: document.getElementById('conf-nome').value,
@@ -179,6 +248,8 @@
                 whatsapp: document.getElementById('conf-zap').value,
                 pix_key: document.getElementById('conf-pix-key').value,
                 pix_name: document.getElementById('conf-pix-name').value,
+                print_pc: document.getElementById('conf-print-pc').value,
+                print_name: document.getElementById('conf-print-name').value,
                 logo: document.getElementById('conf-logo').value,
                 banner: document.getElementById('conf-banner').value,
                 cor: document.getElementById('conf-cor').value
@@ -208,7 +279,14 @@
             if(!prod.nome || !prod.preco) return toast("Preencha nome e preço", "error");
             data.produtos.push(prod);
             await updateDoc(doc(db, "lojas", userUid), { produtos: data.produtos });
+            
+            // Limpa form
             document.getElementById('prod-nome').value = "";
+            document.getElementById('prod-preco').value = "";
+            document.getElementById('prod-img').value = "";
+            document.getElementById('prod-file').value = "";
+            document.getElementById('btn-upload-text').innerHTML = '<i class="fas fa-camera"></i> Escolher Foto';
+            
             renderProdutos();
             toast("Produto Adicionado!");
         };
@@ -228,7 +306,15 @@
             const div = document.getElementById('lista-produtos');
             div.innerHTML = "";
             data.produtos.forEach((p, idx) => {
-                div.innerHTML += `<div class="item-list"><div><strong>${p.nome}</strong><br><small>R$ ${p.preco}</small></div><button class="btn btn-danger" onclick="delItem('produtos', ${idx})">X</button></div>`;
+                const imgTag = p.img ? `<img src="${p.img}" style="width:40px;height:40px;border-radius:5px;object-fit:cover;margin-right:10px;">` : '';
+                div.innerHTML += `
+                <div class="item-list">
+                    <div style="display:flex;align-items:center;">
+                        ${imgTag}
+                        <div><strong>${p.nome}</strong><br><small>R$ ${p.preco.toFixed(2)}</small></div>
+                    </div>
+                    <button style="background:red; color:white; padding:5px; border:none; border-radius:5px;" onclick="delItem('produtos', ${idx})">Excluir</button>
+                </div>`;
             });
         }
 
@@ -236,7 +322,7 @@
             const div = document.getElementById('lista-bairros');
             div.innerHTML = "";
             data.bairros.forEach((b, idx) => {
-                div.innerHTML += `<div class="item-list"><div>${b.nome} - R$ ${b.taxa.toFixed(2)}</div><button class="btn btn-danger" onclick="delItem('bairros', ${idx})">X</button></div>`;
+                div.innerHTML += `<div class="item-list"><div>${b.nome} - R$ ${b.taxa.toFixed(2)}</div><button style="background:red; color:white; padding:5px; border:none; border-radius:5px;" onclick="delItem('bairros', ${idx})">Excluir</button></div>`;
             });
         }
 
