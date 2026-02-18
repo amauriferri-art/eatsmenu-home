@@ -3,107 +3,312 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>EatsMenu - Crie seu Cardápio Digital Grátis</title>
-    <meta name="description" content="Sistema de cardápio digital e pedidos via WhatsApp. Sem taxas, sem maquininha.">
+    <title>EatsMenu - Seu Cardápio Digital Profissional</title>
+    
+    <meta name="description" content="Sistema de delivery completo para restaurantes. Cardápio digital, pedidos no WhatsApp e gestão sem taxas. Comece grátis.">
     
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css">
     
     <style>
-        :root { --primary: #00e676; --bg: #050505; --text: #fff; --border: #333; }
-        body { margin: 0; font-family: 'Outfit', sans-serif; background: var(--bg); color: var(--text); overflow-x: hidden; }
+        /* === ESTILO GERAL (DARK NEON) === */
+        :root {
+            --primary: #00e676;
+            --primary-dark: #00b359;
+            --bg-dark: #050505;
+            --surface: #121212;
+            --text-main: #ffffff;
+            --text-sec: #a0a0a0;
+            --border: #333;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Outfit', sans-serif; outline: none; }
+        body { background-color: var(--bg-dark); color: var(--text-main); overflow-x: hidden; }
+        a { text-decoration: none; color: inherit; transition: 0.3s; }
         
-        .navbar { padding: 20px 5%; display: flex; justify-content: space-between; align-items: center; position: fixed; width: 100%; top: 0; background: rgba(0,0,0,0.8); backdrop-filter: blur(10px); z-index: 100; border-bottom: 1px solid rgba(255,255,255,0.05); }
-        .logo { font-size: 1.5rem; font-weight: 800; color: #fff; text-transform: uppercase; }
+        .hidden { display: none !important; }
+
+        /* LOADING */
+        #loading-screen { position: fixed; inset: 0; background: #000; z-index: 9999; display: flex; align-items: center; justify-content: center; flex-direction: column; }
+        .spinner { width: 50px; height: 50px; border: 4px solid #333; border-top: 4px solid var(--primary); border-radius: 50%; animation: spin 1s infinite; }
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        /* NAVBAR */
+        .navbar {
+            padding: 20px 5%; position: fixed; top: 0; width: 100%; z-index: 100;
+            display: flex; justify-content: space-between; align-items: center;
+            background: rgba(5,5,5,0.85); backdrop-filter: blur(10px);
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+        }
+        .logo { font-size: 1.5rem; font-weight: 800; text-transform: uppercase; letter-spacing: 1px; color: #fff; }
         .logo span { color: var(--primary); }
         
-        .hero { padding: 180px 20px 100px; text-align: center; min-height: 100vh; background: radial-gradient(circle at top, rgba(0,230,118,0.1), #000 70%); }
-        .hero h1 { font-size: 3.5rem; margin-bottom: 20px; line-height: 1.1; }
-        .hero h1 span { color: var(--primary); }
-        .hero p { color: #aaa; max-width: 600px; margin: 0 auto 40px; font-size: 1.2rem; }
+        .nav-links { display: flex; gap: 30px; }
+        .nav-links a { font-size: 0.95rem; font-weight: 500; color: var(--text-sec); }
+        .nav-links a:hover { color: var(--primary); }
+
+        .btn-login { background: transparent; border: 1px solid #fff; color: #fff; padding: 8px 25px; border-radius: 50px; cursor: pointer; font-weight: 600; margin-right: 10px; transition: 0.3s; }
+        .btn-login:hover { border-color: var(--primary); color: var(--primary); }
         
-        .btn-cta { background: var(--primary); color: #000; padding: 15px 40px; border-radius: 50px; font-weight: 800; border: none; cursor: pointer; font-size: 1.1rem; box-shadow: 0 0 20px rgba(0,230,118,0.4); transition: 0.3s; }
-        .btn-cta:hover { transform: scale(1.05); box-shadow: 0 0 40px rgba(0,230,118,0.6); }
+        .btn-cta { 
+            background: var(--primary); color: #000; padding: 10px 30px; 
+            border-radius: 50px; border: none; font-weight: 800; cursor: pointer; 
+            box-shadow: 0 0 20px rgba(0,230,118,0.3); transition: 0.3s;
+        }
+        .btn-cta:hover { transform: translateY(-3px); box-shadow: 0 0 40px rgba(0,230,118,0.6); }
+
+        /* HERO SECTION */
+        .hero { 
+            padding: 180px 5% 100px; text-align: center; min-height: 90vh;
+            background: radial-gradient(circle at top, rgba(0,230,118,0.1), #000 70%);
+            display: flex; flex-direction: column; align-items: center;
+        }
+        .tag-promo { background: rgba(0,230,118,0.1); color: var(--primary); padding: 5px 15px; border-radius: 20px; font-size: 0.8rem; font-weight: 700; margin-bottom: 20px; border: 1px solid rgba(0,230,118,0.3); }
         
-        .features { padding: 80px 5%; background: #080808; }
+        .hero h1 { font-size: 4rem; line-height: 1.1; margin-bottom: 20px; font-weight: 800; }
+        .hero h1 span { color: var(--primary); text-shadow: 0 0 30px rgba(0,230,118,0.3); }
+        .hero p { font-size: 1.2rem; color: var(--text-sec); max-width: 700px; margin-bottom: 40px; }
+        
+        .hero-btn-main { 
+            padding: 18px 50px; background: var(--primary); color: #000; 
+            border-radius: 12px; font-weight: 800; font-size: 1.2rem; border: none; 
+            cursor: pointer; box-shadow: 0 0 40px rgba(0,230,118,0.4); transition: 0.3s;
+            display: flex; align-items: center; gap: 10px;
+        }
+        .hero-btn-main:hover { transform: scale(1.05); }
+
+        /* PREVIEW MOCKUP */
+        .mockup-container {
+            margin-top: 80px; width: 100%; max-width: 1000px; height: 500px;
+            background: #111; border: 1px solid #333; border-radius: 20px;
+            display: flex; align-items: center; justify-content: center;
+            box-shadow: 0 -20px 80px -20px rgba(0,230,118,0.15);
+            transform: perspective(1000px) rotateX(5deg); transition: 0.5s;
+        }
+        .mockup-container:hover { transform: perspective(1000px) rotateX(0deg); border-color: var(--primary); }
+
+        /* STATS */
+        .stats-bar { display: flex; justify-content: center; gap: 60px; padding: 60px 5%; background: #080808; border-top: 1px solid #222; border-bottom: 1px solid #222; flex-wrap: wrap; }
+        .stat-item { text-align: center; }
+        .stat-num { display: block; font-size: 2.5rem; font-weight: 800; color: #fff; }
+        .stat-label { color: var(--primary); font-size: 0.9rem; text-transform: uppercase; font-weight: 700; letter-spacing: 1px; }
+
+        /* FEATURES */
+        .section { padding: 100px 5%; }
+        .section-header { text-align: center; margin-bottom: 60px; }
+        .section-header h2 { font-size: 2.5rem; margin-bottom: 15px; }
+        .section-header p { color: var(--text-sec); font-size: 1.1rem; }
+
         .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 30px; max-width: 1200px; margin: 0 auto; }
-        .card { background: #121212; padding: 40px; border-radius: 20px; border: 1px solid #222; text-align: left; }
-        .card i { font-size: 2rem; color: var(--primary); margin-bottom: 20px; }
-        .card h3 { font-size: 1.5rem; margin-bottom: 10px; }
+        .card { 
+            background: var(--surface); padding: 40px; border-radius: 20px; 
+            border: 1px solid #222; transition: 0.3s; position: relative; overflow: hidden;
+        }
+        .card:hover { transform: translateY(-10px); border-color: var(--primary); box-shadow: 0 10px 40px -10px rgba(0,230,118,0.2); }
+        .card i { font-size: 2.5rem; color: var(--primary); margin-bottom: 25px; }
+        .card h3 { font-size: 1.5rem; margin-bottom: 15px; }
+        .card p { color: var(--text-sec); line-height: 1.6; }
+
+        /* FAQ */
+        .faq-box { max-width: 800px; margin: 0 auto; }
+        .faq-item { background: var(--surface); border: 1px solid #333; margin-bottom: 15px; border-radius: 12px; overflow: hidden; }
+        .faq-question { padding: 20px; cursor: pointer; font-weight: 600; display: flex; justify-content: space-between; align-items: center; }
+        .faq-answer { padding: 0 20px; max-height: 0; overflow: hidden; transition: 0.3s; color: var(--text-sec); }
+        .faq-item.active .faq-answer { padding-bottom: 20px; max-height: 200px; }
+        .faq-icon { transition: 0.3s; }
+        .faq-item.active .faq-icon { transform: rotate(180deg); color: var(--primary); }
+
+        /* FOOTER */
+        footer { background: #080808; padding: 50px 5%; text-align: center; border-top: 1px solid #222; color: #666; }
+
+        /* MODAL */
+        .modal { position: fixed; inset: 0; background: rgba(0,0,0,0.9); z-index: 2000; display: none; align-items: center; justify-content: center; backdrop-filter: blur(5px); }
+        .auth-box { background: #121212; width: 100%; max-width: 450px; padding: 40px; border-radius: 24px; border: 1px solid #333; position: relative; box-shadow: 0 0 50px rgba(0,0,0,0.8); }
+        .close-btn { position: absolute; top: 20px; right: 20px; cursor: pointer; font-size: 1.5rem; color: #666; }
         
-        /* Modal */
-        .modal { position: fixed; inset: 0; background: rgba(0,0,0,0.9); z-index: 200; display: none; align-items: center; justify-content: center; }
-        .auth-box { background: #111; padding: 40px; border-radius: 20px; width: 100%; max-width: 400px; border: 1px solid #333; position: relative; }
-        .input-field { width: 100%; padding: 15px; margin-bottom: 15px; background: #000; border: 1px solid #333; color: #fff; border-radius: 10px; }
-        .slug-group { display: flex; align-items: center; background: #000; border: 1px solid #333; border-radius: 10px; margin-bottom: 15px; }
-        .slug-group input { border: none; background: transparent; text-align: right; margin: 0; }
-        .slug-group span { padding: 0 15px; color: #666; }
+        .input-group { margin-bottom: 15px; }
+        .input-group label { display: block; margin-bottom: 8px; font-weight: 600; color: #ccc; font-size: 0.9rem; }
+        .input-field { width: 100%; padding: 15px; background: #000; border: 1px solid #333; color: #fff; border-radius: 10px; font-size: 1rem; }
+        .input-field:focus { border-color: var(--primary); }
         
-        .hidden { display: none; }
-        #loading-screen { position: fixed; inset: 0; background: #000; z-index: 9999; display: flex; align-items: center; justify-content: center; }
+        .slug-wrapper { display: flex; align-items: center; background: #000; border: 1px solid #333; border-radius: 10px; }
+        .slug-wrapper input { border: none; margin: 0; text-align: right; background: transparent; }
+        .slug-wrapper span { color: #666; padding: 0 15px; user-select: none; }
+
+        .btn-submit { width: 100%; padding: 15px; background: var(--primary); color: #000; font-weight: 800; border: none; border-radius: 10px; cursor: pointer; font-size: 1.1rem; margin-top: 10px; }
+        .btn-submit:hover { box-shadow: 0 0 20px rgba(0,230,118,0.4); }
+
+        @media(max-width: 768px) {
+            .nav-links { display: none; }
+            .hero h1 { font-size: 2.8rem; }
+            .stats-bar { gap: 30px; }
+        }
     </style>
 </head>
 <body>
 
-    <div id="loading-screen"><i class="fas fa-circle-notch fa-spin" style="font-size: 2rem; color: var(--primary);"></i></div>
-
-    <nav class="navbar">
-        <div class="logo">EATS<span>MENU</span></div>
-        <div>
-            <button onclick="openAuth('login')" style="background:transparent; border:1px solid #fff; color:#fff; padding:8px 25px; border-radius:50px; cursor:pointer; margin-right:10px;">Entrar</button>
-            <button onclick="openAuth('cadastro')" class="btn-cta" style="padding:8px 25px; font-size:0.9rem;">Criar Conta</button>
-        </div>
-    </nav>
-
-    <div class="hero">
-        <h1>Seu Delivery <br><span>Profissional e Automático</span></h1>
-        <p>Transforme seu WhatsApp em uma máquina de vendas. Cardápio digital completo, gestão de entregas e pagamentos. Tudo grátis.</p>
-        <button class="btn-cta" onclick="openAuth('cadastro')">CRIAR MINHA LOJA AGORA</button>
+    <div id="loading-screen">
+        <div class="spinner"></div>
+        <p style="margin-top: 15px; font-weight: 600; color: #fff; letter-spacing: 2px;">CARREGANDO...</p>
     </div>
 
-    <section class="features">
-        <div class="grid">
-            <div class="card">
-                <i class="fas fa-rocket"></i>
-                <h3>Rápido e Fácil</h3>
-                <p>Crie sua conta e monte seu cardápio em menos de 5 minutos.</p>
+    <div id="app-marketing" class="hidden">
+        
+        <nav class="navbar">
+            <div class="logo">EATS<span>MENU</span></div>
+            <div class="nav-links">
+                <a href="#beneficios">Benefícios</a>
+                <a href="#funciona">Como Funciona</a>
+                <a href="#faq">Dúvidas</a>
             </div>
-            <div class="card">
-                <i class="fab fa-whatsapp"></i>
-                <h3>Pedidos no Zap</h3>
-                <p>Receba pedidos organizados com endereço e total calculado.</p>
+            <div>
+                <button onclick="openAuth('login')" class="btn-login">Entrar</button>
+                <button onclick="openAuth('cadastro')" class="btn-cta">Criar Conta</button>
             </div>
-            <div class="card">
-                <i class="fas fa-qrcode"></i>
-                <h3>QR Code e Link</h3>
-                <p>Compartilhe seu link exclusivo ou coloque QR Codes nas mesas.</p>
+        </nav>
+
+        <section class="hero">
+            <span class="tag-promo">🚀 Sistema 100% Gratuito</span>
+            <h1>Seu Delivery no <br><span>Piloto Automático</span></h1>
+            <p>Transforme seu WhatsApp em uma máquina de vendas. Cardápio digital profissional, gestão de pedidos e impressão automática. Sem taxas, sem burocracia.</p>
+            
+            <button class="hero-btn-main" onclick="openAuth('cadastro')">
+                <i class="fas fa-rocket"></i> QUERO CRIAR MINHA LOJA
+            </button>
+
+            <div class="mockup-container">
+                <div style="text-align: center; opacity: 0.5;">
+                    <i class="fas fa-mobile-alt" style="font-size: 5rem; margin-bottom: 20px;"></i>
+                    <h2>PREVIEW DO SISTEMA</h2>
+                </div>
+            </div>
+        </section>
+
+        <div class="stats-bar">
+            <div class="stat-item">
+                <span class="stat-num">0%</span>
+                <span class="stat-label">de Taxas</span>
+            </div>
+            <div class="stat-item">
+                <span class="stat-num">+1k</span>
+                <span class="stat-label">Lojas Ativas</span>
+            </div>
+            <div class="stat-item">
+                <span class="stat-num">24h</span>
+                <span class="stat-label">Suporte</span>
             </div>
         </div>
-    </section>
+
+        <section class="section" id="beneficios">
+            <div class="section-header">
+                <h2>Por que escolher a EatsMenu?</h2>
+                <p>Tudo o que você precisa para profissionalizar seu atendimento.</p>
+            </div>
+            
+            <div class="grid">
+                <div class="card">
+                    <i class="fas fa-bolt"></i>
+                    <h3>Instalação Relâmpago</h3>
+                    <p>Crie sua conta e cadastre seus produtos em menos de 5 minutos.</p>
+                </div>
+                <div class="card">
+                    <i class="fab fa-whatsapp"></i>
+                    <h3>Pedidos no Zap</h3>
+                    <p>Receba pedidos formatados: "1x Burger, Sem Cebola, Troco pra 50".</p>
+                </div>
+                <div class="card">
+                    <i class="fas fa-paint-brush"></i>
+                    <h3>Design Premium</h3>
+                    <p>Visual moderno e escuro que valoriza as fotos dos seus produtos.</p>
+                </div>
+                <div class="card">
+                    <i class="fas fa-globe"></i>
+                    <h3>Link Personalizado</h3>
+                    <p>Seu site com seu nome (ex: <b>pizzaria.eatsmenu.com.br</b>).</p>
+                </div>
+                <div class="card">
+                    <i class="fas fa-qrcode"></i>
+                    <h3>QR Code de Mesa</h3>
+                    <p>Gere códigos para os clientes pedirem direto da mesa.</p>
+                </div>
+                <div class="card">
+                    <i class="fas fa-sliders-h"></i>
+                    <h3>Painel Completo</h3>
+                    <p>Edite preços, taxas de entrega e horários em tempo real.</p>
+                </div>
+            </div>
+        </section>
+
+        <section class="section" id="faq" style="background: #080808;">
+            <div class="section-header">
+                <h2>Tudo o que você precisa saber</h2>
+            </div>
+            <div class="faq-box">
+                <div class="faq-item" onclick="this.classList.toggle('active')">
+                    <div class="faq-question">É realmente grátis? <i class="fas fa-chevron-down faq-icon"></i></div>
+                    <div class="faq-answer">Sim! Você pode usar o sistema sem pagar mensalidade ou taxas sobre pedidos.</div>
+                </div>
+                <div class="faq-item" onclick="this.classList.toggle('active')">
+                    <div class="faq-question">Preciso de computador? <i class="fas fa-chevron-down faq-icon"></i></div>
+                    <div class="faq-answer">Não. Nosso painel é 100% otimizado para celular.</div>
+                </div>
+                <div class="faq-item" onclick="this.classList.toggle('active')">
+                    <div class="faq-question">Como recebo o dinheiro? <i class="fas fa-chevron-down faq-icon"></i></div>
+                    <div class="faq-answer">O pagamento é direto entre você e seu cliente (Pix ou Dinheiro). Não intermediamos valores.</div>
+                </div>
+            </div>
+        </section>
+
+        <footer>
+            <div class="logo" style="justify-content:center; display:flex; margin-bottom: 20px; filter: grayscale(1);">
+                EATS<span>MENU</span>
+            </div>
+            <p>&copy; 2026 EatsMenu Tecnologia. Todos os direitos reservados.</p>
+        </footer>
+
+    </div>
 
     <div class="modal" id="auth-modal">
         <div class="auth-box">
-            <span onclick="document.getElementById('auth-modal').style.display='none'" style="position:absolute; top:15px; right:20px; cursor:pointer; font-size:1.5rem;">×</span>
-            <h2 id="auth-title" style="margin-bottom:20px; text-align:center;">Criar Loja</h2>
+            <span class="close-btn" onclick="document.getElementById('auth-modal').style.display='none'">×</span>
+            <h2 id="auth-title" style="margin-bottom:20px; color:var(--primary);">Criar Loja</h2>
             
             <div id="form-cadastro">
-                <input class="input-field" id="cad-nome" placeholder="Nome do Estabelecimento">
-                <div class="slug-group">
-                    <input class="input-field" id="cad-slug" placeholder="seulink" onkeyup="this.value=this.value.toLowerCase().replace(/[^a-z0-9-]/g,'')">
-                    <span>.eatsmenu.com.br</span>
+                <div class="input-group">
+                    <label>Nome do Estabelecimento</label>
+                    <input class="input-field" id="cad-nome" placeholder="Ex: Burger King">
                 </div>
-                <input class="input-field" id="cad-email" placeholder="E-mail">
-                <input class="input-field" id="cad-pass" type="password" placeholder="Senha">
-                <button class="btn-cta" style="width:100%" onclick="fCadastro()">CRIAR CONTA</button>
-                <p style="text-align:center; margin-top:15px; color:#aaa; cursor:pointer;" onclick="toggleAuth('login')">Já tenho conta</p>
+                <div class="input-group">
+                    <label>Seu Link Exclusivo</label>
+                    <div class="slug-wrapper">
+                        <input class="input-field" id="cad-slug" placeholder="seulink" onkeyup="this.value=this.value.toLowerCase().replace(/[^a-z0-9-]/g,'')">
+                        <span>.eatsmenu.com.br</span>
+                    </div>
+                </div>
+                <div class="input-group">
+                    <label>E-mail</label>
+                    <input class="input-field" id="cad-email" placeholder="seu@email.com">
+                </div>
+                <div class="input-group">
+                    <label>Senha</label>
+                    <input class="input-field" id="cad-pass" type="password" placeholder="Mínimo 6 dígitos">
+                </div>
+                <button class="btn-submit" onclick="fCadastro()">CRIAR CONTA AGORA</button>
+                <p style="text-align:center; margin-top:15px; color:#666; cursor:pointer;" onclick="toggleAuth('login')">Já tenho conta. <b>Entrar</b></p>
             </div>
 
             <div id="form-login" class="hidden">
-                <input class="input-field" id="log-email" placeholder="E-mail">
-                <input class="input-field" id="log-pass" type="password" placeholder="Senha">
-                <button class="btn-cta" style="width:100%" onclick="fLogin()">ENTRAR</button>
-                <p style="text-align:center; margin-top:15px; color:#aaa; cursor:pointer;" onclick="toggleAuth('cadastro')">Criar conta</p>
+                <div class="input-group">
+                    <label>E-mail</label>
+                    <input class="input-field" id="log-email" placeholder="seu@email.com">
+                </div>
+                <div class="input-group">
+                    <label>Senha</label>
+                    <input class="input-field" id="log-pass" type="password" placeholder="Sua senha">
+                </div>
+                <button class="btn-submit" onclick="fLogin()">ENTRAR NO PAINEL</button>
+                <p style="text-align:center; margin-top:15px; color:#666; cursor:pointer;" onclick="toggleAuth('cadastro')">Não tenho loja. <b>Criar</b></p>
             </div>
         </div>
     </div>
@@ -127,71 +332,111 @@
         const auth = getAuth(app);
         const db = getFirestore(app);
 
-        // --- ROTEADOR INTELIGENTE (CORRIGIDO) ---
+        // --- ROTEADOR INTELIGENTE CORRIGIDO ---
         (function router() {
             const host = window.location.hostname;
             
-            // LISTA DE DOMÍNIOS QUE *DEVEM* FICAR NA HOME (Marketing)
-            // Se for um desses, para o loading e não faz nada.
+            // LISTA BRANCA: Se for um desses domínios, MOSTRA A HOME DE MARKETING.
+            // Isso evita o erro de "Loja não encontrada" no domínio principal.
             if (host === 'eatsmenu.com.br' || 
                 host === 'www.eatsmenu.com.br' || 
                 host.includes('localhost') || 
                 host.includes('vercel.app')) {
                 
+                // Mostra a Home
                 document.getElementById('loading-screen').style.display = 'none';
-                return; // FIM DO SCRIPT: Fica na Home
-            } 
+                document.getElementById('app-marketing').classList.remove('hidden');
+                return;
+            }
             
-            // SE NÃO FOR A HOME, ENTÃO É SUBDOMÍNIO (LOJA)
+            // SE NÃO CAIU ACIMA, É UM SUBDOMÍNIO DE LOJA (ex: pizzaria.eatsmenu.com.br)
+            // Lógica: Se não é o principal, assumimos que é loja.
             const parts = host.split('.');
-            // Exemplo: pizzaria.eatsmenu.com.br (4 partes)
-            // Só redireciona se tiver 4 partes ou mais, o que garante que tem subdomínio
-            if (parts.length > 3) { 
+            
+            // Proteção extra para não quebrar em domínios estranhos
+            if(parts.length > 2) {
                 const slug = parts[0];
-                if (!['admin', 'painel', 'app', 'login'].includes(slug)) {
-                    // Redireciona para o cardápio
-                    window.location.replace(`cardapio.html?loja=${slug}`);
-                }
+                // Redireciona para o arquivo de cardápio passando o nome da loja
+                window.location.replace(`cardapio.html?loja=${slug}`);
             } else {
-                // Caso raro onde pode ter passado, garante home
+                // Fallback seguro
                 document.getElementById('loading-screen').style.display = 'none';
+                document.getElementById('app-marketing').classList.remove('hidden');
             }
         })();
 
-        window.openAuth = (t) => { document.getElementById('auth-modal').style.display='flex'; toggleAuth(t); }
+        // --- FUNÇÕES UI ---
+        window.openAuth = (tab) => {
+            document.getElementById('auth-modal').style.display = 'flex';
+            window.toggleAuth(tab);
+        }
         
-        window.toggleAuth = (t) => {
-            document.getElementById('form-login').classList.toggle('hidden', t !== 'login');
-            document.getElementById('form-cadastro').classList.toggle('hidden', t !== 'cadastro');
-            document.getElementById('auth-title').innerText = t==='login'?'Acessar Painel':'Criar Loja';
+        window.toggleAuth = (tab) => {
+            document.getElementById('form-login').classList.toggle('hidden', tab !== 'login');
+            document.getElementById('form-cadastro').classList.toggle('hidden', tab !== 'cadastro');
+            document.getElementById('auth-title').innerText = tab === 'login' ? 'Acessar Painel' : 'Criar Loja';
         }
 
+        // --- FIREBASE AUTH ---
         window.fCadastro = () => {
             const nome = document.getElementById('cad-nome').value;
             const slug = document.getElementById('cad-slug').value.toLowerCase().replace(/[^a-z0-9-]/g, '');
             const email = document.getElementById('cad-email').value;
             const pass = document.getElementById('cad-pass').value;
-            
-            if(!nome||!slug||!email||!pass) return notify("Preencha tudo", "error");
 
-            createUserWithEmailAndPassword(auth, email, pass).then(async(c)=>{
-                await setDoc(doc(db,"lojas",c.user.uid), { 
-                    nome, slug, email, produtos:[], bairros:[], cor:"#00e676", 
-                    hora_abre:"18:00", hora_fecha:"23:00", data_criacao: new Date()
+            if(!nome || !slug || !email || !pass) return notify("Preencha todos os campos!", "error");
+            if(slug.length < 3) return notify("Link da loja muito curto", "error");
+
+            const btn = document.querySelector('#form-cadastro .btn-submit');
+            btn.innerText = "CRIANDO...";
+            btn.disabled = true;
+
+            createUserWithEmailAndPassword(auth, email, pass).then(async(cred) => {
+                await setDoc(doc(db, "lojas", cred.user.uid), {
+                    nome: nome,
+                    slug: slug,
+                    email: email,
+                    produtos: [],
+                    bairros: [],
+                    cor: "#00e676",
+                    hora_abre: "18:00",
+                    hora_fecha: "23:00",
+                    data_criacao: new Date()
                 });
                 notify("Loja criada com sucesso!");
-                setTimeout(() => window.location.href="admin.html", 1500);
-            }).catch(e=>notify(e.message, "error"));
+                setTimeout(() => window.location.href = "admin.html", 1500);
+            }).catch(e => {
+                notify("Erro: " + e.message, "error");
+                btn.innerText = "CRIAR CONTA AGORA";
+                btn.disabled = false;
+            });
         }
 
         window.fLogin = () => {
             const email = document.getElementById('log-email').value;
             const pass = document.getElementById('log-pass').value;
-            signInWithEmailAndPassword(auth, email, pass).then(()=>window.location.href="admin.html").catch(e=>notify("Erro no login", "error"));
+            
+            if(!email || !pass) return notify("Preencha e-mail e senha", "error");
+
+            const btn = document.querySelector('#form-login .btn-submit');
+            btn.innerText = "ENTRANDO...";
+            btn.disabled = true;
+
+            signInWithEmailAndPassword(auth, email, pass)
+                .then(() => window.location.href = "admin.html")
+                .catch(() => {
+                    notify("E-mail ou senha incorretos", "error");
+                    btn.innerText = "ENTRAR NO PAINEL";
+                    btn.disabled = false;
+                });
         }
 
         function notify(msg, type="success") {
-            Toastify({ text: msg, style: { background: type==="success"?"#00e676":"#ff1744", color:"#000", fontWeight:"bold" } }).showToast();
+            Toastify({
+                text: msg,
+                style: { background: type === "success" ? "#00e676" : "#ff1744", color: "#000", fontWeight: "bold" },
+                position: "center"
+            }).showToast();
         }
     </script>
 </body>
