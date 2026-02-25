@@ -96,13 +96,13 @@
             <div class="input-group">
                 <label>Logo (URL)</label>
                 <input type="text" id="conf-logo" placeholder="https://...">
-                <span class="size-hint">Tamanho recomendado: 500x500 pixels (Quadrado)</span>
+                <span class="size-hint">Recomendado: 500x500 pixels (Quadrado)</span>
             </div>
             
             <div class="input-group">
                 <label>Banner (URL)</label>
                 <input type="text" id="conf-banner" placeholder="https://...">
-                <span class="size-hint">Tamanho recomendado: 1000x300 pixels (Retangular)</span>
+                <span class="size-hint">Recomendado: 1000x300 pixels (Retangular)</span>
             </div>
             
             <div class="input-group">
@@ -136,7 +136,7 @@
                     <label>Imagem</label>
                     <div class="file-upload">
                         <div class="file-btn" id="btn-upload-text"><i class="fas fa-camera"></i> Escolher Foto (Upload)</div>
-                        <input type="file" id="prod-file" accept="image/*">
+                        <input type="file" id="prod-file" accept="image/*" onchange="window.uploadImagem(this)">
                     </div>
                     <input type="text" id="prod-img" placeholder="Ou cole a URL da imagem aqui" style="margin-top:5px;">
                     <small id="upload-status" style="color: var(--primary); display:none; font-weight:bold; margin-top:5px;">Enviando...</small>
@@ -226,12 +226,6 @@
             if (snap.exists()) {
                 data = snap.data();
                 
-                // Redireciona se não pagou
-                if (data.status_pagamento === 'pendente' && data.slug !== 'admin') { 
-                    alert("Sua conta está aguardando ativação. Entre em contato com o suporte.");
-                    // window.location.href = "index.html"; // Comentei para você conseguir testar se precisar
-                }
-
                 if(!data.produtos) data.produtos = [];
                 if(!data.bairros) data.bairros = [];
                 if(!data.dias_func) data.dias_func = [0,1,2,3,4,5,6];
@@ -257,37 +251,35 @@
             }
         }
 
-        // --- CORREÇÃO DO UPLOAD ---
-        // Adicionando o event listener via JS para garantir contexto
-        document.getElementById('prod-file').addEventListener('change', async function(e) {
-            const file = e.target.files[0];
-            if (!file) return;
-
+        // --- FUNÇÃO DE UPLOAD CORRIGIDA E GLOBAL ---
+        window.uploadImagem = async (input) => {
+            if (!input.files || !input.files[0]) return;
+            
+            const file = input.files[0];
             const status = document.getElementById('upload-status');
+            
             status.style.display = 'block';
             status.innerText = "Enviando imagem...";
             status.style.color = "#00e676";
 
             try {
-                // Cria referência única para a imagem
+                if(!userUid) throw new Error("Usuário não autenticado");
+
+                // Caminho seguro no Storage
                 const storageRef = ref(storage, `imagens/${userUid}/${Date.now()}_${file.name}`);
                 
-                // Faz o upload
                 await uploadBytes(storageRef, file);
-                
-                // Pega a URL
                 const url = await getDownloadURL(storageRef);
                 
-                // Preenche o campo
                 document.getElementById('prod-img').value = url;
-                
-                status.innerText = "Imagem carregada com sucesso!";
+                status.innerText = "Sucesso!";
             } catch (error) {
-                console.error("Erro upload:", error);
+                console.error("Erro no upload:", error);
                 status.innerText = "Erro ao enviar. Tente novamente.";
                 status.style.color = "#ff1744";
+                alert("Erro ao fazer upload da imagem. Verifique se o arquivo é uma imagem válida.");
             }
-        });
+        };
 
         window.salvarLoja = async () => {
             const update = {
@@ -332,12 +324,13 @@
             data.produtos.push(prod);
             await updateDoc(doc(db, "lojas", userUid), { produtos: data.produtos });
             
+            // Limpeza
             document.getElementById('prod-nome').value = "";
             document.getElementById('prod-preco').value = "";
             document.getElementById('prod-img').value = "";
             document.getElementById('prod-desc').value = "";
             document.getElementById('upload-status').style.display = 'none';
-            document.getElementById('prod-file').value = ""; // Limpa input file
+            document.getElementById('prod-file').value = ""; 
             
             renderProdutos();
             toast("Produto Adicionado!");
