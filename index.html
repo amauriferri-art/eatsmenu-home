@@ -21,6 +21,7 @@
             --text-main: #ffffff;
             --text-sec: #a0a0a0;
             --border: #333;
+            --mp-blue: #009ee3; /* Cor do Mercado Pago */
         }
 
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Outfit', sans-serif; outline: none; }
@@ -194,6 +195,26 @@
         .plan-features li { margin-bottom: 8px; }
         .plan-features i { color: var(--primary); margin-right: 8px; }
 
+        /* Botão Mercado Pago */
+        .btn-mp {
+            background: var(--mp-blue);
+            color: #fff;
+            width: 100%;
+            padding: 12px;
+            border: none;
+            border-radius: 8px;
+            font-weight: 700;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: 0.3s;
+            margin-top: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+        .btn-mp:hover { background: #0081bb; box-shadow: 0 0 15px rgba(0,158,227,0.4); }
+
         @media(max-width: 768px) {
             .navbar { padding: 15px 5%; }
             .hero h1 { font-size: 2.5rem; }
@@ -300,7 +321,7 @@
                     <label>Senha</label>
                     <input class="input-field" id="cad-pass" type="password" placeholder="Mínimo 6 dígitos">
                 </div>
-                <button class="btn-submit" onclick="fCadastro()">AVANÇAR PARA PLANOS</button>
+                <button class="btn-submit" onclick="fCadastro()">AVANÇAR PARA PAGAMENTO</button>
                 <p style="text-align:center; margin-top:20px; color:#666; cursor:pointer; padding: 10px;" onclick="toggleAuth('login')">Já tenho conta. <b style="color: #fff;">Entrar</b></p>
             </div>
 
@@ -325,7 +346,7 @@
             <p style="text-align:center; color:#aaa;">Escolha um plano para ativar seu Cardápio e o Robô de Atendimento.</p>
 
             <div class="plans-grid">
-                <div class="plan-card" onclick="selecionarPlano('mensal')">
+                <div class="plan-card">
                     <h3>Assinatura Mensal</h3>
                     <div class="plan-price">R$ 69,00<span>/mês</span></div>
                     <ul class="plan-features">
@@ -334,10 +355,12 @@
                         <li><i class="fas fa-check"></i> Painel Administrativo</li>
                         <li><i class="fas fa-check"></i> Suporte Técnico Mensal</li>
                     </ul>
-                    <button class="btn-outline" style="width:100%; padding:10px; font-size:0.9rem;">ESCOLHER MENSAL</button>
+                    <button class="btn-mp" onclick="pagarMercadoPago('mensal')">
+                        <i class="fas fa-credit-card"></i> ASSINAR COM MERCADO PAGO
+                    </button>
                 </div>
 
-                <div class="plan-card recommended" onclick="selecionarPlano('vitalicio')">
+                <div class="plan-card recommended">
                     <div class="plan-badge">MAIS VENDIDO</div>
                     <h3>Plano Vitalício</h3>
                     <div class="plan-price">R$ 149,00<span>/único</span></div>
@@ -347,15 +370,23 @@
                         <li><i class="fas fa-check"></i> <b>Robô de WhatsApp Incluso</b></li>
                         <li><i class="fas fa-check"></i> Painel Administrativo</li>
                     </ul>
-                    <button class="btn-submit" style="width:100%; margin-top:0; padding:10px; font-size:0.9rem;">QUERO VITALÍCIO</button>
+                    <button class="btn-mp" onclick="pagarMercadoPago('vitalicio')">
+                        <i class="fas fa-credit-card"></i> COMPRAR AGORA (MERCADO PAGO)
+                    </button>
                 </div>
             </div>
             
-            <p style="text-align:center; margin-top:20px; color:#666; font-size:0.8rem;">Ao selecionar, você será redirecionado para o WhatsApp do Suporte para finalizar a ativação.</p>
+            <div id="payment-waiting" style="display:none; text-align:center; margin-top:20px; background:#000; padding:15px; border-radius:10px; border:1px solid #333;">
+                <p style="color:#00e676; font-weight:bold;">Aguardando Pagamento...</p>
+                <p style="color:#aaa; font-size:0.9rem;">Assim que concluir no Mercado Pago, nosso sistema irá processar. Se demorar, contate o suporte.</p>
+                <button class="btn-outline" onclick="solicitarWhats()" style="margin-top:10px; font-size:0.8rem;">Já paguei, liberar meu acesso</button>
+            </div>
         </div>
     </div>
 
     <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
+    <script src="https://sdk.mercadopago.com/js/v2"></script>
+    
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js";
         import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-auth.js";
@@ -373,6 +404,11 @@
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
         const db = getFirestore(app);
+
+        // --- LINKS DE PAGAMENTO DO MERCADO PAGO ---
+        // VOCÊ DEVE GERAR ESSES LINKS NO PAINEL DO MERCADO PAGO E COLAR AQUI
+        const LINK_MP_MENSAL = "https://www.mercadopago.com.br/subscriptions/checkout?preapproval_plan_id=fabd7db66f7140ffadf4598ba5e43833"; // Ex: https://mpago.la/1a2b3c
+        const LINK_MP_VITALICIO = "https://mpago.la/17YSxYF"; // Ex: https://mpago.la/4d5e6f
 
         // --- ROTEADOR ---
         (function router() {
@@ -394,10 +430,10 @@
             }
         })();
 
-        // --- FUNÇÃO WHATSAPP GERAL ---
+        // --- FUNÇÃO WHATSAPP GERAL (Número Atualizado) ---
         window.solicitarWhats = () => {
             const phone = "55279995809348";
-            const text = encodeURIComponent("Olá! Tenho interesse no sistema EatsMenu.");
+            const text = encodeURIComponent("Olá! Tenho interesse no sistema EatsMenu, preciso de suporte.");
             window.open(`https://wa.me/${phone}?text=${text}`, '_blank');
         }
 
@@ -459,25 +495,27 @@
                 let msg = e.message;
                 if(msg.includes('email-already-in-use')) msg = "E-mail já cadastrado.";
                 notify("Erro: " + msg, "error");
-                btn.innerText = "AVANÇAR PARA PLANOS";
+                btn.innerText = "AVANÇAR PARA PAGAMENTO";
                 btn.disabled = false;
             });
         }
 
-        // --- SELEÇÃO DE PLANO ---
-        window.selecionarPlano = async (plano) => {
+        // --- PAGAMENTO MERCADO PAGO ---
+        window.pagarMercadoPago = async (plano) => {
             if(!novoUsuarioUid) return;
 
-            const phone = "55279995809348";
-            let text = "";
-            let valor = "";
+            let linkDestino = "";
 
             if (plano === 'vitalicio') {
-                text = `Olá! Acabei de criar minha conta no EatsMenu (Loja: ${novoUsuarioNome}). Quero ativar o *PLANO VITALÍCIO (R$ 149,00)*. Qual a chave PIX?`;
-                valor = "149,00";
+                linkDestino = LINK_MP_VITALICIO;
             } else {
-                text = `Olá! Acabei de criar minha conta no EatsMenu (Loja: ${novoUsuarioNome}). Quero ativar o *PLANO MENSAL (R$ 69,00)*. Qual a chave PIX?`;
-                valor = "69,00";
+                linkDestino = LINK_MP_MENSAL;
+            }
+
+            // Verifica se o usuário configurou os links no código
+            if(linkDestino.includes("COLOQUE_AQUI")) {
+                alert("ERRO DE CONFIGURAÇÃO: O dono do site precisa configurar os links do Mercado Pago no arquivo index.html");
+                return;
             }
 
             // Atualiza intenção no banco
@@ -485,17 +523,11 @@
                 plano: plano 
             }, { merge: true });
 
-            // Abre WhatsApp
-            window.open(`https://wa.me/${phone}?text=${encodeURIComponent(text)}`, '_blank');
-            
-            // Redireciona para login (ou avisa que aguarda ativação)
-            document.getElementById('payment-modal').innerHTML = `
-                <div style="text-align:center; padding:20px;">
-                    <h2 style="color:var(--primary)">Aguardando Ativação...</h2>
-                    <p style="color:#ccc; margin:20px 0;">Assim que confirmarmos seu pagamento de <b>R$ ${valor}</b> no WhatsApp, seu painel será liberado.</p>
-                    <button class="btn-submit" onclick="location.reload()">JÁ FIZ O PAGAMENTO</button>
-                </div>
-            `;
+            // Mostra aviso de espera
+            document.getElementById('payment-waiting').style.display = 'block';
+
+            // Abre o Checkout do Mercado Pago em nova aba
+            window.open(linkDestino, '_blank');
         }
 
         window.fLogin = () => {
@@ -517,16 +549,15 @@
                         if (dados.status_pagamento === 'ativo' || dados.status_pagamento === 'gratis') {
                             window.location.href = "admin.html";
                         } else {
-                            notify("Sua conta está pendente de pagamento.", "error");
-                            // Reabre modal de pagamento se necessário, ou avisa pra chamar no zap
-                            setTimeout(() => {
-                                window.solicitarWhats();
-                            }, 2000);
+                            notify("Aguardando confirmação do pagamento.", "error");
+                            // Mostra modal de pagamento novamente caso tenha fechado sem querer
+                            document.getElementById('payment-modal').style.display = 'flex';
+                            
                             btn.innerText = "PAGAMENTO PENDENTE";
                             btn.disabled = false;
                         }
                     } else {
-                        window.location.href = "admin.html"; // Fallback
+                        window.location.href = "admin.html"; 
                     }
                 })
                 .catch(() => {
