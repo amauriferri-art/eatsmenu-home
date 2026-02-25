@@ -21,7 +21,7 @@
             --text-main: #ffffff;
             --text-sec: #a0a0a0;
             --border: #333;
-            --mp-blue: #009ee3; /* Cor do Mercado Pago */
+            --mp-blue: #009ee3;
         }
 
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Outfit', sans-serif; outline: none; }
@@ -46,7 +46,6 @@
         .logo { font-size: 1.5rem; font-weight: 800; text-transform: uppercase; letter-spacing: 1px; color: #fff; }
         .logo span { color: var(--primary); }
         
-        /* BOTÕES DE NAV NEON DISCRETOS */
         .nav-actions { display: flex; gap: 15px; align-items: center; }
         
         .btn-neon-outline {
@@ -356,7 +355,7 @@
                         <li><i class="fas fa-check"></i> Suporte Técnico Mensal</li>
                     </ul>
                     <button class="btn-mp" onclick="pagarMercadoPago('mensal')">
-                        <i class="fas fa-credit-card"></i> ASSINAR COM MERCADO PAGO
+                        <i class="fas fa-credit-card"></i> ASSINAR NO MERCADO PAGO
                     </button>
                 </div>
 
@@ -371,22 +370,19 @@
                         <li><i class="fas fa-check"></i> Painel Administrativo</li>
                     </ul>
                     <button class="btn-mp" onclick="pagarMercadoPago('vitalicio')">
-                        <i class="fas fa-credit-card"></i> COMPRAR AGORA (MERCADO PAGO)
+                        <i class="fas fa-credit-card"></i> COMPRAR NO MERCADO PAGO
                     </button>
                 </div>
             </div>
             
             <div id="payment-waiting" style="display:none; text-align:center; margin-top:20px; background:#000; padding:15px; border-radius:10px; border:1px solid #333;">
-                <p style="color:#00e676; font-weight:bold;">Aguardando Pagamento...</p>
-                <p style="color:#aaa; font-size:0.9rem;">Assim que concluir no Mercado Pago, nosso sistema irá processar. Se demorar, contate o suporte.</p>
-                <button class="btn-outline" onclick="solicitarWhats()" style="margin-top:10px; font-size:0.8rem;">Já paguei, liberar meu acesso</button>
+                <p style="color:#00e676; font-weight:bold;">Redirecionando para pagamento...</p>
+                <p style="color:#aaa; font-size:0.9rem;">Após pagar, clique em <b>"Voltar para o site"</b> para ativar sua conta automaticamente.</p>
             </div>
         </div>
     </div>
 
     <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
-    <script src="https://sdk.mercadopago.com/js/v2"></script>
-    
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js";
         import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-auth.js";
@@ -405,10 +401,10 @@
         const auth = getAuth(app);
         const db = getFirestore(app);
 
-        // --- LINKS DE PAGAMENTO DO MERCADO PAGO ---
-        // VOCÊ DEVE GERAR ESSES LINKS NO PAINEL DO MERCADO PAGO E COLAR AQUI
-        const LINK_MP_MENSAL = "https://www.mercadopago.com.br/subscriptions/checkout?preapproval_plan_id=fabd7db66f7140ffadf4598ba5e43833"; // Ex: https://mpago.la/1a2b3c
-        const LINK_MP_VITALICIO = "https://mpago.la/17YSxYF"; // Ex: https://mpago.la/4d5e6f
+        // --- SEUS LINKS DO MERCADO PAGO AQUI ---
+        // IMPORTANTE: Configure a URL de Retorno neles para o seu site!
+        const LINK_MP_MENSAL = "COLOQUE_AQUI_SEU_LINK_MENSAL"; // Ex: https://mpago.la/xyz
+        const LINK_MP_VITALICIO = "COLOQUE_AQUI_SEU_LINK_VITALICIO"; 
 
         // --- ROTEADOR ---
         (function router() {
@@ -430,14 +426,13 @@
             }
         })();
 
-        // --- FUNÇÃO WHATSAPP GERAL (Número Atualizado) ---
+        // --- WHATSAPP ATUALIZADO ---
         window.solicitarWhats = () => {
             const phone = "55279995809348";
-            const text = encodeURIComponent("Olá! Tenho interesse no sistema EatsMenu, preciso de suporte.");
+            const text = encodeURIComponent("Olá! Tenho interesse no sistema EatsMenu, preciso de ajuda.");
             window.open(`https://wa.me/${phone}?text=${text}`, '_blank');
         }
 
-        // --- FUNÇÕES UI ---
         window.openAuth = (tab) => {
             document.getElementById('auth-modal').style.display = 'flex';
             window.toggleAuth(tab);
@@ -451,7 +446,6 @@
 
         // --- FIREBASE AUTH ---
         let novoUsuarioUid = null;
-        let novoUsuarioNome = "";
 
         window.fCadastro = () => {
             const nome = document.getElementById('cad-nome').value;
@@ -467,7 +461,6 @@
             btn.disabled = true;
 
             createUserWithEmailAndPassword(auth, email, pass).then(async(cred) => {
-                // Cria o documento da loja, mas com status pendente
                 await setDoc(doc(db, "lojas", cred.user.uid), {
                     nome: nome,
                     slug: slug,
@@ -478,16 +471,13 @@
                     hora_abre: "18:00",
                     hora_fecha: "23:00",
                     data_criacao: new Date(),
-                    status_pagamento: "pendente", // Bloqueia acesso
+                    status_pagamento: "pendente", 
                     plano: "nenhum"
                 });
                 
                 novoUsuarioUid = cred.user.uid;
-                novoUsuarioNome = nome;
-
                 notify("Conta criada! Escolha seu plano.");
                 
-                // Fecha modal de cadastro e abre o de pagamento
                 document.getElementById('auth-modal').style.display = 'none';
                 document.getElementById('payment-modal').style.display = 'flex';
 
@@ -504,30 +494,20 @@
         window.pagarMercadoPago = async (plano) => {
             if(!novoUsuarioUid) return;
 
-            let linkDestino = "";
+            let linkDestino = (plano === 'vitalicio') ? LINK_MP_VITALICIO : LINK_MP_MENSAL;
 
-            if (plano === 'vitalicio') {
-                linkDestino = LINK_MP_VITALICIO;
-            } else {
-                linkDestino = LINK_MP_MENSAL;
-            }
-
-            // Verifica se o usuário configurou os links no código
             if(linkDestino.includes("COLOQUE_AQUI")) {
                 alert("ERRO DE CONFIGURAÇÃO: O dono do site precisa configurar os links do Mercado Pago no arquivo index.html");
                 return;
             }
 
             // Atualiza intenção no banco
-            await setDoc(doc(db, "lojas", novoUsuarioUid), { 
-                plano: plano 
-            }, { merge: true });
+            await setDoc(doc(db, "lojas", novoUsuarioUid), { plano: plano }, { merge: true });
 
-            // Mostra aviso de espera
             document.getElementById('payment-waiting').style.display = 'block';
-
-            // Abre o Checkout do Mercado Pago em nova aba
-            window.open(linkDestino, '_blank');
+            
+            // Abre checkout
+            window.location.href = linkDestino;
         }
 
         window.fLogin = () => {
@@ -549,15 +529,14 @@
                         if (dados.status_pagamento === 'ativo' || dados.status_pagamento === 'gratis') {
                             window.location.href = "admin.html";
                         } else {
+                            // Se estiver pendente, joga pro pagamento
                             notify("Aguardando confirmação do pagamento.", "error");
-                            // Mostra modal de pagamento novamente caso tenha fechado sem querer
+                            novoUsuarioUid = cred.user.uid; 
+                            document.getElementById('auth-modal').style.display = 'none';
                             document.getElementById('payment-modal').style.display = 'flex';
-                            
                             btn.innerText = "PAGAMENTO PENDENTE";
                             btn.disabled = false;
                         }
-                    } else {
-                        window.location.href = "admin.html"; 
                     }
                 })
                 .catch(() => {
