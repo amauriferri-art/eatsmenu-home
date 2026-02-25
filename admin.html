@@ -21,6 +21,9 @@
         input[type="text"], input[type="number"], select, textarea { width: 100%; background: #080808; border: 1px solid var(--border); color: #fff; padding: 12px; border-radius: 10px; transition: 0.3s; }
         input:focus { border-color: var(--primary); }
         
+        /* Dicas de tamanho */
+        .size-hint { color: #555; font-size: 0.8rem; margin-top: 5px; display: block; }
+
         /* Checkboxes Dias */
         .days-wrapper { display: flex; gap: 10px; flex-wrap: wrap; background: #080808; padding: 15px; border-radius: 10px; border: 1px solid var(--border); }
         .day-option { display: flex; align-items: center; gap: 8px; cursor: pointer; color: #fff; font-weight: 600; background: #222; padding: 8px 15px; border-radius: 20px; border: 1px solid #333; transition: 0.2s; }
@@ -32,6 +35,14 @@
         .btn-outline { background: transparent; border: 1px solid #555; color: #ccc; }
         .btn-outline.active { border-color: var(--primary); color: var(--primary); background: rgba(0,230,118,0.1); }
         .btn-danger { background: #ff1744; color: white; width: auto; padding: 5px 15px; font-size: 0.8rem; }
+        
+        .btn-download {
+            background: #222; border: 1px solid var(--primary); color: var(--primary);
+            padding: 8px 15px; border-radius: 8px; font-weight: 700; cursor: pointer;
+            text-decoration: none; display: flex; align-items: center; gap: 8px; font-size: 0.9rem;
+            transition: 0.3s;
+        }
+        .btn-download:hover { background: var(--primary); color: #000; }
 
         .tabs { display: flex; gap: 10px; margin-bottom: 25px; overflow-x: auto; }
         .tabs button { flex: 1; white-space: nowrap; }
@@ -50,7 +61,12 @@
     <div id="loading"><h3>Carregando Painel...</h3></div>
 
     <div class="dash-header">
-        <h3 style="color:var(--primary)">EatsMenu <span style="color:#fff; font-size:0.8em">Admin</span></h3>
+        <div style="display: flex; align-items: center; gap: 15px;">
+            <h3 style="color:var(--primary)">EatsMenu <span style="color:#fff; font-size:0.8em">Admin</span></h3>
+            <a href="https://www.mediafire.com/file/5k49afxecp3kf7m/EatsMenu+Bot+Setup+1.0.0.exe/file" target="_blank" class="btn-download">
+                <i class="fas fa-download"></i> Baixar Robô
+            </a>
+        </div>
         <button class="btn btn-danger" onclick="logout()">Sair</button>
     </div>
 
@@ -77,14 +93,17 @@
                 <div class="input-group"><label>Nome do Beneficiário</label><input type="text" id="conf-pix-name"></div>
             </div>
 
-            <div style="background: #1a1a1a; padding: 15px; border-radius: 10px; border: 1px solid #333; margin-bottom: 20px;">
-                <h4 style="color:var(--primary); margin-bottom: 10px;">🖨️ Impressão (NFC/PC)</h4>
-                <div class="input-group"><label>Nome do PC</label><input type="text" id="conf-print-pc" placeholder="Ex: CAIXA-01"></div>
-                <div class="input-group"><label>Nome da Impressora</label><input type="text" id="conf-print-name" placeholder="Ex: MP-4200"></div>
+            <div class="input-group">
+                <label>Logo (URL)</label>
+                <input type="text" id="conf-logo" placeholder="https://...">
+                <span class="size-hint">Tamanho recomendado: 500x500 pixels (Quadrado)</span>
             </div>
-
-            <div class="input-group"><label>Logo (URL)</label><input type="text" id="conf-logo"></div>
-            <div class="input-group"><label>Banner (URL)</label><input type="text" id="conf-banner"></div>
+            
+            <div class="input-group">
+                <label>Banner (URL)</label>
+                <input type="text" id="conf-banner" placeholder="https://...">
+                <span class="size-hint">Tamanho recomendado: 1000x300 pixels (Retangular)</span>
+            </div>
             
             <div class="input-group">
                 <label>Cor Principal (Botões e Destaques)</label>
@@ -116,11 +135,11 @@
                 <div class="input-group">
                     <label>Imagem</label>
                     <div class="file-upload">
-                        <div class="file-btn" id="btn-upload-text"><i class="fas fa-camera"></i> Escolher Foto ou Colar URL</div>
-                        <input type="file" id="prod-file" accept="image/*" onchange="handleFileUpload(this)">
+                        <div class="file-btn" id="btn-upload-text"><i class="fas fa-camera"></i> Escolher Foto (Upload)</div>
+                        <input type="file" id="prod-file" accept="image/*">
                     </div>
                     <input type="text" id="prod-img" placeholder="Ou cole a URL da imagem aqui" style="margin-top:5px;">
-                    <small id="upload-status" style="color: var(--primary); display:none;">Enviando...</small>
+                    <small id="upload-status" style="color: var(--primary); display:none; font-weight:bold; margin-top:5px;">Enviando...</small>
                 </div>
                 
                 <div style="margin-top:10px; background: #000; padding: 10px; border-radius: 8px;">
@@ -206,12 +225,19 @@
             const snap = await getDoc(doc(db, "lojas", userUid));
             if (snap.exists()) {
                 data = snap.data();
+                
+                // Redireciona se não pagou
+                if (data.status_pagamento === 'pendente' && data.slug !== 'admin') { 
+                    alert("Sua conta está aguardando ativação. Entre em contato com o suporte.");
+                    // window.location.href = "index.html"; // Comentei para você conseguir testar se precisar
+                }
+
                 if(!data.produtos) data.produtos = [];
                 if(!data.bairros) data.bairros = [];
                 if(!data.dias_func) data.dias_func = [0,1,2,3,4,5,6];
                 
                 const campos = ['conf-nome','conf-slug','conf-zap','conf-pix-key','conf-pix-name',
-                                'conf-logo','conf-banner','conf-cor','conf-print-pc','conf-print-name'];
+                                'conf-logo','conf-banner','conf-cor'];
                 
                 campos.forEach(id => {
                     const key = id.replace('conf-','').replace(/-/g,'_');
@@ -231,23 +257,37 @@
             }
         }
 
-        window.handleFileUpload = async (input) => {
-            if (input.files && input.files[0]) {
-                const file = input.files[0];
-                document.getElementById('upload-status').style.display = 'block';
-                try {
-                    const storageRef = ref(storage, `imagens/${userUid}/${Date.now()}_${file.name}`);
-                    await uploadBytes(storageRef, file);
-                    const url = await getDownloadURL(storageRef);
-                    document.getElementById('prod-img').value = url;
-                    document.getElementById('upload-status').innerText = "Sucesso!";
-                    document.getElementById('upload-status').style.color = "#00e676";
-                } catch (error) {
-                    console.error(error);
-                    document.getElementById('upload-status').innerText = "Erro no envio.";
-                }
+        // --- CORREÇÃO DO UPLOAD ---
+        // Adicionando o event listener via JS para garantir contexto
+        document.getElementById('prod-file').addEventListener('change', async function(e) {
+            const file = e.target.files[0];
+            if (!file) return;
+
+            const status = document.getElementById('upload-status');
+            status.style.display = 'block';
+            status.innerText = "Enviando imagem...";
+            status.style.color = "#00e676";
+
+            try {
+                // Cria referência única para a imagem
+                const storageRef = ref(storage, `imagens/${userUid}/${Date.now()}_${file.name}`);
+                
+                // Faz o upload
+                await uploadBytes(storageRef, file);
+                
+                // Pega a URL
+                const url = await getDownloadURL(storageRef);
+                
+                // Preenche o campo
+                document.getElementById('prod-img').value = url;
+                
+                status.innerText = "Imagem carregada com sucesso!";
+            } catch (error) {
+                console.error("Erro upload:", error);
+                status.innerText = "Erro ao enviar. Tente novamente.";
+                status.style.color = "#ff1744";
             }
-        };
+        });
 
         window.salvarLoja = async () => {
             const update = {
@@ -256,8 +296,6 @@
                 whatsapp: document.getElementById('conf-zap').value,
                 pix_key: document.getElementById('conf-pix-key').value,
                 pix_name: document.getElementById('conf-pix-name').value,
-                print_pc: document.getElementById('conf-print-pc').value,
-                print_name: document.getElementById('conf-print-name').value,
                 logo: document.getElementById('conf-logo').value,
                 banner: document.getElementById('conf-banner').value,
                 cor: document.getElementById('conf-cor').value
@@ -297,6 +335,9 @@
             document.getElementById('prod-nome').value = "";
             document.getElementById('prod-preco').value = "";
             document.getElementById('prod-img').value = "";
+            document.getElementById('prod-desc').value = "";
+            document.getElementById('upload-status').style.display = 'none';
+            document.getElementById('prod-file').value = ""; // Limpa input file
             
             renderProdutos();
             toast("Produto Adicionado!");
