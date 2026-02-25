@@ -21,10 +21,8 @@
         input[type="text"], input[type="number"], select, textarea { width: 100%; background: #080808; border: 1px solid var(--border); color: #fff; padding: 12px; border-radius: 10px; transition: 0.3s; }
         input:focus { border-color: var(--primary); }
         
-        /* Dicas de tamanho */
         .size-hint { color: #555; font-size: 0.8rem; margin-top: 5px; display: block; }
 
-        /* Checkboxes Dias */
         .days-wrapper { display: flex; gap: 10px; flex-wrap: wrap; background: #080808; padding: 15px; border-radius: 10px; border: 1px solid var(--border); }
         .day-option { display: flex; align-items: center; gap: 8px; cursor: pointer; color: #fff; font-weight: 600; background: #222; padding: 8px 15px; border-radius: 20px; border: 1px solid #333; transition: 0.2s; }
         .day-option:has(input:checked) { background: rgba(0, 230, 118, 0.2); border-color: var(--primary); color: var(--primary); }
@@ -106,10 +104,9 @@
             </div>
             
             <div class="input-group">
-                <label>Cor Principal (Botões e Destaques)</label>
+                <label>Cor Principal</label>
                 <div style="display:flex; align-items:center; gap:10px; background:#080808; padding:10px; border-radius:10px; border:1px solid #333;">
                     <input type="color" id="conf-cor" style="width:50px; height:40px; border:none; background:none; cursor:pointer;">
-                    <span style="color:#aaa; font-size:0.9rem;">Escolha a cor da sua marca</span>
                 </div>
             </div>
             
@@ -214,6 +211,9 @@
         onAuthStateChanged(auth, async (user) => {
             if (user) {
                 userUid = user.uid;
+                // --- DETECTOR DE PAGAMENTO AUTOMÁTICO ---
+                await checkPaymentStatus();
+                // ----------------------------------------
                 await loadData();
                 document.getElementById('loading').style.display = 'none';
             } else {
@@ -221,11 +221,37 @@
             }
         });
 
+        // --- FUNÇÃO MÁGICA DE ATIVAÇÃO ---
+        async function checkPaymentStatus() {
+            const params = new URLSearchParams(window.location.search);
+            const statusMP = params.get('collection_status');
+
+            // Se o Mercado Pago mandou de volta com "approved"
+            if (statusMP === 'approved') {
+                // Ativa a conta no banco de dados
+                await updateDoc(doc(db, "lojas", userUid), { 
+                    status_pagamento: 'ativo',
+                    data_ativacao: new Date()
+                });
+                
+                // Avisa o usuário e limpa a URL
+                toast("✅ Pagamento confirmado! Painel Liberado.");
+                window.history.replaceState({}, document.title, "admin.html");
+            }
+        }
+
         async function loadData() {
             const snap = await getDoc(doc(db, "lojas", userUid));
             if (snap.exists()) {
                 data = snap.data();
                 
+                // Se ainda estiver pendente, chuta pro index
+                if(data.status_pagamento === 'pendente') {
+                    alert("Aguardando confirmação do pagamento. Se já pagou, verifique se clicou em 'Voltar para o site' ou contate o suporte.");
+                    window.location.href = "index.html";
+                    return;
+                }
+
                 if(!data.produtos) data.produtos = [];
                 if(!data.bairros) data.bairros = [];
                 if(!data.dias_func) data.dias_func = [0,1,2,3,4,5,6];
@@ -251,7 +277,7 @@
             }
         }
 
-        // --- FUNÇÃO DE UPLOAD CORRIGIDA E GLOBAL ---
+        // --- UPLOAD CORRIGIDO ---
         window.uploadImagem = async (input) => {
             if (!input.files || !input.files[0]) return;
             
@@ -265,9 +291,7 @@
             try {
                 if(!userUid) throw new Error("Usuário não autenticado");
 
-                // Caminho seguro no Storage
                 const storageRef = ref(storage, `imagens/${userUid}/${Date.now()}_${file.name}`);
-                
                 await uploadBytes(storageRef, file);
                 const url = await getDownloadURL(storageRef);
                 
@@ -275,9 +299,8 @@
                 status.innerText = "Sucesso!";
             } catch (error) {
                 console.error("Erro no upload:", error);
-                status.innerText = "Erro ao enviar. Tente novamente.";
+                status.innerText = "Erro no envio.";
                 status.style.color = "#ff1744";
-                alert("Erro ao fazer upload da imagem. Verifique se o arquivo é uma imagem válida.");
             }
         };
 
@@ -324,7 +347,6 @@
             data.produtos.push(prod);
             await updateDoc(doc(db, "lojas", userUid), { produtos: data.produtos });
             
-            // Limpeza
             document.getElementById('prod-nome').value = "";
             document.getElementById('prod-preco').value = "";
             document.getElementById('prod-img').value = "";
