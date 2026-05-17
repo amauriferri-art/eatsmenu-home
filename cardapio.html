@@ -398,11 +398,11 @@
 
         function renderizarLoja() {
             document.title = loja.nome;
-            // Cores Personalizadas (Apenas a cor principal muda)
+            // Cores Personalizadas
             const root = document.documentElement;
             if(loja.cor) {
                 root.style.setProperty('--primary', loja.cor);
-                root.style.setProperty('--primary-glow', `${loja.cor}66`); // Adiciona transparência para o glow
+                root.style.setProperty('--primary-glow', `${loja.cor}66`);
             }
             
             document.getElementById('loja-nome').innerText = loja.nome;
@@ -416,7 +416,18 @@
 
             checkHorario();
 
-            const cats = [...new Set((loja.produtos||[]).map(p=>p.cat))];
+            // Extrai as categorias mantendo a ordem configurada no Admin
+            let cats = [...new Set((loja.produtos||[]).map(p=>p.cat))];
+            const ordemCategoriasBanco = loja.ordem_categorias || [];
+            
+            cats.sort((a, b) => {
+                let idxA = ordemCategoriasBanco.indexOf(a);
+                let idxB = ordemCategoriasBanco.indexOf(b);
+                if (idxA === -1) idxA = 999;
+                if (idxB === -1) idxB = 999;
+                return idxA - idxB;
+            });
+
             document.getElementById('cat-list').innerHTML = cats.map((c, i) => 
                 `<div class="cat-item ${i===0?'active':''}" onclick="scrollCat('${c}', this)">${c}</div>`
             ).join('');
@@ -427,13 +438,26 @@
             (loja.bairros||[]).forEach((b,i) => sel.innerHTML += `<option value="${i}">${b.nome} (+ R$ ${b.taxa.toFixed(2)})</option>`);
         }
 
+        // RENDERIZAÇÃO DOS PRODUTOS MANTENDO A ORDEM DO DRAG & DROP
         window.renderProds = (lista) => {
             const div = document.getElementById('prod-list');
             div.innerHTML = "";
-            const cats = [...new Set(lista.map(p=>p.cat))];
+            let cats = [...new Set(lista.map(p=>p.cat))];
+            
+            // Ordena as categorias de acordo com a ordem salva pelo Admin
+            const ordemCategoriasBanco = loja.ordem_categorias || [];
+            cats.sort((a, b) => {
+                let idxA = ordemCategoriasBanco.indexOf(a);
+                let idxB = ordemCategoriasBanco.indexOf(b);
+                if (idxA === -1) idxA = 999;
+                if (idxB === -1) idxB = 999;
+                return idxA - idxB;
+            });
             
             cats.forEach(c => {
                 div.innerHTML += `<div id="cat-${c}" class="sec-title">${c}</div>`;
+                
+                // O filter varre a lista de produtos respeitando a posição exata em que foram salvos
                 lista.filter(p=>p.cat===c).forEach(p => {
                     const data = encodeURIComponent(JSON.stringify(p));
                     const img = p.img ? `<div class="card-img" style="background-image:url('${p.img}')"></div>` : `<div class="card-img" style="background:#333"></div>`;
@@ -463,15 +487,24 @@
             
             const list = document.getElementById('lista-adds');
             list.innerHTML = "";
-            if(currProd.adds) {
+            
+            // Corrige o bug dos adicionais dependendo do formato salvo no banco
+            let adicionaisArray = [];
+            if(typeof currProd.adds === 'string') {
+                if(currProd.adds.trim() !== '') {
+                    currProd.adds.split(',').forEach(a => {
+                        const parts = a.split(':');
+                        if(parts.length === 2) adicionaisArray.push({ nome: parts[0].trim(), preco: parseFloat(parts[1]) });
+                    });
+                }
+            } else if (Array.isArray(currProd.adds)) {
+                adicionaisArray = currProd.adds;
+            }
+
+            if(adicionaisArray.length > 0) {
                 document.getElementById('area-adds').classList.remove('hidden');
-                currProd.adds.split(',').forEach(a => {
-                    const parts = a.split(':');
-                    if(parts.length === 2) {
-                        const n = parts[0].trim();
-                        const p = parseFloat(parts[1]);
-                        list.innerHTML += `<div class="add-item"><label style="cursor:pointer; display:flex; align-items:center; width:100%"><input type="checkbox" class="add-chk" value="${p}" data-name="${n}" style="margin-right:10px;"> ${n} (+R$${p.toFixed(2)})</label></div>`;
-                    }
+                adicionaisArray.forEach(add => {
+                    list.innerHTML += `<div class="add-item"><label style="cursor:pointer; display:flex; align-items:center; width:100%"><input type="checkbox" class="add-chk" value="${add.preco}" data-name="${add.nome}" style="margin-right:10px;"> ${add.nome} (+R$${add.preco.toFixed(2)})</label></div>`;
                 });
             } else {
                 document.getElementById('area-adds').classList.add('hidden');
@@ -610,10 +643,6 @@
             const pag = document.getElementById('cli-pag').value;
             msg += `\n\n*Pagamento:* ${pag}`;
             if(pag === 'Dinheiro') msg += ` (Troco para: ${document.getElementById('cli-troco').value})`;
-
-            if(loja.print_pc && loja.print_name) {
-                msg += `\n\n--- IMPRESSÃO ---\nPC: ${loja.print_pc}\nPRINTER: ${loja.print_name}`;
-            }
 
             window.open(`https://wa.me/${loja.whatsapp}?text=${encodeURIComponent(msg)}`, '_blank');
             cart = [];
