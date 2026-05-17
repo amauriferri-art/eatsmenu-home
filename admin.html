@@ -6,6 +6,7 @@
     <title>EatsMenu - Painel Administrativo</title>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/sortablejs@latest/Sortable.min.js"></script>
     
     <style>
         /* ==========================================================================
@@ -14,685 +15,252 @@
         :root { 
             --primary: #00e676; 
             --bg-sidebar: #000000; 
-            --bg-content: #121212; /* Fundo totalmente escuro */
-            --surface: #1e1e1e;    /* Superfície dos blocos e modais */
-            --bg-input: #080808;   /* Fundo dos campos de digitação */
-            --text-light: #ffffff; /* Texto principal branco */
-            --text-muted: #a0a0a0; /* Texto secundário cinza */
+            --bg-content: #121212; 
+            --surface: #1e1e1e;    
+            --bg-input: #080808;   
+            --text-light: #ffffff; 
+            --text-muted: #a0a0a0; 
             --danger: #ff1744; 
-            --border-color: #333333; /* Bordas escuras e sutis */
+            --border-color: #333333; 
         }
         
-        * { 
-            box-sizing: border-box; 
-            font-family: 'Outfit', sans-serif; 
-            margin: 0; 
-            padding: 0; 
-        }
-        
-        body { 
-            display: flex; 
-            height: 100vh; 
-            background: var(--bg-content); 
-            color: var(--text-light); 
-            overflow: hidden; 
-            user-select: none;
-        }
+        * { box-sizing: border-box; font-family: 'Outfit', sans-serif; margin: 0; padding: 0; }
+        body { display: flex; height: 100vh; background: var(--bg-content); color: var(--text-light); overflow: hidden; }
 
         /* ==========================================================================
            2. SIDEBAR (MENU LATERAL)
            ========================================================================== */
-        .sidebar { 
-            width: 260px; 
-            background: var(--bg-sidebar); 
-            border-right: 1px solid var(--border-color); 
-            display: flex; 
-            flex-direction: column; 
-            color: #ffffff;
-        }
+        .sidebar { width: 260px; background: var(--bg-sidebar); border-right: 1px solid var(--border-color); display: flex; flex-direction: column; color: #ffffff; }
+        .logo { padding: 25px; font-size: 1.6rem; font-weight: 800; text-align: center; border-bottom: 1px solid var(--border-color); letter-spacing: 1px; }
+        .logo span { color: var(--primary); }
         
-        .logo { 
-            padding: 25px; 
-            font-size: 1.6rem; 
-            font-weight: 800; 
-            text-align: center; 
-            border-bottom: 1px solid var(--border-color); 
-            letter-spacing: 1px; 
-        }
-        
-        .logo span { 
-            color: var(--primary); 
-        }
-        
-        .nav-btn { 
-            padding: 18px 25px; 
-            cursor: pointer; 
-            display: flex; 
-            align-items: center; 
-            gap: 15px; 
-            color: #888888; 
-            transition: 0.3s; 
-            font-weight: 600; 
-            font-size: 1rem; 
-        }
-        
-        .nav-btn:hover { 
-            background: #111111; 
-            color: #ffffff; 
-        }
-        
-        .nav-btn.active { 
-            background: rgba(0, 230, 118, 0.08); 
-            color: var(--primary); 
-            border-left: 4px solid var(--primary); 
-        }
-        
-        .nav-btn i { 
-            width: 20px; 
-            text-align: center; 
-        }
+        .nav-btn { padding: 18px 25px; cursor: pointer; display: flex; align-items: center; gap: 15px; color: #888888; transition: 0.3s; font-weight: 600; font-size: 1rem; }
+        .nav-btn:hover { background: #111111; color: #ffffff; }
+        .nav-btn.active { background: rgba(0, 230, 118, 0.08); color: var(--primary); border-left: 4px solid var(--primary); }
+        .nav-btn i { width: 20px; text-align: center; }
+
+        .btn-download-robo { margin-top: auto; border-top: 1px solid var(--border-color); color: var(--primary); background: #050505; text-decoration: none; }
+        .btn-download-robo:hover { background: rgba(0, 230, 118, 0.1); color: var(--primary); }
 
         /* ==========================================================================
-           3. ÁREA DE CONTEÚDO PRINCIPAL
+           3. CABEÇALHO DO PAINEL (LINK DA LOJA)
            ========================================================================== */
-        .content { 
-            flex: 1; 
-            padding: 40px; 
-            overflow-y: auto; 
-        }
+        .content { flex: 1; padding: 40px; overflow-y: auto; }
         
-        .header-painel {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 30px;
-        }
+        .header-painel { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 30px; }
+        .header-painel-esq h1 { font-size: 1.8rem; color: var(--text-light); margin-bottom: 10px; }
+        
+        .link-loja-container { display: flex; align-items: center; gap: 10px; background: var(--surface); padding: 8px 15px; border-radius: 8px; border: 1px solid var(--border-color); }
+        .link-loja-container span { color: var(--text-muted); font-size: 0.95rem; }
+        .link-loja-container .btn-icon { background: none; border: none; color: var(--text-muted); cursor: pointer; transition: 0.2s; font-size: 1.1rem; }
+        .link-loja-container .btn-icon:hover { color: var(--primary); }
+        .btn-ver-cardapio { background: transparent; border: 1px solid var(--primary); color: var(--primary); padding: 6px 15px; border-radius: 6px; text-decoration: none; font-size: 0.85rem; font-weight: 600; transition: 0.2s; display: flex; align-items: center; gap: 6px; }
+        .btn-ver-cardapio:hover { background: var(--primary); color: #000; }
 
-        .header-painel h1 {
-            font-size: 1.8rem;
-            color: var(--text-light);
-        }
-
-        .btn-nova-categoria {
-            background: var(--primary);
-            color: #000000;
-            border: none;
-            padding: 12px 24px;
-            font-size: 1rem;
-            font-weight: 800;
-            border-radius: 8px;
-            cursor: pointer;
-            transition: all 0.3s;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .btn-nova-categoria:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(0, 230, 118, 0.4);
-        }
+        .btn-nova-categoria { background: var(--primary); color: #000000; border: none; padding: 12px 24px; font-size: 1rem; font-weight: 800; border-radius: 8px; cursor: pointer; transition: all 0.3s; display: flex; align-items: center; gap: 10px; }
+        .btn-nova-categoria:hover { transform: translateY(-2px); box-shadow: 0 5px 15px rgba(0, 230, 118, 0.4); }
 
         /* ==========================================================================
-           4. ESTRUTURA DO CARDÁPIO (CATEGORIAS E CARDS ESCUROS)
+           4. ESTRUTURA DO CARDÁPIO (CATEGORIAS E ITENS)
            ========================================================================== */
-        .categoria-container { 
-            background: var(--surface); 
-            padding: 25px; 
-            border-radius: 12px; 
-            margin-bottom: 25px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
-            border: 1px solid var(--border-color);
-        }
+        .categoria-container { background: var(--surface); padding: 25px; border-radius: 12px; margin-bottom: 25px; box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3); border: 1px solid var(--border-color); transition: 0.3s; }
+        .categoria-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; border-bottom: 2px solid var(--border-color); padding-bottom: 15px; }
+        .categoria-titulo { display: flex; align-items: center; gap: 12px; }
+        .categoria-titulo h3 { margin: 0; font-size: 1.4rem; color: var(--primary); font-weight: 800; }
         
-        .categoria-header { 
-            display: flex; 
-            justify-content: space-between; 
-            align-items: center; 
-            margin-bottom: 20px; 
-            border-bottom: 2px solid var(--border-color); 
-            padding-bottom: 15px; 
-        }
-        
-        .categoria-titulo { 
-            display: flex; 
-            align-items: center; 
-            gap: 12px; 
-        }
-        
-        .categoria-titulo h3 { 
-            margin: 0; 
-            font-size: 1.4rem; 
-            color: var(--primary); /* Título em verde neon */
-            font-weight: 800;
-        }
-        
-        .drag-icon { 
-            color: #555555; 
-            cursor: grab; 
-            font-size: 1.2rem; 
-        }
-        
-        .drag-icon:active {
-            cursor: grabbing;
-        }
+        .drag-icon { color: #555555; cursor: grab; font-size: 1.2rem; }
+        .drag-icon:active { cursor: grabbing; }
+
+        /* Efeito ao arrastar (Ghost) */
+        .sortable-ghost { opacity: 0.4; background: rgba(0, 230, 118, 0.1); border: 1px dashed var(--primary); }
 
         /* CARD DO ITEM */
-        .item-card { 
-            display: flex; 
-            align-items: center; 
-            background: var(--bg-content); 
-            padding: 15px 20px; 
-            border-radius: 10px; 
-            border: 1px solid var(--border-color); 
-            margin-bottom: 12px; 
-            transition: all 0.2s;
-        }
+        .lista-itens { min-height: 10px; } /* Área para soltar itens */
+        .item-card { display: flex; align-items: center; background: var(--bg-content); padding: 15px 20px; border-radius: 10px; border: 1px solid var(--border-color); margin-bottom: 12px; transition: all 0.2s; }
+        .item-card:hover { border-color: #555555; box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4); }
+        .item-drag { margin-right: 20px; }
+        
+        .item-imagem { width: 70px; height: 70px; border-radius: 8px; overflow: hidden; background: var(--bg-input); display: flex; align-items: center; justify-content: center; flex-shrink: 0; border: 1px solid var(--border-color); }
+        .item-imagem img { width: 100%; height: 100%; object-fit: cover; }
+        
+        .item-dados { flex: 1; margin-left: 20px; }
+        .item-dados h4 { margin: 0 0 6px 0; color: var(--text-light); font-size: 1.1rem; font-weight: 600; }
+        .item-dados p { margin: 0 0 8px 0; color: var(--text-muted); font-size: 0.9rem; line-height: 1.4; }
+        .item-preco { font-weight: 800; color: var(--primary); font-size: 1.05rem; }
 
-        .item-card:hover {
-            border-color: #555555;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4);
-        }
-        
-        .item-drag { 
-            margin-right: 20px; 
-        }
-        
-        .item-imagem {
-            width: 70px; 
-            height: 70px; 
-            border-radius: 8px; 
-            overflow: hidden;
-            background: var(--bg-input);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            flex-shrink: 0;
-            border: 1px solid var(--border-color);
-        }
-
-        .item-imagem img { 
-            width: 100%; 
-            height: 100%; 
-            object-fit: cover; 
-        }
-        
-        .item-dados { 
-            flex: 1; 
-            margin-left: 20px; 
-        }
-        
-        .item-dados h4 { 
-            margin: 0 0 6px 0; 
-            color: var(--text-light); 
-            font-size: 1.1rem; 
-            font-weight: 600;
-        }
-        
-        .item-dados p { 
-            margin: 0 0 8px 0; 
-            color: var(--text-muted); 
-            font-size: 0.9rem; 
-            line-height: 1.4; 
-        }
-        
-        .item-preco { 
-            font-weight: 800; 
-            color: var(--primary); /* Preço destacado em verde */
-            font-size: 1.05rem;
-        }
-
-        /* CONTROLES DO ITEM (BOTÕES E TOGGLE) */
-        .item-controles { 
-            display: flex; 
-            align-items: center; 
-            gap: 20px; 
-        }
-        
-        .btn-icon { 
-            background: none; 
-            border: none; 
-            color: #666666; 
-            cursor: pointer; 
-            font-size: 1.2rem; 
-            transition: 0.2s; 
-        }
-        
-        .btn-icon:hover { 
-            color: var(--primary); 
-        }
-        
-        .btn-danger:hover { 
-            color: var(--danger); 
-        }
+        /* CONTROLES DO ITEM */
+        .item-controles { display: flex; align-items: center; gap: 20px; }
+        .btn-icon { background: none; border: none; color: #666666; cursor: pointer; font-size: 1.2rem; transition: 0.2s; }
+        .btn-icon:hover { color: var(--primary); }
+        .btn-danger:hover { color: var(--danger); }
 
         /* TOGGLE SWITCH LIGA/DESLIGA */
-        .toggle-switch { 
-            position: relative; 
-            display: inline-block; 
-            width: 46px; 
-            height: 26px; 
-        }
-        
-        .toggle-switch input { 
-            opacity: 0; 
-            width: 0; 
-            height: 0; 
-        }
-        
-        .slider { 
-            position: absolute; 
-            cursor: pointer; 
-            top: 0; 
-            left: 0; 
-            right: 0; 
-            bottom: 0; 
-            background-color: #444444; 
-            transition: .4s; 
-            border-radius: 34px; 
-        }
-        
-        .slider:before { 
-            position: absolute; 
-            content: ""; 
-            height: 20px; 
-            width: 20px; 
-            left: 3px; 
-            bottom: 3px; 
-            background-color: white; 
-            transition: .4s; 
-            border-radius: 50%; 
-        }
-        
-        input:checked + .slider { 
-            background-color: var(--primary); 
-        }
-        
-        input:checked + .slider:before { 
-            transform: translateX(20px); 
-        }
+        .toggle-switch { position: relative; display: inline-block; width: 46px; height: 26px; }
+        .toggle-switch input { opacity: 0; width: 0; height: 0; }
+        .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #444444; transition: .4s; border-radius: 34px; }
+        .slider:before { position: absolute; content: ""; height: 20px; width: 20px; left: 3px; bottom: 3px; background-color: white; transition: .4s; border-radius: 50%; }
+        input:checked + .slider { background-color: var(--primary); }
+        input:checked + .slider:before { transform: translateX(20px); }
 
-        /* BOTÃO ADICIONAR NOVO ITEM */
-        .btn-novo-item { 
-            width: 100%; 
-            padding: 15px; 
-            background: transparent; 
-            border: 2px dashed #444444; 
-            color: var(--text-muted); 
-            border-radius: 10px; 
-            cursor: pointer; 
-            font-weight: 600; 
-            font-size: 1rem;
-            transition: 0.2s; 
-            margin-top: 10px;
-        }
-        
-        .btn-novo-item:hover { 
-            border-color: var(--primary); 
-            color: var(--primary); 
-            background: rgba(0, 230, 118, 0.05); 
-        }
+        .btn-novo-item { width: 100%; padding: 15px; background: transparent; border: 2px dashed #444444; color: var(--text-muted); border-radius: 10px; cursor: pointer; font-weight: 600; font-size: 1rem; transition: 0.2s; margin-top: 10px; }
+        .btn-novo-item:hover { border-color: var(--primary); color: var(--primary); background: rgba(0, 230, 118, 0.05); }
 
         /* ==========================================================================
-           5. MODAL DE ADICIONAR / EDITAR ITEM (ESCURECIDO)
+           5. MODAIS (JANELAS DE ADICIONAR E EDITAR)
            ========================================================================== */
-        .modal-overlay { 
-            display: none; 
-            position: fixed; 
-            inset: 0; 
-            background: rgba(0, 0, 0, 0.85); 
-            z-index: 9999; 
-            justify-content: center; 
-            align-items: center; 
-            backdrop-filter: blur(5px);
-        }
+        .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0, 0, 0, 0.85); z-index: 9999; justify-content: center; align-items: center; backdrop-filter: blur(5px); }
+        .modal-content { background: var(--surface); width: 95%; max-width: 850px; border-radius: 16px; overflow: hidden; box-shadow: 0 20px 60px rgba(0, 0, 0, 0.7); border: 1px solid var(--border-color); animation: modalFadeIn 0.3s ease-out forwards; }
+        .modal-content.modal-pequeno { max-width: 500px; }
+        @keyframes modalFadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
         
-        .modal-content { 
-            background: var(--surface); 
-            width: 95%; 
-            max-width: 850px; 
-            border-radius: 16px; 
-            overflow: hidden; 
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.7); 
-            border: 1px solid var(--border-color);
-            animation: modalFadeIn 0.3s ease-out forwards;
-        }
+        .modal-header { padding: 25px 30px; border-bottom: 1px solid var(--border-color); display: flex; justify-content: space-between; align-items: center; background: var(--surface); }
+        .modal-header h2 { margin: 0; font-size: 1.4rem; color: var(--text-light); font-weight: 800; }
+        .close-btn { background: none; border: none; font-size: 1.8rem; cursor: pointer; color: #666666; transition: 0.2s; }
+        .close-btn:hover { color: var(--danger); }
 
-        @keyframes modalFadeIn {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-        
-        .modal-header { 
-            padding: 25px 30px; 
-            border-bottom: 1px solid var(--border-color); 
-            display: flex; 
-            justify-content: space-between; 
-            align-items: center; 
-            background: var(--surface);
-        }
-        
-        .modal-header h2 { 
-            margin: 0; 
-            font-size: 1.4rem; 
-            color: var(--text-light); 
-            font-weight: 800;
-        }
-        
-        .close-btn { 
-            background: none; 
-            border: none; 
-            font-size: 1.8rem; 
-            cursor: pointer; 
-            color: #666666; 
-            transition: 0.2s;
-        }
+        .modal-body { display: grid; grid-template-columns: 1fr 1.2fr; gap: 30px; padding: 30px; background: var(--surface); }
+        .modal-body.coluna-unica { grid-template-columns: 1fr; }
 
-        .close-btn:hover {
-            color: var(--danger);
-        }
+        .upload-area { border: 2px dashed #444444; border-radius: 12px; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; height: 280px; cursor: pointer; background: var(--bg-input); position: relative; overflow: hidden; transition: all 0.3s; }
+        .upload-area:hover { border-color: var(--primary); background: rgba(0, 230, 118, 0.02); }
+        .upload-icon { font-size: 3.5rem; color: #333333; margin-bottom: 15px; transition: 0.3s; }
+        .upload-area:hover .upload-icon { color: var(--primary); }
+        .upload-area p { margin: 0 0 8px 0; font-weight: 600; color: var(--text-light); font-size: 1.1rem; }
+        .upload-area span { font-size: 0.85rem; color: var(--text-muted); }
+        #image-preview { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; display: none; z-index: 2; }
+        .btn-remover-foto { position: absolute; top: 10px; right: 10px; background: rgba(255, 23, 68, 0.9); color: white; border: none; width: 35px; height: 35px; border-radius: 50%; cursor: pointer; z-index: 3; display: none; font-size: 1rem; }
 
-        /* CORPO DO MODAL (GRID LADO A LADO) */
-        .modal-body { 
-            display: grid; 
-            grid-template-columns: 1fr 1.2fr; 
-            gap: 30px; 
-            padding: 30px; 
-            background: var(--surface);
-        }
+        .form-area { display: flex; flex-direction: column; gap: 20px; }
+        .form-group { display: flex; flex-direction: column; }
+        .form-group label { font-weight: 600; color: var(--text-muted); font-size: 0.95rem; margin-bottom: 8px; }
+        .form-group input, .form-group textarea { width: 100%; padding: 14px; border: 1px solid var(--border-color); border-radius: 8px; box-sizing: border-box; font-family: inherit; font-size: 1rem; background: var(--bg-input); color: var(--text-light); transition: 0.3s; }
+        .form-group input:focus, .form-group textarea:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 3px rgba(0, 230, 118, 0.1); }
+        .input-preco-wrapper { position: relative; display: flex; align-items: center; }
+        .input-preco-wrapper span { position: absolute; left: 15px; color: var(--text-muted); font-weight: 600; }
+        .input-preco-wrapper input { padding-left: 45px; }
 
-        /* ÁREA DE UPLOAD DE IMAGEM */
-        .upload-area { 
-            border: 2px dashed #444444; 
-            border-radius: 12px; 
-            display: flex; 
-            flex-direction: column; 
-            align-items: center; 
-            justify-content: center; 
-            text-align: center; 
-            height: 280px; 
-            cursor: pointer; 
-            background: var(--bg-input); 
-            position: relative; 
-            overflow: hidden; 
-            transition: all 0.3s; 
-        }
-        
-        .upload-area:hover { 
-            border-color: var(--primary); 
-            background: rgba(0, 230, 118, 0.02); 
-        }
-        
-        .upload-icon { 
-            font-size: 3.5rem; 
-            color: #333333; 
-            margin-bottom: 15px; 
-            transition: 0.3s;
-        }
-
-        .upload-area:hover .upload-icon {
-            color: var(--primary);
-        }
-        
-        .upload-area p { 
-            margin: 0 0 8px 0; 
-            font-weight: 600; 
-            color: var(--text-light); 
-            font-size: 1.1rem;
-        }
-        
-        .upload-area span { 
-            font-size: 0.85rem; 
-            color: var(--text-muted); 
-        }
-        
-        #image-preview { 
-            position: absolute; 
-            inset: 0; 
-            width: 100%; 
-            height: 100%; 
-            object-fit: cover; 
-            display: none; 
-            z-index: 2;
-        }
-
-        .btn-remover-foto {
-            position: absolute;
-            top: 10px;
-            right: 10px;
-            background: rgba(255, 23, 68, 0.9);
-            color: white;
-            border: none;
-            width: 35px;
-            height: 35px;
-            border-radius: 50%;
-            cursor: pointer;
-            z-index: 3;
-            display: none;
-            font-size: 1rem;
-        }
-
-        /* FORMULÁRIO DE DADOS DO ITEM */
-        .form-area { 
-            display: flex; 
-            flex-direction: column; 
-            gap: 20px; 
-        }
-        
-        .form-group {
-            display: flex;
-            flex-direction: column;
-        }
-
-        .form-group label { 
-            font-weight: 600; 
-            color: var(--text-muted); 
-            font-size: 0.95rem; 
-            margin-bottom: 8px; 
-        }
-        
-        .form-group input, .form-group textarea { 
-            width: 100%; 
-            padding: 14px; 
-            border: 1px solid var(--border-color); 
-            border-radius: 8px; 
-            box-sizing: border-box; 
-            font-family: inherit; 
-            font-size: 1rem;
-            background: var(--bg-input);
-            color: var(--text-light);
-            transition: 0.3s;
-        }
-
-        .form-group input:focus, .form-group textarea:focus {
-            outline: none;
-            border-color: var(--primary);
-            box-shadow: 0 0 0 3px rgba(0, 230, 118, 0.1);
-        }
-
-        .input-preco-wrapper {
-            position: relative;
-            display: flex;
-            align-items: center;
-        }
-
-        .input-preco-wrapper span {
-            position: absolute;
-            left: 15px;
-            color: var(--text-muted);
-            font-weight: 600;
-        }
-
-        .input-preco-wrapper input {
-            padding-left: 45px;
-        }
-
-        /* RODAPÉ DO MODAL */
-        .modal-footer { 
-            padding: 20px 30px; 
-            border-top: 1px solid var(--border-color); 
-            background: var(--surface); 
-            display: flex; 
-            justify-content: flex-end; 
-            gap: 15px; 
-        }
-        
-        .btn-cancelar { 
-            padding: 12px 25px; 
-            background: transparent; 
-            border: 1px solid #555555; 
-            border-radius: 8px; 
-            cursor: pointer; 
-            font-weight: 600; 
-            color: var(--text-muted); 
-            font-size: 1rem;
-            transition: 0.2s;
-        }
-
-        .btn-cancelar:hover {
-            background: #222222;
-            color: #ffffff;
-        }
-        
-        .btn-salvar { 
-            padding: 12px 30px; 
-            background: var(--primary); 
-            border: none; 
-            border-radius: 8px; 
-            cursor: pointer; 
-            font-weight: 800; 
-            color: #000000; 
-            font-size: 1rem;
-            transition: 0.2s;
-        }
-        
-        .btn-salvar:hover { 
-            background: #00c853; 
-            transform: translateY(-2px);
-            box-shadow: 0 4px 10px rgba(0, 230, 118, 0.4);
-        }
+        .modal-footer { padding: 20px 30px; border-top: 1px solid var(--border-color); background: var(--surface); display: flex; justify-content: flex-end; gap: 15px; }
+        .btn-cancelar { padding: 12px 25px; background: transparent; border: 1px solid #555555; border-radius: 8px; cursor: pointer; font-weight: 600; color: var(--text-muted); font-size: 1rem; transition: 0.2s; }
+        .btn-cancelar:hover { background: #222222; color: #ffffff; }
+        .btn-salvar { padding: 12px 30px; background: var(--primary); border: none; border-radius: 8px; cursor: pointer; font-weight: 800; color: #000000; font-size: 1rem; transition: 0.2s; }
+        .btn-salvar:hover { background: #00c853; transform: translateY(-2px); box-shadow: 0 4px 10px rgba(0, 230, 118, 0.4); }
     </style>
 </head>
 <body>
 
     <div class="sidebar">
         <div class="logo">EATS<span>MENU</span></div>
-        <div class="nav-btn"><i class="fas fa-home"></i> Início</div>
-        <div class="nav-btn active"><i class="fas fa-book-open"></i> Cardápio</div>
-        <div class="nav-btn"><i class="fas fa-motorcycle"></i> Entregas</div>
-        <div class="nav-btn"><i class="fas fa-cog"></i> Ajustes</div>
+        <div class="nav-btn" onclick="mudarAba('inicio', this)"><i class="fas fa-home"></i> Início</div>
+        <div class="nav-btn active" onclick="mudarAba('cardapio', this)"><i class="fas fa-book-open"></i> Cardápio</div>
+        <div class="nav-btn" onclick="mudarAba('entregas', this)"><i class="fas fa-motorcycle"></i> Entregas</div>
+        <div class="nav-btn" onclick="mudarAba('configuracoes', this)"><i class="fas fa-cog"></i> Configurações</div>
+        
+        <a href="#" target="_blank" class="nav-btn btn-download-robo">
+            <i class="fas fa-robot"></i> Baixar Robô
+        </a>
     </div>
 
     <div class="content">
         
         <div class="header-painel">
-            <h1>Gestão de Cardápio</h1>
-            <button class="btn-nova-categoria">
+            <div class="header-painel-esq">
+                <h1>Gestão de Cardápio</h1>
+                <div class="link-loja-container">
+                    <span id="texto-link-loja">eatsmenu.com.br/sua-loja</span>
+                    <button class="btn-icon" onclick="copiarLinkDaLoja()" title="Copiar Link"><i class="fas fa-copy"></i></button>
+                    <a href="#" target="_blank" class="btn-ver-cardapio"><i class="fas fa-external-link-alt"></i> Ver Cardápio</a>
+                </div>
+            </div>
+            <button class="btn-nova-categoria" onclick="abrirModalCategoria()">
                 <i class="fas fa-plus"></i> Nova Categoria
             </button>
         </div>
 
-        <div class="categoria-container">
-            <div class="categoria-header">
-                <div class="categoria-titulo">
-                    <i class="fas fa-grip-vertical drag-icon"></i>
-                    <h3>Pizzas Salgadas</h3>
+        <div id="lista-categorias-geral">
+            
+            <div class="categoria-container">
+                <div class="categoria-header">
+                    <div class="categoria-titulo">
+                        <i class="fas fa-grip-vertical drag-icon handle-categoria"></i>
+                        <h3 class="nome-da-categoria-texto">Pizzas Salgadas</h3>
+                    </div>
+                    <div class="categoria-acoes">
+                        <button class="btn-icon" title="Editar Categoria" onclick="editarNomeCategoria(this)"><i class="fas fa-pen"></i></button>
+                        <button class="btn-icon btn-danger" title="Excluir Categoria" onclick="excluirCategoria(this)"><i class="fas fa-trash"></i></button>
+                    </div>
                 </div>
-                <div class="categoria-acoes">
-                    <button class="btn-icon" title="Editar Categoria"><i class="fas fa-pen"></i></button>
-                    <button class="btn-icon btn-danger" title="Excluir Categoria"><i class="fas fa-trash"></i></button>
+
+                <div class="lista-itens">
+                    <div class="item-card">
+                        <div class="item-drag">
+                            <i class="fas fa-grip-vertical drag-icon handle-item"></i>
+                        </div>
+                        <div class="item-imagem">
+                            <img src="https://via.placeholder.com/150/080808/00e676?text=Pizza" alt="Pizza de Calabresa">
+                        </div>
+                        <div class="item-dados">
+                            <h4>Pizza de Calabresa</h4>
+                            <p>Deliciosa pizza com mussarela, calabresa fatiada fina e cebola.</p>
+                            <span class="item-preco">R$ 55,00</span>
+                        </div>
+                        <div class="item-controles">
+                            <label class="toggle-switch">
+                                <input type="checkbox" checked>
+                                <span class="slider"></span>
+                            </label>
+                            <button class="btn-icon" onclick="abrirModalItem('Pizza de Calabresa', 'Deliciosa pizza...', '55.00')"><i class="fas fa-pen"></i></button>
+                            <button class="btn-icon btn-danger" onclick="excluirItem(this)"><i class="fas fa-trash"></i></button>
+                        </div>
+                    </div>
                 </div>
+
+                <button class="btn-novo-item" onclick="abrirModalItem()">
+                    <i class="fas fa-plus"></i> Adicionar novo item nesta categoria
+                </button>
             </div>
 
-            <div class="item-card">
-                <div class="item-drag">
-                    <i class="fas fa-grip-vertical drag-icon"></i>
+            <div class="categoria-container">
+                <div class="categoria-header">
+                    <div class="categoria-titulo">
+                        <i class="fas fa-grip-vertical drag-icon handle-categoria"></i>
+                        <h3 class="nome-da-categoria-texto">Bebidas Geladas</h3>
+                    </div>
+                    <div class="categoria-acoes">
+                        <button class="btn-icon" onclick="editarNomeCategoria(this)"><i class="fas fa-pen"></i></button>
+                        <button class="btn-icon btn-danger" onclick="excluirCategoria(this)"><i class="fas fa-trash"></i></button>
+                    </div>
                 </div>
-                <div class="item-imagem">
-                    <img src="https://via.placeholder.com/150/080808/00e676?text=Pizza" alt="Pizza de Calabresa">
+
+                <div class="lista-itens">
+                    <div class="item-card">
+                        <div class="item-drag">
+                            <i class="fas fa-grip-vertical drag-icon handle-item"></i>
+                        </div>
+                        <div class="item-imagem">
+                            <i class="fas fa-image" style="font-size: 24px; color: #333333;"></i>
+                        </div>
+                        <div class="item-dados">
+                            <h4>Coca-Cola 2 Litros</h4>
+                            <p>Refrigerante pet 2 litros gelado.</p>
+                            <span class="item-preco">R$ 14,00</span>
+                        </div>
+                        <div class="item-controles">
+                            <label class="toggle-switch">
+                                <input type="checkbox" checked>
+                                <span class="slider"></span>
+                            </label>
+                            <button class="btn-icon" onclick="abrirModalItem('Coca-Cola 2 Litros', '', '14.00')"><i class="fas fa-pen"></i></button>
+                            <button class="btn-icon btn-danger" onclick="excluirItem(this)"><i class="fas fa-trash"></i></button>
+                        </div>
+                    </div>
                 </div>
-                <div class="item-dados">
-                    <h4>Pizza de Calabresa</h4>
-                    <p>Deliciosa pizza com mussarela de primeira qualidade, calabresa fatiada fina, cebola e azeitonas pretas selecionadas.</p>
-                    <span class="item-preco">R$ 55,00</span>
-                </div>
-                <div class="item-controles">
-                    <label class="toggle-switch" title="Ativar/Desativar no Site">
-                        <input type="checkbox" checked>
-                        <span class="slider"></span>
-                    </label>
-                    <button class="btn-icon" title="Editar Item" onclick="abrirModalItem('Pizza de Calabresa', 'Deliciosa pizza com mussarela...', '55.00')"><i class="fas fa-pen"></i></button>
-                    <button class="btn-icon btn-danger" title="Excluir Item"><i class="fas fa-trash"></i></button>
-                </div>
+
+                <button class="btn-novo-item" onclick="abrirModalItem()">
+                    <i class="fas fa-plus"></i> Adicionar novo item nesta categoria
+                </button>
             </div>
 
-            <div class="item-card">
-                <div class="item-drag">
-                    <i class="fas fa-grip-vertical drag-icon"></i>
-                </div>
-                <div class="item-imagem">
-                    <i class="fas fa-image" style="font-size: 24px; color: #333333;"></i>
-                </div>
-                <div class="item-dados">
-                    <h4>Pizza Marguerita</h4>
-                    <p>Mussarela, tomate em rodelas, manjericão fresco e parmesão ralado.</p>
-                    <span class="item-preco">R$ 50,00</span>
-                </div>
-                <div class="item-controles">
-                    <label class="toggle-switch">
-                        <input type="checkbox">
-                        <span class="slider"></span>
-                    </label>
-                    <button class="btn-icon" onclick="abrirModalItem('Pizza Marguerita', 'Mussarela, tomate...', '50.00')"><i class="fas fa-pen"></i></button>
-                    <button class="btn-icon btn-danger"><i class="fas fa-trash"></i></button>
-                </div>
-            </div>
-
-            <button class="btn-novo-item" onclick="abrirModalItem()">
-                <i class="fas fa-plus"></i> Adicionar novo item em Pizzas Salgadas
-            </button>
-        </div>
-
-        <div class="categoria-container">
-            <div class="categoria-header">
-                <div class="categoria-titulo">
-                    <i class="fas fa-grip-vertical drag-icon"></i>
-                    <h3>Bebidas Geladas</h3>
-                </div>
-                <div class="categoria-acoes">
-                    <button class="btn-icon"><i class="fas fa-pen"></i></button>
-                    <button class="btn-icon btn-danger"><i class="fas fa-trash"></i></button>
-                </div>
-            </div>
-
-            <div class="item-card">
-                <div class="item-drag">
-                    <i class="fas fa-grip-vertical drag-icon"></i>
-                </div>
-                <div class="item-imagem">
-                    <i class="fas fa-image" style="font-size: 24px; color: #333333;"></i>
-                </div>
-                <div class="item-dados">
-                    <h4>Coca-Cola 2 Litros</h4>
-                    <p>Refrigerante pet 2 litros gelado.</p>
-                    <span class="item-preco">R$ 14,00</span>
-                </div>
-                <div class="item-controles">
-                    <label class="toggle-switch">
-                        <input type="checkbox" checked>
-                        <span class="slider"></span>
-                    </label>
-                    <button class="btn-icon" onclick="abrirModalItem()"><i class="fas fa-pen"></i></button>
-                    <button class="btn-icon btn-danger"><i class="fas fa-trash"></i></button>
-                </div>
-            </div>
-
-            <button class="btn-novo-item" onclick="abrirModalItem()">
-                <i class="fas fa-plus"></i> Adicionar novo item em Bebidas Geladas
-            </button>
-        </div>
-
-    </div>
+        </div> </div>
 
     <div id="modal-item" class="modal-overlay">
         <div class="modal-content">
@@ -700,34 +268,26 @@
                 <h2 id="modal-titulo">Adicionar Novo Item</h2>
                 <button class="close-btn" onclick="fecharModalItem()"><i class="fas fa-times"></i></button>
             </div>
-            
             <div class="modal-body">
                 <div class="upload-area" id="drop-zone" onclick="document.getElementById('input-foto-item').click()">
                     <input type="file" id="input-foto-item" accept="image/png, image/jpeg, image/jpg" hidden>
-                    
                     <div id="upload-placeholder">
                         <i class="fas fa-cloud-upload-alt upload-icon"></i>
                         <p>Clique ou arraste a foto aqui</p>
                         <span>JPG, PNG (Máx 5MB)</span>
                     </div>
-                    
-                    <img id="image-preview" src="" alt="Preview da Imagem do Item">
-                    <button class="btn-remover-foto" id="btn-remover-foto" onclick="removerFoto(event)" title="Remover Foto">
-                        <i class="fas fa-trash"></i>
-                    </button>
+                    <img id="image-preview" src="" alt="Preview">
+                    <button class="btn-remover-foto" id="btn-remover-foto" onclick="removerFoto(event)"><i class="fas fa-trash"></i></button>
                 </div>
-
                 <div class="form-area">
                     <div class="form-group">
                         <label>Nome do Item *</label>
                         <input type="text" id="input-nome-item" placeholder="Ex: X-Bacon Artesanal">
                     </div>
-                    
                     <div class="form-group">
                         <label>Descrição (Ingredientes)</label>
-                        <textarea id="input-desc-item" rows="4" placeholder="Pão brioche, hambúrguer 160g, muito bacon, queijo cheddar..."></textarea>
+                        <textarea id="input-desc-item" rows="4" placeholder="Ingredientes do prato..."></textarea>
                     </div>
-                    
                     <div class="form-group">
                         <label>Preço de Venda *</label>
                         <div class="input-preco-wrapper">
@@ -737,20 +297,169 @@
                     </div>
                 </div>
             </div>
-            
             <div class="modal-footer">
                 <button class="btn-cancelar" onclick="fecharModalItem()">Cancelar</button>
-                <button class="btn-salvar" onclick="salvarItemFirestore()">Salvar Item</button>
+                <button class="btn-salvar" onclick="salvarItemFake()">Salvar Item</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="modal-categoria" class="modal-overlay">
+        <div class="modal-content modal-pequeno">
+            <div class="modal-header">
+                <h2 id="modal-cat-titulo">Nova Categoria</h2>
+                <button class="close-btn" onclick="fecharModalCategoria()"><i class="fas fa-times"></i></button>
+            </div>
+            <div class="modal-body coluna-unica">
+                <div class="form-group">
+                    <label>Nome da Categoria *</label>
+                    <input type="text" id="input-nome-categoria" placeholder="Ex: Combos Promocionais">
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-cancelar" onclick="fecharModalCategoria()">Cancelar</button>
+                <button class="btn-salvar" onclick="salvarCategoriaFake()">Criar Categoria</button>
             </div>
         </div>
     </div>
 
     <script>
+        // ----------------------------------------------------
+        // 1. LÓGICA DO ARRASTAR E SOLTAR (SORTABLE JS)
+        // ----------------------------------------------------
+        function inicializarDragAndDrop() {
+            // Torna as categorias inteiras arrastáveis para cima e para baixo
+            const listaCategorias = document.getElementById('lista-categorias-geral');
+            new Sortable(listaCategorias, {
+                handle: '.handle-categoria', // Só arrasta se segurar no ícone
+                animation: 150,
+                ghostClass: 'sortable-ghost',
+                onEnd: function (evt) {
+                    console.log("Categoria movida! Nova ordem precisa ser salva no banco.");
+                }
+            });
+
+            // Torna os itens dentro de cada categoria arrastáveis
+            const listasDeItens = document.querySelectorAll('.lista-itens');
+            listasDeItens.forEach(lista => {
+                new Sortable(lista, {
+                    handle: '.handle-item',
+                    animation: 150,
+                    ghostClass: 'sortable-ghost',
+                    group: 'itens-compartilhados', // Permite arrastar um item de uma categoria para outra
+                    onEnd: function (evt) {
+                        console.log("Item movido!");
+                    }
+                });
+            });
+        }
+
+        // Inicia o arrastar assim que a página carrega
+        document.addEventListener("DOMContentLoaded", () => {
+            inicializarDragAndDrop();
+        });
+
+        // ----------------------------------------------------
+        // 2. FUNÇÕES DO MENU LATERAL E CABEÇALHO
+        // ----------------------------------------------------
+        function mudarAba(aba, elementoClicado) {
+            // Remove a classe active de todos
+            document.querySelectorAll('.sidebar .nav-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            // Adiciona no que foi clicado
+            elementoClicado.classList.add('active');
+            console.log("Navegando para: " + aba);
+            // Futuramente aqui você esconde/mostra as divs de conteúdo
+        }
+
+        function copiarLinkDaLoja() {
+            const linkTexto = document.getElementById('texto-link-loja').innerText;
+            navigator.clipboard.writeText(linkTexto).then(() => {
+                alert("Link copiado: " + linkTexto);
+            });
+        }
+
+        // ----------------------------------------------------
+        // 3. EXCLUIR ITEM E CATEGORIA (A LIXEIRA FUNCIONANDO)
+        // ----------------------------------------------------
+        function excluirItem(botaoClicado) {
+            if(confirm("Tem certeza que deseja apagar este item do cardápio?")) {
+                // Acha a div principal do item (item-card) e remove ela da tela
+                const itemCard = botaoClicado.closest('.item-card');
+                itemCard.remove();
+                // Aqui entraria a função do Firebase: await deleteDoc(...)
+            }
+        }
+
+        function excluirCategoria(botaoClicado) {
+            if(confirm("ATENÇÃO: Apagar a categoria vai excluir todos os itens dentro dela. Deseja continuar?")) {
+                // Acha a div principal da categoria e remove ela da tela
+                const categoriaContainer = botaoClicado.closest('.categoria-container');
+                categoriaContainer.remove();
+            }
+        }
+
+        // ----------------------------------------------------
+        // 4. MODAL DE CATEGORIAS
+        // ----------------------------------------------------
+        const modalCategoria = document.getElementById('modal-categoria');
+        const inputNomeCat = document.getElementById('input-nome-categoria');
+
+        function abrirModalCategoria() {
+            inputNomeCat.value = '';
+            modalCategoria.style.display = 'flex';
+        }
+
+        function fecharModalCategoria() {
+            modalCategoria.style.display = 'none';
+        }
+
+        function salvarCategoriaFake() {
+            const nome = inputNomeCat.value;
+            if(!nome) return alert("Digite o nome da categoria!");
+
+            // Gera o HTML da nova categoria e injeta na tela
+            const htmlNovaCategoria = `
+            <div class="categoria-container">
+                <div class="categoria-header">
+                    <div class="categoria-titulo">
+                        <i class="fas fa-grip-vertical drag-icon handle-categoria"></i>
+                        <h3 class="nome-da-categoria-texto">${nome}</h3>
+                    </div>
+                    <div class="categoria-acoes">
+                        <button class="btn-icon" onclick="editarNomeCategoria(this)"><i class="fas fa-pen"></i></button>
+                        <button class="btn-icon btn-danger" onclick="excluirCategoria(this)"><i class="fas fa-trash"></i></button>
+                    </div>
+                </div>
+                <div class="lista-itens"></div>
+                <button class="btn-novo-item" onclick="abrirModalItem()">
+                    <i class="fas fa-plus"></i> Adicionar novo item nesta categoria
+                </button>
+            </div>`;
+
+            document.getElementById('lista-categorias-geral').insertAdjacentHTML('beforeend', htmlNovaCategoria);
+            fecharModalCategoria();
+            
+            // Re-inicializa o arrastar para a categoria nova funcionar
+            inicializarDragAndDrop();
+        }
+
+        function editarNomeCategoria(botaoClicado) {
+            const tituloH3 = botaoClicado.closest('.categoria-header').querySelector('.nome-da-categoria-texto');
+            const novoNome = prompt("Digite o novo nome para a categoria:", tituloH3.innerText);
+            if(novoNome) {
+                tituloH3.innerText = novoNome;
+            }
+        }
+
+        // ----------------------------------------------------
+        // 5. MODAL DE ITENS (LANCHES) E UPLOAD
+        // ----------------------------------------------------
         const modalItem = document.getElementById('modal-item');
         const inputFoto = document.getElementById('input-foto-item');
         const imagePreview = document.getElementById('image-preview');
         const uploadPlaceholder = document.getElementById('upload-placeholder');
-        const dropZone = document.getElementById('drop-zone');
         const btnRemoverFoto = document.getElementById('btn-remover-foto');
 
         function abrirModalItem(nome = '', descricao = '', preco = '') {
@@ -758,19 +467,19 @@
             document.getElementById('input-desc-item').value = descricao;
             document.getElementById('input-preco-item').value = preco;
             
-            const tituloModal = document.getElementById('modal-titulo');
-            if(nome !== '') {
-                tituloModal.innerText = "Editar Item: " + nome;
-            } else {
-                tituloModal.innerText = "Adicionar Novo Item";
-            }
-
+            document.getElementById('modal-titulo').innerText = nome ? "Editar Item: " + nome : "Adicionar Novo Item";
+            
             limparPreviewImagem();
             modalItem.style.display = 'flex';
         }
 
         function fecharModalItem() {
             modalItem.style.display = 'none';
+        }
+
+        function salvarItemFake() {
+            alert("Lógica visual de fechar e salvar. Para injetar no banco, utilize o código do renderer.js ensinado!");
+            fecharModalItem();
         }
 
         function limparPreviewImagem() {
@@ -788,48 +497,29 @@
 
         inputFoto.addEventListener('change', function(event) {
             const file = event.target.files[0];
-            
             if (file) {
-                if(file.size > 5 * 1024 * 1024) {
-                    alert("A imagem é muito pesada! O tamanho máximo é 5MB.");
-                    limparPreviewImagem();
-                    return;
-                }
-
+                if(file.size > 5 * 1024 * 1024) return alert("A imagem é muito pesada! Máx 5MB.");
                 const reader = new FileReader();
-                
                 reader.onload = function(e) {
                     uploadPlaceholder.style.display = 'none';
                     imagePreview.src = e.target.result;
                     imagePreview.style.display = 'block';
                     btnRemoverFoto.style.display = 'flex';
                 }
-                
                 reader.readAsDataURL(file);
             }
         });
 
-        dropZone.addEventListener('dragover', function(e) {
-            e.preventDefault();
-            dropZone.style.borderColor = 'var(--primary)';
-            dropZone.style.background = 'rgba(0, 230, 118, 0.05)';
-        });
-
-        dropZone.addEventListener('dragleave', function(e) {
+        // Eventos de arrastar na área de foto
+        const dropZone = document.getElementById('drop-zone');
+        dropZone.addEventListener('dragover', e => { e.preventDefault(); dropZone.style.borderColor = 'var(--primary)'; });
+        dropZone.addEventListener('dragleave', e => { e.preventDefault(); dropZone.style.borderColor = '#444444'; });
+        dropZone.addEventListener('drop', e => {
             e.preventDefault();
             dropZone.style.borderColor = '#444444';
-            dropZone.style.background = 'var(--bg-input)';
-        });
-
-        dropZone.addEventListener('drop', function(e) {
-            e.preventDefault();
-            dropZone.style.borderColor = '#444444';
-            dropZone.style.background = 'var(--bg-input)';
-            
             if (e.dataTransfer.files.length > 0) {
                 inputFoto.files = e.dataTransfer.files;
-                const eventChange = new Event('change');
-                inputFoto.dispatchEvent(eventChange);
+                inputFoto.dispatchEvent(new Event('change'));
             }
         });
     </script>
