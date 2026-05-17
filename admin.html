@@ -19,7 +19,7 @@
         .input-group { margin-bottom: 20px; }
         .input-group label { display: block; margin-bottom: 8px; color: #aaa; font-size: 0.9rem; font-weight: 600; }
         input[type="text"], input[type="number"], select, textarea { width: 100%; background: #080808; border: 1px solid var(--border); color: #fff; padding: 12px; border-radius: 10px; transition: 0.3s; }
-        input:focus { border-color: var(--primary); }
+        input:focus, textarea:focus { border-color: var(--primary); }
         
         .size-hint { color: #555; font-size: 0.8rem; margin-top: 5px; display: block; }
 
@@ -34,27 +34,29 @@
         .btn-outline.active { border-color: var(--primary); color: var(--primary); background: rgba(0,230,118,0.1); }
         .btn-danger { background: #ff1744; color: white; width: auto; padding: 5px 15px; font-size: 0.8rem; }
         
-        .btn-download {
-            background: #222; border: 1px solid var(--primary); color: var(--primary);
-            padding: 8px 15px; border-radius: 8px; font-weight: 700; cursor: pointer;
-            text-decoration: none; display: flex; align-items: center; gap: 8px; font-size: 0.9rem;
-            transition: 0.3s;
-        }
+        .btn-download { background: #222; border: 1px solid var(--primary); color: var(--primary); padding: 8px 15px; border-radius: 8px; font-weight: 700; cursor: pointer; text-decoration: none; display: flex; align-items: center; gap: 8px; font-size: 0.9rem; transition: 0.3s; }
         .btn-download:hover { background: var(--primary); color: #000; }
 
         .tabs { display: flex; gap: 10px; margin-bottom: 25px; overflow-x: auto; }
         .tabs button { flex: 1; white-space: nowrap; }
 
-        .item-list { background: var(--surface); padding: 15px; border-radius: 12px; border: 1px solid var(--border); margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; }
+        .item-list { background: var(--surface); padding: 15px; border-radius: 12px; border: 1px solid var(--border); margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; transition: 0.2s; }
+        .item-list:hover { border-color: #555; }
         
-        /* Box de Dica (ImgBB) */
-        .tip-box { 
-            background: rgba(0,230,118,0.05); border: 1px dashed var(--primary); 
-            padding: 20px; border-radius: 10px; margin-bottom: 20px; 
-            font-size: 0.9rem; color: #ccc; line-height: 1.5;
-        }
-        .tip-box a { color: var(--primary); font-weight: bold; text-decoration: underline; }
+        .btn-icon { background: none; border: none; cursor: pointer; font-size: 1.1rem; transition: 0.2s; padding: 5px; }
+        .btn-icon:hover { transform: scale(1.1); }
+
+        /* Estilos do Upload de Imagem */
+        .upload-box { display: flex; align-items: center; gap: 15px; background: #080808; padding: 15px; border-radius: 10px; border: 1px dashed #555; }
+        .upload-box img { width: 60px; height: 60px; border-radius: 8px; object-fit: cover; display: none; border: 1px solid #333; }
+        .btn-upload { background: #222; color: #fff; border: 1px solid #444; padding: 8px 15px; border-radius: 8px; cursor: pointer; font-size: 0.9rem; font-weight: 600; transition: 0.2s; }
+        .btn-upload:hover { border-color: var(--primary); color: var(--primary); }
         
+        /* Box de Adicionais */
+        .adds-box { background: #080808; padding: 15px; border-radius: 10px; border: 1px solid #333; }
+        .adds-list { margin-top: 10px; display: flex; flex-direction: column; gap: 5px; }
+        .add-item { display: flex; justify-content: space-between; align-items: center; background: #1a1a1a; padding: 8px 12px; border-radius: 6px; border: 1px solid #222; }
+
         #loading { position: fixed; inset: 0; background: var(--bg); z-index: 999; display: flex; align-items: center; justify-content: center; }
     </style>
 </head>
@@ -118,43 +120,55 @@
         </div>
 
         <div id="view-produtos" style="display:none;">
-            <div class="tip-box">
-                <i class="fas fa-lightbulb" style="color:var(--primary)"></i> <b>DICA DE IMAGEM:</b><br>
-                Para economizar espaço e deixar seu site rápido, recomendamos hospedar as fotos dos seus pratos no site 
-                <a href="https://imgbb.com/" target="_blank">ImgBB.com</a>. É grátis!<br>
-                1. Faça upload da foto lá.<br>
-                2. Copie o <b>"Link direto"</b>.<br>
-                3. Cole no campo "URL da Imagem" abaixo.
-            </div>
-
-            <div style="background:var(--surface); padding:20px; border-radius:15px; margin-bottom:20px; border:1px solid #333;">
-                <h4 style="margin-bottom:15px; color:var(--primary)">+ Novo Produto</h4>
+            
+            <div style="background:var(--surface); padding:20px; border-radius:15px; margin-bottom:30px; border:1px solid #333;">
+                <h4 id="titulo-form-produto" style="margin-bottom:15px; color:var(--primary)"><i class="fas fa-plus-circle"></i> Novo Produto</h4>
                 
+                <div class="input-group">
+                    <label>Imagem do Produto</label>
+                    <div class="upload-box">
+                        <img id="prod-img-preview" src="">
+                        <input type="file" id="prod-img-file" accept="image/png, image/jpeg, image/jpg" hidden onchange="previewImg(event)">
+                        <button class="btn-upload" onclick="document.getElementById('prod-img-file').click()"><i class="fas fa-camera"></i> Escolher Foto</button>
+                        <span id="prod-img-nome" style="color:#777; font-size:0.8rem;">Nenhuma foto selecionada</span>
+                    </div>
+                </div>
+
                 <div style="display:grid; grid-template-columns: 2fr 1fr; gap:10px;">
-                    <div class="input-group"><input type="text" id="prod-nome" placeholder="Nome"></div>
-                    <div class="input-group"><input type="number" id="prod-preco" placeholder="Preço"></div>
+                    <div class="input-group"><label>Nome do Item</label><input type="text" id="prod-nome" placeholder="Ex: X-Bacon"></div>
+                    <div class="input-group"><label>Preço (R$)</label><input type="number" id="prod-preco" placeholder="0.00" step="0.01"></div>
                 </div>
                 
                 <div class="input-group">
-                    <input type="text" id="prod-cat" placeholder="Categoria (Lanches, Bebidas...)" list="list-cats">
+                    <label>Categoria</label>
+                    <input type="text" id="prod-cat" placeholder="Ex: Lanches, Bebidas..." list="list-cats">
                     <datalist id="list-cats"><option value="Lanches"><option value="Bebidas"><option value="Porções"></datalist>
                 </div>
                 
-                <div class="input-group"><textarea id="prod-desc" placeholder="Descrição..." rows="2"></textarea></div>
+                <div class="input-group"><label>Descrição / Ingredientes</label><textarea id="prod-desc" placeholder="Descreva os ingredientes..." rows="2"></textarea></div>
 
-                <div class="input-group">
-                    <label>URL da Imagem</label>
-                    <input type="text" id="prod-img" placeholder="Cole o link da imagem aqui (Ex: https://i.ibb.co/...)">
-                </div>
-                
-                <div style="margin-top:10px; background: #000; padding: 10px; border-radius: 8px;">
-                    <label style="font-size:0.8rem; color:#aaa;">Adicionais (Ex: Bacon:3.00, Ovo:2.00)</label>
-                    <input type="text" id="prod-adds" placeholder="Nome:Preço, Nome:Preço" style="border:none; border-bottom:1px solid #333;">
+                <div class="adds-box">
+                    <label><i class="fas fa-plus"></i> Adicionais (Opcional)</label>
+                    <div style="display:flex; gap:10px; margin-top:10px;">
+                        <input type="text" id="add-nome" placeholder="Ex: Bacon Extra" style="flex:2; padding:8px;">
+                        <input type="number" id="add-preco" placeholder="Valor" style="flex:1; padding:8px;" step="0.01">
+                        <button class="btn-upload" style="border-color:var(--primary); color:var(--primary);" onclick="adicionarAdicional()">+</button>
+                    </div>
+                    <div id="lista-adicionais-form" class="adds-list">
+                        </div>
                 </div>
 
-                <button class="btn" onclick="addProduto()" style="margin-top:15px;">Cadastrar Produto</button>
+                <div style="display:flex; gap:10px; margin-top:20px;">
+                    <button class="btn btn-outline" id="btn-cancelar-edicao" style="display:none; width:auto;" onclick="cancelarEdicao()">Cancelar</button>
+                    <button class="btn" id="btn-salvar-produto" onclick="salvarProduto()">Cadastrar Produto</button>
+                </div>
             </div>
-            <div id="lista-produtos"></div>
+
+            <div>
+                <h3 style="margin-bottom:15px; color:#fff;">Seu Cardápio</h3>
+                <div id="lista-produtos">
+                    </div>
+            </div>
         </div>
 
         <div id="view-entregas" style="display:none;">
@@ -193,11 +207,13 @@
 
     <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
     <script type="module">
+        // Importações do Firebase v9
         import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js";
         import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-auth.js";
         import { getFirestore, doc, getDoc, updateDoc, setDoc } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js";
+        import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-storage.js";
         
-        // CONFIGURAÇÃO FIREBASE
+        // CONFIGURAÇÃO FIREBASE (Igual ao seu firebaseConfig.txt)
         const firebaseConfig = {
             apiKey: "AIzaSyBIvmoayNis2C2xLFQtpRzzrc4dWxGvotU",
             authDomain: "eatsmenu-62cfa.firebaseapp.com",
@@ -210,9 +226,16 @@
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
         const db = getFirestore(app);
+        const storage = getStorage(app);
         
+        // ESTADOS GLOBAIS
         let userUid = null;
         let data = { produtos: [], bairros: [], dias_func: [] };
+        
+        // ESTADOS DO CARDÁPIO
+        let editIndex = -1; // -1 significa "Novo Produto". Número maior que -1 é a posição do item sendo editado.
+        let arrayAdicionaisTemp = []; // Lista temporária de adicionais no formulário
+        let urlImagemAtual = ""; // Guarda o link da imagem atual caso não suba uma nova
 
         onAuthStateChanged(auth, async (user) => {
             if (user) {
@@ -225,15 +248,11 @@
             }
         });
 
-        // --- ATIVAÇÃO AUTOMÁTICA (RETORNO MP) ---
         async function checkPaymentStatus() {
             const params = new URLSearchParams(window.location.search);
-            const statusMP = params.get('collection_status');
-
-            if (statusMP === 'approved') {
+            if (params.get('collection_status') === 'approved') {
                 await updateDoc(doc(db, "lojas", userUid), { 
-                    status_pagamento: 'ativo',
-                    data_ativacao: new Date()
+                    status_pagamento: 'ativo', data_ativacao: new Date()
                 });
                 toast("✅ Pagamento confirmado! Painel Liberado.");
                 window.history.replaceState({}, document.title, "admin.html");
@@ -244,28 +263,24 @@
             const snap = await getDoc(doc(db, "lojas", userUid));
             if (snap.exists()) {
                 data = snap.data();
-                
                 if(data.status_pagamento === 'pendente') {
-                    alert("Aguardando confirmação do pagamento. Se já pagou, verifique se clicou em 'Voltar para o site' no Mercado Pago.");
-                    window.location.href = "index.html";
-                    return;
+                    alert("Aguardando confirmação do pagamento.");
+                    window.location.href = "index.html"; return;
                 }
-
                 if(!data.produtos) data.produtos = [];
                 if(!data.bairros) data.bairros = [];
                 if(!data.dias_func) data.dias_func = [0,1,2,3,4,5,6];
                 
-                const campos = ['conf-nome','conf-slug','conf-zap','conf-pix-key','conf-pix-name',
-                                'conf-logo','conf-banner','conf-cor'];
-                
+                // Popula aba Loja
+                const campos = ['conf-nome','conf-slug','conf-zap','conf-pix-key','conf-pix-name','conf-logo','conf-banner','conf-cor'];
                 campos.forEach(id => {
                     const key = id.replace('conf-','').replace(/-/g,'_');
                     if(document.getElementById(id)) document.getElementById(id).value = data[key] || "";
                 });
                 
+                // Popula aba Entregas
                 document.getElementById('loja-abre').value = data.hora_abre || "18:00";
                 document.getElementById('loja-fecha').value = data.hora_fecha || "23:00";
-                
                 document.querySelectorAll('#days-container input').forEach(chk => {
                     chk.checked = data.dias_func.includes(parseInt(chk.value));
                 });
@@ -276,6 +291,211 @@
             }
         }
 
+        // ==========================================
+        // LÓGICA DO CARDÁPIO (PRODUTOS)
+        // ==========================================
+
+        // Preview da imagem escolhida
+        window.previewImg = (event) => {
+            const file = event.target.files[0];
+            if(file) {
+                document.getElementById('prod-img-nome').innerText = file.name;
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    document.getElementById('prod-img-preview').src = e.target.result;
+                    document.getElementById('prod-img-preview').style.display = 'block';
+                };
+                reader.readAsDataURL(file);
+            }
+        };
+
+        // Adicionar adicionais temporários
+        window.adicionarAdicional = () => {
+            const nome = document.getElementById('add-nome').value;
+            const preco = parseFloat(document.getElementById('add-preco').value);
+            
+            if(!nome || isNaN(preco)) return toast("Preencha nome e preço do adicional", "error");
+            
+            arrayAdicionaisTemp.push({ nome: nome, preco: preco });
+            document.getElementById('add-nome').value = '';
+            document.getElementById('add-preco').value = '';
+            renderAdicionaisTemp();
+        };
+
+        window.removerAdicional = (idx) => {
+            arrayAdicionaisTemp.splice(idx, 1);
+            renderAdicionaisTemp();
+        };
+
+        function renderAdicionaisTemp() {
+            const div = document.getElementById('lista-adicionais-form');
+            div.innerHTML = '';
+            arrayAdicionaisTemp.forEach((add, idx) => {
+                div.innerHTML += `
+                    <div class="add-item">
+                        <span>${add.nome} <strong style="color:var(--primary)">+R$ ${add.preco.toFixed(2)}</strong></span>
+                        <button class="btn-icon" style="color:var(--danger);" onclick="removerAdicional(${idx})"><i class="fas fa-trash"></i></button>
+                    </div>
+                `;
+            });
+        }
+
+        // SALVAR (Criar novo ou Editar existente)
+        window.salvarProduto = async () => {
+            const nome = document.getElementById('prod-nome').value;
+            const preco = parseFloat(document.getElementById('prod-preco').value);
+            const cat = document.getElementById('prod-cat').value;
+            const desc = document.getElementById('prod-desc').value;
+            const fileInput = document.getElementById('prod-img-file');
+            
+            if(!nome || isNaN(preco) || !cat) return toast("Preencha o Nome, Preço e Categoria", "error");
+
+            const btn = document.getElementById('btn-salvar-produto');
+            const textoOriginal = btn.innerText;
+            btn.innerText = "Salvando...";
+            btn.disabled = true;
+
+            try {
+                let finalImgUrl = urlImagemAtual;
+
+                // Se selecionou foto nova, sobe pro Storage
+                if(fileInput.files.length > 0) {
+                    const file = fileInput.files[0];
+                    const storageRef = ref(storage, `lojas/${userUid}/produtos/${Date.now()}_${file.name}`);
+                    const snap = await uploadBytes(storageRef, file);
+                    finalImgUrl = await getDownloadURL(snap.ref);
+                }
+
+                const prod = {
+                    nome: nome,
+                    preco: preco,
+                    cat: cat,
+                    desc: desc,
+                    img: finalImgUrl,
+                    adds: [...arrayAdicionaisTemp] // Clona a lista de adicionais
+                };
+
+                if(editIndex > -1) {
+                    // Atualiza item existente
+                    data.produtos[editIndex] = prod;
+                    toast("Produto Atualizado!");
+                } else {
+                    // Cria item novo
+                    data.produtos.push(prod);
+                    toast("Produto Adicionado!");
+                }
+
+                await updateDoc(doc(db, "lojas", userUid), { produtos: data.produtos });
+                
+                cancelarEdicao(); // Limpa form
+                renderProdutos(); // Atualiza lista
+                
+            } catch(e) {
+                console.error(e);
+                toast("Erro ao salvar produto", "error");
+            } finally {
+                btn.innerText = textoOriginal;
+                btn.disabled = false;
+            }
+        };
+
+        // Carrega os dados pro formulário
+        window.editarProduto = (idx) => {
+            const p = data.produtos[idx];
+            editIndex = idx;
+            
+            document.getElementById('titulo-form-produto').innerHTML = '<i class="fas fa-pen"></i> Editar Produto';
+            document.getElementById('prod-nome').value = p.nome || '';
+            document.getElementById('prod-preco').value = p.preco || '';
+            document.getElementById('prod-cat').value = p.cat || '';
+            document.getElementById('prod-desc').value = p.desc || '';
+            
+            urlImagemAtual = p.img || '';
+            if(urlImagemAtual) {
+                document.getElementById('prod-img-preview').src = urlImagemAtual;
+                document.getElementById('prod-img-preview').style.display = 'block';
+                document.getElementById('prod-img-nome').innerText = "Imagem salva mantida";
+            } else {
+                document.getElementById('prod-img-preview').style.display = 'none';
+                document.getElementById('prod-img-nome').innerText = "Nenhuma foto selecionada";
+            }
+
+            // Tratamento caso os adicionais antigos estivessem em texto
+            if(typeof p.adds === 'string') { arrayAdicionaisTemp = []; } 
+            else { arrayAdicionaisTemp = p.adds ? [...p.adds] : []; }
+            renderAdicionaisTemp();
+
+            document.getElementById('btn-salvar-produto').innerText = "Salvar Alterações";
+            document.getElementById('btn-cancelar-edicao').style.display = 'block';
+            
+            // Rola a tela para o formulário
+            document.getElementById('view-produtos').scrollIntoView({ behavior: 'smooth' });
+        };
+
+        window.cancelarEdicao = () => {
+            editIndex = -1;
+            urlImagemAtual = "";
+            arrayAdicionaisTemp = [];
+            
+            document.getElementById('titulo-form-produto').innerHTML = '<i class="fas fa-plus-circle"></i> Novo Produto';
+            document.getElementById('prod-nome').value = "";
+            document.getElementById('prod-preco').value = "";
+            document.getElementById('prod-cat').value = "";
+            document.getElementById('prod-desc').value = "";
+            document.getElementById('prod-img-file').value = "";
+            document.getElementById('prod-img-preview').style.display = 'none';
+            document.getElementById('prod-img-nome').innerText = "Nenhuma foto selecionada";
+            
+            document.getElementById('btn-salvar-produto').innerText = "Cadastrar Produto";
+            document.getElementById('btn-cancelar-edicao').style.display = 'none';
+            renderAdicionaisTemp();
+        };
+
+        function renderProdutos() {
+            const div = document.getElementById('lista-produtos');
+            div.innerHTML = "";
+            
+            if(data.produtos.length === 0) {
+                div.innerHTML = "<p style='color:#777; text-align:center; margin-top:20px;'>Nenhum produto cadastrado.</p>";
+                return;
+            }
+
+            // Agrupa por Categoria
+            const categorias = {};
+            data.produtos.forEach((p, idx) => {
+                const catName = p.cat || "Sem Categoria";
+                if(!categorias[catName]) categorias[catName] = [];
+                categorias[catName].push({ ...p, indexReal: idx }); // Salva o index original pra edição/exclusão não bugar
+            });
+
+            // Renderiza cada categoria
+            for(let cat in categorias) {
+                div.innerHTML += `<h3 style="color:var(--primary); margin: 25px 0 10px 0; border-bottom:1px solid #333; padding-bottom:5px;">${cat}</h3>`;
+                
+                categorias[cat].forEach(p => {
+                    const imgSrc = p.img || 'https://via.placeholder.com/60x60/1a1a1a/333333?text=Sem+Foto';
+                    div.innerHTML += `
+                        <div class="item-list">
+                            <div style="display:flex; align-items:center; gap:15px;">
+                                <img src="${imgSrc}" style="width:60px; height:60px; object-fit:cover; border-radius:8px; border:1px solid #333;">
+                                <div>
+                                    <strong style="font-size:1.1rem; color:#fff;">${p.nome}</strong><br>
+                                    <small style="color:var(--primary); font-weight:bold; font-size:1rem;">R$ ${p.preco.toFixed(2)}</small>
+                                </div>
+                            </div>
+                            <div style="display:flex; gap:10px;">
+                                <button class="btn-icon" style="color:#fff;" title="Editar" onclick="editarProduto(${p.indexReal})"><i class="fas fa-pen"></i></button>
+                                <button class="btn-icon" style="color:var(--danger);" title="Excluir" onclick="delItem('produtos', ${p.indexReal})"><i class="fas fa-trash"></i></button>
+                            </div>
+                        </div>
+                    `;
+                });
+            }
+        }
+
+        // ==========================================
+        // OUTRAS FUNÇÕES GERAIS (LOJA E ENTREGAS)
+        // ==========================================
         window.salvarLoja = async () => {
             const update = {
                 nome: document.getElementById('conf-nome').value,
@@ -297,36 +517,12 @@
             document.querySelectorAll('#days-container input:checked').forEach(chk => {
                 diasSelecionados.push(parseInt(chk.value));
             });
-
             await updateDoc(doc(db, "lojas", userUid), {
                 hora_abre: document.getElementById('loja-abre').value,
                 hora_fecha: document.getElementById('loja-fecha').value,
                 dias_func: diasSelecionados
             });
-            toast("Horário e Dias Atualizados!");
-        };
-
-        window.addProduto = async () => {
-            const prod = {
-                nome: document.getElementById('prod-nome').value,
-                preco: parseFloat(document.getElementById('prod-preco').value),
-                cat: document.getElementById('prod-cat').value,
-                desc: document.getElementById('prod-desc').value,
-                img: document.getElementById('prod-img').value, // Agora pega o texto URL direto
-                adds: document.getElementById('prod-adds').value
-            };
-            if(!prod.nome || !prod.preco) return toast("Preencha nome e preço", "error");
-            data.produtos.push(prod);
-            await updateDoc(doc(db, "lojas", userUid), { produtos: data.produtos });
-            
-            // Limpa campos
-            document.getElementById('prod-nome').value = "";
-            document.getElementById('prod-preco').value = "";
-            document.getElementById('prod-img').value = "";
-            document.getElementById('prod-desc').value = "";
-            
-            renderProdutos();
-            toast("Produto Adicionado!");
+            toast("Horário Atualizado!");
         };
 
         window.addBairro = async () => {
@@ -340,27 +536,28 @@
             toast("Bairro Adicionado!");
         };
 
-        function renderProdutos() {
-            const div = document.getElementById('lista-produtos');
-            div.innerHTML = "";
-            data.produtos.forEach((p, idx) => {
-                div.innerHTML += `<div class="item-list"><div><strong>${p.nome}</strong><br><small>R$ ${p.preco}</small></div><button class="btn-danger" style="border:none;padding:5px 10px;border-radius:5px;cursor:pointer;" onclick="delItem('produtos', ${idx})">Excluir</button></div>`;
-            });
-        }
-
         function renderBairros() {
             const div = document.getElementById('lista-bairros');
             div.innerHTML = "";
             data.bairros.forEach((b, idx) => {
-                div.innerHTML += `<div class="item-list"><div>${b.nome} - R$ ${b.taxa}</div><button class="btn-danger" style="border:none;padding:5px 10px;border-radius:5px;cursor:pointer;" onclick="delItem('bairros', ${idx})">Excluir</button></div>`;
+                div.innerHTML += `
+                    <div class="item-list">
+                        <div><strong style="color:#fff;">${b.nome}</strong><br><small style="color:var(--primary); font-weight:bold;">Taxa: R$ ${b.taxa.toFixed(2)}</small></div>
+                        <button class="btn-icon" style="color:var(--danger);" onclick="delItem('bairros', ${idx})"><i class="fas fa-trash"></i></button>
+                    </div>`;
             });
         }
 
         window.delItem = async (tipo, idx) => {
-            if(confirm("Excluir?")) {
+            if(confirm("Tem certeza que deseja excluir?")) {
                 data[tipo].splice(idx, 1);
                 await updateDoc(doc(db, "lojas", userUid), { [tipo]: data[tipo] });
                 tipo === 'produtos' ? renderProdutos() : renderBairros();
+                
+                // Se o cara excluiu o item que ele estava editando, limpa o formulário
+                if(tipo === 'produtos' && editIndex === idx) {
+                    cancelarEdicao();
+                }
             }
         };
 
@@ -369,15 +566,18 @@
             document.getElementById('link-loja').href = url;
             document.getElementById('link-loja').innerText = url;
         }
+        
         window.setTab = (tab) => {
             ['loja', 'produtos', 'entregas'].forEach(t => {
                 document.getElementById('view-'+t).style.display = t === tab ? 'block' : 'none';
                 document.getElementById('tab-btn-'+t).className = t === tab ? 'btn active' : 'btn btn-outline';
             });
+            if(tab !== 'produtos') cancelarEdicao(); // Limpa o formulário se sair da aba
         }
+        
         window.limparSlug = (el) => el.value = el.value.toLowerCase().replace(/[^a-z0-9-]/g, '');
         window.logout = () => signOut(auth).then(() => window.location.href = "index.html");
-        function toast(msg, type="success") { Toastify({ text: msg, style: { background: type==="success"?"#00e676":"#ff1744" } }).showToast(); }
+        function toast(msg, type="success") { Toastify({ text: msg, style: { background: type==="success"?"#00e676":"#ff1744", color: "#000", fontWeight: "bold" } }).showToast(); }
     </script>
 </body>
 </html>
