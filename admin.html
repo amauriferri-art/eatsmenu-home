@@ -3,420 +3,201 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>EatsMenu - Painel Administrativo</title>
-    
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <title>Painel Admin - EatsMenu</title>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&display=swap" rel="stylesheet">
-    
-    <script src="https://cdn.jsdelivr.net/npm/sortablejs@latest/Sortable.min.js"></script>
+    <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     
     <style>
-        /* ==========================================================================
-           1. VARIÁVEIS E RESET (DARK NEON)
-           ========================================================================== */
-        :root { 
-            --primary: #00e676; 
-            --bg-sidebar: #000000; 
-            --bg-content: #121212; 
-            --surface: #1e1e1e;    
-            --bg-input: #080808;   
-            --text-light: #ffffff; 
-            --text-muted: #a0a0a0; 
-            --danger: #ff1744; 
-            --border-color: #333333; 
+        :root { --primary: #00e676; --bg: #050505; --surface: #121212; --border: #333; --text: #fff; }
+        * { box-sizing: border-box; font-family: 'Outfit', sans-serif; margin: 0; padding: 0; outline: none; }
+        body { background: var(--bg); color: var(--text); min-height: 100vh; display: flex; flex-direction: column; }
+        
+        .dash-header { background: var(--surface); padding: 15px 30px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border); }
+        .dash-container { max-width: 900px; margin: 0 auto; padding: 30px 20px; width: 100%; }
+        
+        .input-group { margin-bottom: 20px; }
+        .input-group label { display: block; margin-bottom: 8px; color: #aaa; font-size: 0.9rem; font-weight: 600; }
+        input[type="text"], input[type="number"], select, textarea { width: 100%; background: #080808; border: 1px solid var(--border); color: #fff; padding: 12px; border-radius: 10px; transition: 0.3s; }
+        input:focus { border-color: var(--primary); }
+        
+        .size-hint { color: #555; font-size: 0.8rem; margin-top: 5px; display: block; }
+
+        .days-wrapper { display: flex; gap: 10px; flex-wrap: wrap; background: #080808; padding: 15px; border-radius: 10px; border: 1px solid var(--border); }
+        .day-option { display: flex; align-items: center; gap: 8px; cursor: pointer; color: #fff; font-weight: 600; background: #222; padding: 8px 15px; border-radius: 20px; border: 1px solid #333; transition: 0.2s; }
+        .day-option:has(input:checked) { background: rgba(0, 230, 118, 0.2); border-color: var(--primary); color: var(--primary); }
+        .day-option input { display: none; } 
+
+        .btn { background: var(--primary); color: #000; border: none; padding: 12px 25px; border-radius: 10px; font-weight: 800; cursor: pointer; width: 100%; text-transform: uppercase; transition: 0.2s; }
+        .btn:hover { opacity: 0.9; transform: translateY(-2px); }
+        .btn-outline { background: transparent; border: 1px solid #555; color: #ccc; }
+        .btn-outline.active { border-color: var(--primary); color: var(--primary); background: rgba(0,230,118,0.1); }
+        .btn-danger { background: #ff1744; color: white; width: auto; padding: 5px 15px; font-size: 0.8rem; }
+        
+        .btn-download {
+            background: #222; border: 1px solid var(--primary); color: var(--primary);
+            padding: 8px 15px; border-radius: 8px; font-weight: 700; cursor: pointer;
+            text-decoration: none; display: flex; align-items: center; gap: 8px; font-size: 0.9rem;
+            transition: 0.3s;
         }
-        
-        * { box-sizing: border-box; font-family: 'Outfit', sans-serif; margin: 0; padding: 0; }
-        body { display: flex; height: 100vh; background: var(--bg-content); color: var(--text-light); overflow: hidden; }
+        .btn-download:hover { background: var(--primary); color: #000; }
 
-        /* ==========================================================================
-           2. SIDEBAR E BOTÃO DO ROBÔ DESTAQUE
-           ========================================================================== */
-        .sidebar { width: 260px; background: var(--bg-sidebar); border-right: 1px solid var(--border-color); display: flex; flex-direction: column; color: #ffffff; }
-        .logo { padding: 25px; font-size: 1.6rem; font-weight: 800; text-align: center; border-bottom: 1px solid var(--border-color); letter-spacing: 1px; }
-        .logo span { color: var(--primary); }
-        
-        .nav-btn { padding: 18px 25px; cursor: pointer; display: flex; align-items: center; gap: 15px; color: #888888; transition: 0.3s; font-weight: 600; font-size: 1rem; border: none; background: transparent; width: 100%; text-align: left; }
-        .nav-btn:hover { background: #111111; color: #ffffff; }
-        .nav-btn.active { background: rgba(0, 230, 118, 0.08); color: var(--primary); border-left: 4px solid var(--primary); }
-        .nav-btn i { width: 20px; text-align: center; }
+        .tabs { display: flex; gap: 10px; margin-bottom: 25px; overflow-x: auto; }
+        .tabs button { flex: 1; white-space: nowrap; }
 
-        /* DESTAQUE ABSOLUTO NO BOTÃO DE BAIXAR O ROBÔ */
-        .btn-download-robo { 
-            margin-top: auto; 
-            margin-bottom: 20px;
-            margin-left: 15px;
-            margin-right: 15px;
-            background: var(--primary); 
-            color: #000000 !important; 
-            text-decoration: none; 
-            border-radius: 8px;
-            padding: 15px;
-            justify-content: center;
-            font-weight: 800;
-            box-shadow: 0 5px 15px rgba(0, 230, 118, 0.3);
-            transition: all 0.3s;
+        .item-list { background: var(--surface); padding: 15px; border-radius: 12px; border: 1px solid var(--border); margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; }
+        
+        /* Box de Dica (ImgBB) */
+        .tip-box { 
+            background: rgba(0,230,118,0.05); border: 1px dashed var(--primary); 
+            padding: 20px; border-radius: 10px; margin-bottom: 20px; 
+            font-size: 0.9rem; color: #ccc; line-height: 1.5;
         }
-        .btn-download-robo:hover { 
-            background: #00c853; 
-            transform: translateY(-3px);
-            box-shadow: 0 8px 20px rgba(0, 230, 118, 0.5);
-        }
-
-        /* ==========================================================================
-           3. CONTEÚDO PRINCIPAL E ABAS
-           ========================================================================== */
-        .content { flex: 1; padding: 40px; overflow-y: auto; position: relative; }
+        .tip-box a { color: var(--primary); font-weight: bold; text-decoration: underline; }
         
-        .tab-content { display: none; animation: fadeIn 0.3s ease-out; }
-        .tab-content.active { display: block; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-
-        .header-painel { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 30px; }
-        .header-painel-esq h1 { font-size: 1.8rem; color: var(--text-light); margin-bottom: 10px; }
-        
-        .link-loja-container { display: flex; align-items: center; gap: 10px; background: var(--surface); padding: 8px 15px; border-radius: 8px; border: 1px solid var(--border-color); }
-        .link-loja-container span { color: var(--text-muted); font-size: 0.95rem; }
-        .link-loja-container .btn-icon { background: none; border: none; color: var(--text-muted); cursor: pointer; transition: 0.2s; font-size: 1.1rem; }
-        .link-loja-container .btn-icon:hover { color: var(--primary); }
-        
-        .btn-ver-cardapio { background: transparent; border: 1px solid var(--primary); color: var(--primary); padding: 6px 15px; border-radius: 6px; text-decoration: none; font-size: 0.85rem; font-weight: 600; transition: 0.2s; display: flex; align-items: center; gap: 6px; }
-        .btn-ver-cardapio:hover { background: var(--primary); color: #000; }
-
-        .btn-acao-principal { background: var(--primary); color: #000000; border: none; padding: 12px 24px; font-size: 1rem; font-weight: 800; border-radius: 8px; cursor: pointer; transition: all 0.3s; display: flex; align-items: center; gap: 10px; }
-        .btn-acao-principal:hover { transform: translateY(-2px); box-shadow: 0 5px 15px rgba(0, 230, 118, 0.4); }
-
-        /* ==========================================================================
-           4. FORMULÁRIOS (LOJA E ENTREGAS)
-           ========================================================================== */
-        .card-form { background: var(--surface); padding: 30px; border-radius: 12px; border: 1px solid var(--border-color); margin-bottom: 25px; }
-        .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
-        .form-group { display: flex; flex-direction: column; margin-bottom: 15px; }
-        .form-group.full-width { grid-column: 1 / -1; }
-        
-        .form-group label { font-weight: 600; color: var(--text-muted); font-size: 0.95rem; margin-bottom: 8px; }
-        .form-group input, .form-group textarea { width: 100%; padding: 14px; border: 1px solid var(--border-color); border-radius: 8px; box-sizing: border-box; font-family: inherit; font-size: 1rem; background: var(--bg-input); color: var(--text-light); transition: 0.3s; }
-        .form-group input:focus, .form-group textarea:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 3px rgba(0, 230, 118, 0.1); }
-        .input-hint { font-size: 0.8rem; color: #666; margin-top: 5px; }
-
-        .input-group-add { display: flex; gap: 10px; align-items: flex-end; }
-        .input-group-add .form-group { margin-bottom: 0; flex: 1; }
-        .btn-add-bairro { background: #333; color: #fff; border: none; border-radius: 8px; padding: 0 20px; font-weight: bold; cursor: pointer; transition: 0.3s; height: 48px; }
-        .btn-add-bairro:hover { background: var(--primary); color: #000; }
-
-        .lista-bairros { margin-top: 20px; border: 1px solid var(--border-color); border-radius: 8px; overflow: hidden; }
-        .bairro-item { display: flex; justify-content: space-between; align-items: center; padding: 12px 20px; border-bottom: 1px solid var(--border-color); background: var(--bg-input); }
-        .bairro-item:last-child { border-bottom: none; }
-        .bairro-nome { font-weight: 600; }
-        .bairro-taxa { color: var(--primary); font-weight: 800; margin-right: 15px; }
-        
-        /* Upload Logo Loja */
-        .logo-upload-container { display: flex; align-items: center; gap: 20px; }
-        .logo-preview { width: 100px; height: 100px; border-radius: 50%; background: var(--bg-input); border: 2px dashed var(--border-color); display: flex; align-items: center; justify-content: center; overflow: hidden; position: relative; }
-        .logo-preview img { width: 100%; height: 100%; object-fit: cover; display: none; }
-        .logo-preview i { font-size: 2rem; color: #555; }
-        .btn-upload-logo { background: transparent; border: 1px solid var(--text-muted); color: var(--text-light); padding: 10px 15px; border-radius: 6px; cursor: pointer; transition: 0.3s; font-weight: 600; }
-        .btn-upload-logo:hover { border-color: var(--primary); color: var(--primary); }
-
-        /* ==========================================================================
-           5. ESTRUTURA DO CARDÁPIO E ITENS
-           ========================================================================== */
-        .categoria-container { background: var(--surface); padding: 25px; border-radius: 12px; margin-bottom: 25px; box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3); border: 1px solid var(--border-color); transition: 0.3s; }
-        .categoria-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; border-bottom: 2px solid var(--border-color); padding-bottom: 15px; }
-        .categoria-titulo { display: flex; align-items: center; gap: 12px; }
-        .categoria-titulo h3 { margin: 0; font-size: 1.4rem; color: var(--primary); font-weight: 800; }
-        
-        .drag-icon { color: #555555; cursor: grab; font-size: 1.2rem; }
-        .drag-icon:active { cursor: grabbing; }
-        .sortable-ghost { opacity: 0.4; background: rgba(0, 230, 118, 0.1); border: 1px dashed var(--primary); }
-
-        .lista-itens { min-height: 10px; } 
-        .item-card { display: flex; align-items: center; background: var(--bg-content); padding: 15px 20px; border-radius: 10px; border: 1px solid var(--border-color); margin-bottom: 12px; transition: all 0.2s; }
-        .item-card:hover { border-color: #555555; box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4); }
-        .item-drag { margin-right: 20px; }
-        
-        .item-imagem { width: 70px; height: 70px; border-radius: 8px; overflow: hidden; background: var(--bg-input); display: flex; align-items: center; justify-content: center; flex-shrink: 0; border: 1px solid var(--border-color); }
-        .item-imagem img { width: 100%; height: 100%; object-fit: cover; }
-        
-        .item-dados { flex: 1; margin-left: 20px; }
-        .item-dados h4 { margin: 0 0 6px 0; color: var(--text-light); font-size: 1.1rem; font-weight: 600; }
-        .item-dados p { margin: 0 0 8px 0; color: var(--text-muted); font-size: 0.9rem; line-height: 1.4; }
-        .item-preco { font-weight: 800; color: var(--primary); font-size: 1.05rem; }
-
-        .item-controles { display: flex; align-items: center; gap: 20px; }
-        .btn-icon { background: none; border: none; color: #666666; cursor: pointer; font-size: 1.2rem; transition: 0.2s; }
-        .btn-icon:hover { color: var(--primary); }
-        .btn-danger { color: #ff1744 !important; }
-        .btn-danger:hover { color: #ff5252 !important; }
-
-        /* TOGGLE LIGA/DESLIGA */
-        .toggle-container { display: flex; align-items: center; gap: 10px; }
-        .toggle-switch { position: relative; display: inline-block; width: 46px; height: 26px; }
-        .toggle-switch input { opacity: 0; width: 0; height: 0; }
-        .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #444444; transition: .4s; border-radius: 34px; }
-        .slider:before { position: absolute; content: ""; height: 20px; width: 20px; left: 3px; bottom: 3px; background-color: white; transition: .4s; border-radius: 50%; }
-        input:checked + .slider { background-color: var(--primary); }
-        input:checked + .slider:before { transform: translateX(20px); }
-
-        .btn-novo-item { width: 100%; padding: 15px; background: transparent; border: 2px dashed #444444; color: var(--text-muted); border-radius: 10px; cursor: pointer; font-weight: 600; font-size: 1rem; transition: 0.2s; margin-top: 10px; }
-        .btn-novo-item:hover { border-color: var(--primary); color: var(--primary); background: rgba(0, 230, 118, 0.05); }
-
-        /* ==========================================================================
-           6. MODAIS (EDIÇÃO E UPLOADS)
-           ========================================================================== */
-        .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0, 0, 0, 0.85); z-index: 9999; justify-content: center; align-items: center; backdrop-filter: blur(5px); }
-        .modal-content { background: var(--surface); width: 95%; max-width: 850px; border-radius: 16px; overflow: hidden; box-shadow: 0 20px 60px rgba(0, 0, 0, 0.7); border: 1px solid var(--border-color); animation: modalFadeIn 0.3s ease-out forwards; }
-        .modal-content.modal-pequeno { max-width: 500px; }
-        @keyframes modalFadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
-        
-        .modal-header { padding: 25px 30px; border-bottom: 1px solid var(--border-color); display: flex; justify-content: space-between; align-items: center; background: var(--surface); }
-        .modal-header h2 { margin: 0; font-size: 1.4rem; color: var(--text-light); font-weight: 800; }
-        .close-btn { background: none; border: none; font-size: 1.8rem; cursor: pointer; color: #666666; transition: 0.2s; }
-        .close-btn:hover { color: var(--danger); }
-
-        .modal-body { display: grid; grid-template-columns: 1fr 1.2fr; gap: 30px; padding: 30px; background: var(--surface); }
-        .modal-body.coluna-unica { grid-template-columns: 1fr; }
-
-        .upload-area { border: 2px dashed #444444; border-radius: 12px; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; height: 280px; cursor: pointer; background: var(--bg-input); position: relative; overflow: hidden; transition: all 0.3s; }
-        .upload-area:hover { border-color: var(--primary); background: rgba(0, 230, 118, 0.02); }
-        .upload-icon { font-size: 3.5rem; color: #333333; margin-bottom: 15px; transition: 0.3s; }
-        .upload-area:hover .upload-icon { color: var(--primary); }
-        .upload-area p { margin: 0 0 8px 0; font-weight: 600; color: var(--text-light); font-size: 1.1rem; }
-        .upload-area span { font-size: 0.85rem; color: var(--text-muted); }
-        #image-preview { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; display: none; z-index: 2; }
-
-        .modal-footer { padding: 20px 30px; border-top: 1px solid var(--border-color); background: var(--surface); display: flex; justify-content: flex-end; gap: 15px; }
-        .btn-cancelar { padding: 12px 25px; background: transparent; border: 1px solid #555555; border-radius: 8px; cursor: pointer; font-weight: 600; color: var(--text-muted); font-size: 1rem; transition: 0.2s; }
-        .btn-cancelar:hover { background: #222222; color: #ffffff; }
-        .btn-salvar { padding: 12px 30px; background: var(--primary); border: none; border-radius: 8px; cursor: pointer; font-weight: 800; color: #000000; font-size: 1rem; transition: 0.2s; }
-        .btn-salvar:hover { background: #00c853; transform: translateY(-2px); box-shadow: 0 4px 10px rgba(0, 230, 118, 0.4); }
+        #loading { position: fixed; inset: 0; background: var(--bg); z-index: 999; display: flex; align-items: center; justify-content: center; }
     </style>
 </head>
 <body>
 
-    <div class="sidebar">
-        <div class="logo">EATS<span>MENU</span></div>
-        <button class="nav-btn" onclick="mudarAba('inicio', this)"><i class="fas fa-home"></i> Início</button>
-        <button class="nav-btn" onclick="mudarAba('loja', this)"><i class="fas fa-store"></i> Loja</button>
-        <button class="nav-btn active" onclick="mudarAba('cardapio', this)"><i class="fas fa-book-open"></i> Cardápio</button>
-        <button class="nav-btn" onclick="mudarAba('entregas', this)"><i class="fas fa-motorcycle"></i> Entregas</button>
-        <button class="nav-btn" onclick="mudarAba('configuracoes', this)"><i class="fas fa-cog"></i> Configurações</button>
-        
-        <a href="https://www.mediafire.com/file/l8kbvlnfcnkra95/EatsMenu+Setup+1.0.0.exe/file" target="_blank" class="nav-btn btn-download-robo">
-            <i class="fas fa-robot"></i> Baixar Robô
-        </a>
+    <div id="loading"><h3>Carregando Painel...</h3></div>
+
+    <div class="dash-header">
+        <div style="display: flex; align-items: center; gap: 15px;">
+            <h3 style="color:var(--primary)">EatsMenu <span style="color:#fff; font-size:0.8em">Admin</span></h3>
+            <a href="https://www.mediafire.com/file/l8kbvlnfcnkra95/EatsMenu+Setup+1.0.0.exe/file" target="_blank" class="btn-download">
+                <i class="fas fa-download"></i> Baixar Robô
+            </a>
+        </div>
+        <button class="btn btn-danger" onclick="logout()">Sair</button>
     </div>
 
-    <div class="content">
-        
-        <div class="header-painel">
-            <div class="header-painel-esq">
-                <h1 id="titulo-pagina">Gestão de Cardápio</h1>
-                <div class="link-loja-container">
-                    <span id="texto-link-loja">eatsmenu.com.br/sua-loja</span>
-                    <button class="btn-icon" onclick="copiarLinkDaLoja()" title="Copiar Link"><i class="fas fa-copy"></i></button>
-                    <a href="#" id="link-topo-href" target="_blank" class="btn-ver-cardapio"><i class="fas fa-external-link-alt"></i> Ver Cardápio</a>
+    <div class="dash-container">
+        <div style="background:#1a1a1a; padding:20px; border-radius:15px; margin-bottom:30px; text-align:center; border:1px dashed var(--primary);">
+            <p style="color:#aaa; margin-bottom:10px;">SEU CARDÁPIO ONLINE:</p>
+            <a id="link-loja" href="#" target="_blank" style="color:var(--primary); font-weight:800; font-size:1.2rem; text-decoration:none;">...</a>
+        </div>
+
+        <div class="tabs">
+            <button class="btn active" onclick="setTab('loja')" id="tab-btn-loja">🏪 Loja</button>
+            <button class="btn btn-outline" onclick="setTab('produtos')" id="tab-btn-produtos">🍔 Cardápio</button>
+            <button class="btn btn-outline" onclick="setTab('entregas')" id="tab-btn-entregas">🛵 Entregas</button>
+        </div>
+
+        <div id="view-loja">
+            <div class="input-group"><label>Nome da Loja</label><input type="text" id="conf-nome"></div>
+            <div class="input-group"><label>Link (Slug)</label><input type="text" id="conf-slug" onkeyup="limparSlug(this)"></div>
+            <div class="input-group"><label>WhatsApp (Ex: 55279...)</label><input type="text" id="conf-zap"></div>
+            
+            <div style="background: rgba(0,230,118,0.05); padding: 15px; border-radius: 10px; border: 1px dashed var(--primary); margin-bottom: 20px;">
+                <h4 style="color:var(--primary); margin-bottom: 10px;">Pagamento PIX</h4>
+                <div class="input-group"><label>Chave Pix</label><input type="text" id="conf-pix-key"></div>
+                <div class="input-group"><label>Nome do Beneficiário</label><input type="text" id="conf-pix-name"></div>
+            </div>
+
+            <div class="input-group">
+                <label>Logo (URL)</label>
+                <input type="text" id="conf-logo" placeholder="https://...">
+                <span class="size-hint">Recomendado: 500x500 pixels (Quadrado)</span>
+            </div>
+            
+            <div class="input-group">
+                <label>Banner (URL)</label>
+                <input type="text" id="conf-banner" placeholder="https://...">
+                <span class="size-hint">Recomendado: 1000x300 pixels (Retangular)</span>
+            </div>
+            
+            <div class="input-group">
+                <label>Cor Principal</label>
+                <div style="display:flex; align-items:center; gap:10px; background:#080808; padding:10px; border-radius:10px; border:1px solid #333;">
+                    <input type="color" id="conf-cor" style="width:50px; height:40px; border:none; background:none; cursor:pointer;">
                 </div>
             </div>
-            <button id="btn-header-acao" class="btn-acao-principal" onclick="abrirModalCategoria()">
-                <i class="fas fa-plus"></i> Nova Categoria
-            </button>
+            
+            <button class="btn" onclick="salvarLoja()">Salvar Dados</button>
         </div>
 
-        <div id="aba-inicio" class="tab-content">
-            <div class="card-form">
-                <h2 style="margin-bottom: 10px;">Bem-vindo ao EatsMenu!</h2>
-                <p style="color: var(--text-muted);">Use o menu lateral para gerenciar sua loja, configurar entregas e montar o seu cardápio digital.</p>
+        <div id="view-produtos" style="display:none;">
+            <div class="tip-box">
+                <i class="fas fa-lightbulb" style="color:var(--primary)"></i> <b>DICA DE IMAGEM:</b><br>
+                Para economizar espaço e deixar seu site rápido, recomendamos hospedar as fotos dos seus pratos no site 
+                <a href="https://imgbb.com/" target="_blank">ImgBB.com</a>. É grátis!<br>
+                1. Faça upload da foto lá.<br>
+                2. Copie o <b>"Link direto"</b>.<br>
+                3. Cole no campo "URL da Imagem" abaixo.
             </div>
-        </div>
 
-        <div id="aba-loja" class="tab-content">
-            <div class="card-form">
-                <h3 style="margin-bottom: 25px; color: var(--primary);"><i class="fas fa-store"></i> Informações da Loja</h3>
+            <div style="background:var(--surface); padding:20px; border-radius:15px; margin-bottom:20px; border:1px solid #333;">
+                <h4 style="margin-bottom:15px; color:var(--primary)">+ Novo Produto</h4>
                 
-                <div class="form-grid">
-                    <div class="form-group full-width">
-                        <label>Logo da Loja</label>
-                        <div class="logo-upload-container">
-                            <div class="logo-preview" id="logo-preview-box">
-                                <i class="fas fa-image" id="logo-icon"></i>
-                                <img id="img-logo-preview" src="">
-                            </div>
-                            <input type="file" id="input-logo-loja" accept="image/*" hidden onchange="previewLogoLoja(event)">
-                            <button class="btn-upload-logo" onclick="document.getElementById('input-logo-loja').click()">Escolher Imagem</button>
-                        </div>
-                    </div>
-
-                    <div class="form-group">
-                        <label>Nome da Loja</label>
-                        <input type="text" id="loja-nome" placeholder="Ex: Burguer King">
-                    </div>
-                    
-                    <div class="form-group">
-                        <label>Link do Cardápio (Slug)</label>
-                        <input type="text" id="loja-slug" placeholder="sua-loja" onkeyup="atualizarLinkTopo()">
-                        <div class="input-hint">O link final será: eatsmenu.com.br/<strong><span id="preview-slug">sua-loja</span></strong></div>
-                    </div>
-
-                    <div class="form-group">
-                        <label>WhatsApp para Pedidos</label>
-                        <input type="text" id="loja-whatsapp" placeholder="(11) 99999-9999">
-                    </div>
-
-                    <div class="form-group toggle-container" style="justify-content: flex-start; align-items: center; margin-top: 15px;">
-                        <label style="margin: 0; margin-right: 15px;">Status da Loja:</label>
-                        <label class="toggle-switch">
-                            <input type="checkbox" id="loja-status" checked>
-                            <span class="slider"></span>
-                        </label>
-                        <span id="texto-status-loja" style="font-weight: bold; color: var(--primary); margin-left: 10px;">Aberto</span>
-                    </div>
-
-                    <div class="form-group full-width">
-                        <label>Mensagem de Loja Fechada</label>
-                        <textarea id="loja-msg-fechada" rows="2" placeholder="Desculpe, estamos fechados no momento."></textarea>
-                    </div>
+                <div style="display:grid; grid-template-columns: 2fr 1fr; gap:10px;">
+                    <div class="input-group"><input type="text" id="prod-nome" placeholder="Nome"></div>
+                    <div class="input-group"><input type="number" id="prod-preco" placeholder="Preço"></div>
                 </div>
-
-                <div style="display: flex; justify-content: flex-end; margin-top: 20px;">
-                    <button class="btn-acao-principal" onclick="salvarDadosLojaFirebase()" id="btn-salvar-loja">Salvar Dados da Loja</button>
-                </div>
-            </div>
-        </div>
-
-        <div id="aba-entregas" class="tab-content">
-            <div class="card-form">
-                <h3 style="margin-bottom: 25px; color: var(--primary);"><i class="fas fa-motorcycle"></i> Taxas de Entrega e Bairros</h3>
                 
-                <div class="input-group-add">
-                    <div class="form-group">
-                        <label>Nome do Bairro</label>
-                        <input type="text" id="bairro-nome" placeholder="Ex: Centro">
-                    </div>
-                    <div class="form-group">
-                        <label>Taxa (R$)</label>
-                        <input type="number" id="bairro-taxa" placeholder="5.00" step="0.01">
-                    </div>
-                    <button class="btn-add-bairro" onclick="adicionarBairroNaLista()">Adicionar</button>
+                <div class="input-group">
+                    <input type="text" id="prod-cat" placeholder="Categoria (Lanches, Bebidas...)" list="list-cats">
+                    <datalist id="list-cats"><option value="Lanches"><option value="Bebidas"><option value="Porções"></datalist>
+                </div>
+                
+                <div class="input-group"><textarea id="prod-desc" placeholder="Descrição..." rows="2"></textarea></div>
+
+                <div class="input-group">
+                    <label>URL da Imagem</label>
+                    <input type="text" id="prod-img" placeholder="Cole o link da imagem aqui (Ex: https://i.ibb.co/...)">
+                </div>
+                
+                <div style="margin-top:10px; background: #000; padding: 10px; border-radius: 8px;">
+                    <label style="font-size:0.8rem; color:#aaa;">Adicionais (Ex: Bacon:3.00, Ovo:2.00)</label>
+                    <input type="text" id="prod-adds" placeholder="Nome:Preço, Nome:Preço" style="border:none; border-bottom:1px solid #333;">
                 </div>
 
-                <div class="lista-bairros" id="container-lista-bairros">
-                    <div style="padding: 20px; text-align: center; color: var(--text-muted);">Nenhum bairro cadastrado ainda.</div>
-                </div>
-
-                <div class="form-group toggle-container" style="margin-top: 30px;">
-                    <label class="toggle-switch">
-                        <input type="checkbox" id="loja-retirada" checked>
-                        <span class="slider"></span>
-                    </label>
-                    <label style="margin: 0;">Habilitar Retirada no Balcão (Sem taxa)</label>
-                </div>
-
-                <div style="display: flex; justify-content: flex-end; margin-top: 20px;">
-                    <button class="btn-acao-principal" onclick="salvarDadosEntregasFirebase()" id="btn-salvar-entregas">Salvar Configurações de Entrega</button>
-                </div>
+                <button class="btn" onclick="addProduto()" style="margin-top:15px;">Cadastrar Produto</button>
             </div>
+            <div id="lista-produtos"></div>
         </div>
 
-        <div id="aba-cardapio" class="tab-content active">
-            <div id="lista-categorias-geral">
-                <div class="categoria-container">
-                    <div class="categoria-header">
-                        <div class="categoria-titulo">
-                            <i class="fas fa-grip-vertical drag-icon handle-categoria"></i>
-                            <h3 class="nome-da-categoria-texto">Exemplo de Categoria</h3>
-                        </div>
-                        <div class="categoria-acoes">
-                            <button class="btn-icon" onclick="editarNomeCategoria(this)"><i class="fas fa-pen"></i></button>
-                            <button class="btn-icon btn-danger" onclick="excluirCategoria(this)"><i class="fas fa-trash"></i></button>
-                        </div>
-                    </div>
-                    <div class="lista-itens"></div>
-                    <button class="btn-novo-item" onclick="abrirModalItem()">
-                        <i class="fas fa-plus"></i> Adicionar novo item nesta categoria
-                    </button>
+        <div id="view-entregas" style="display:none;">
+            <div style="background:var(--surface); padding:20px; border-radius:15px; margin-bottom:20px; border:1px solid #333;">
+                <h4 style="margin-bottom:15px; color:var(--primary)">🕒 Horário de Funcionamento</h4>
+                
+                <label style="color:#aaa; font-size:0.9rem; margin-bottom:10px; display:block;">Marque os dias que a loja abre:</label>
+                <div class="days-wrapper" id="days-container">
+                    <label class="day-option"><input type="checkbox" value="0"> Dom</label>
+                    <label class="day-option"><input type="checkbox" value="1"> Seg</label>
+                    <label class="day-option"><input type="checkbox" value="2"> Ter</label>
+                    <label class="day-option"><input type="checkbox" value="3"> Qua</label>
+                    <label class="day-option"><input type="checkbox" value="4"> Qui</label>
+                    <label class="day-option"><input type="checkbox" value="5"> Sex</label>
+                    <label class="day-option"><input type="checkbox" value="6"> Sáb</label>
                 </div>
-            </div>
-        </div>
 
-        <div id="aba-configuracoes" class="tab-content">
-            <div class="card-form">
-                <h2 style="margin-bottom: 10px;">Configurações do Sistema</h2>
-                <p style="color: var(--text-muted);">Em breve.</p>
-            </div>
-        </div>
-
-    </div>
-
-    <div id="modal-categoria" class="modal-overlay">
-        <div class="modal-content modal-pequeno">
-            <div class="modal-header">
-                <h2>Nova Categoria</h2>
-                <button class="close-btn" onclick="fecharModalCategoria()"><i class="fas fa-times"></i></button>
-            </div>
-            <div class="modal-body coluna-unica">
-                <div class="form-group">
-                    <label>Nome da Categoria *</label>
-                    <input type="text" id="input-nome-categoria" placeholder="Ex: Combos Promocionais">
+                <div style="display:flex; gap:10px; margin-top:20px;">
+                    <div style="flex:1"><label>Abertura (HH:MM)</label><input type="time" id="loja-abre"></div>
+                    <div style="flex:1"><label>Fechamento (HH:MM)</label><input type="time" id="loja-fecha"></div>
                 </div>
+                <button class="btn" onclick="salvarHorario()" style="margin-top:10px;">Salvar Configurações</button>
             </div>
-            <div class="modal-footer">
-                <button class="btn-cancelar" onclick="fecharModalCategoria()">Cancelar</button>
-                <button class="btn-salvar" onclick="salvarCategoriaNaTela()">Criar Categoria</button>
+
+            <div style="background:var(--surface); padding:20px; border-radius:15px; margin-bottom:20px; border:1px solid #333;">
+                <h4 style="margin-bottom:15px; color:var(--primary)">🛵 Taxas de Entrega</h4>
+                <div style="display:flex; gap:10px;">
+                    <input type="text" id="bairro-nome" placeholder="Nome do Bairro" style="flex:2;">
+                    <input type="number" id="bairro-taxa" placeholder="Valor R$" style="flex:1;">
+                </div>
+                <button class="btn" onclick="addBairro()" style="margin-top:10px;">Adicionar Bairro</button>
             </div>
+            <div id="lista-bairros"></div>
         </div>
     </div>
 
-    <div id="modal-item" class="modal-overlay">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h2 id="modal-titulo">Adicionar Novo Item</h2>
-                <button class="close-btn" onclick="fecharModalItem()"><i class="fas fa-times"></i></button>
-            </div>
-            <div class="modal-body">
-                <div class="upload-area" id="drop-zone" onclick="document.getElementById('input-foto-item').click()">
-                    <input type="file" id="input-foto-item" accept="image/png, image/jpeg, image/jpg" hidden onchange="previewImagemItem(event)">
-                    <div id="upload-placeholder">
-                        <i class="fas fa-cloud-upload-alt upload-icon"></i>
-                        <p>Clique ou arraste a foto</p>
-                    </div>
-                    <img id="image-preview" src="">
-                </div>
-                <div class="form-area">
-                    <div class="form-group">
-                        <label>Nome do Item *</label>
-                        <input type="text" id="input-nome-item" placeholder="Ex: X-Bacon Artesanal">
-                    </div>
-                    <div class="form-group">
-                        <label>Descrição</label>
-                        <textarea id="input-desc-item" rows="4"></textarea>
-                    </div>
-                    <div class="form-group">
-                        <label>Preço *</label>
-                        <div class="input-preco-wrapper">
-                            <span>R$</span>
-                            <input type="number" id="input-preco-item" placeholder="0.00" step="0.01">
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="modal-footer">
-                <button class="btn-cancelar" onclick="fecharModalItem()">Cancelar</button>
-                <button class="btn-salvar" onclick="alert('Salvo (Lógica via JS no cardápio)')">Salvar Item</button>
-            </div>
-        </div>
-    </div>
-
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
     <script type="module">
-        // ----------------------------------------------------
-        // IMPORTAÇÕES DO FIREBASE V9 (MODULAR)
-        // ----------------------------------------------------
         import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js";
-        import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-auth.js";
-        import { getFirestore, doc, getDoc, setDoc, updateDoc } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js";
-        import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-storage.js";
-
-        // Substitua pelas chaves exatas do seu firebaseConfig.txt
+        import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-auth.js";
+        import { getFirestore, doc, getDoc, updateDoc, setDoc } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js";
+        
+        // CONFIGURAÇÃO FIREBASE
         const firebaseConfig = {
             apiKey: "AIzaSyBIvmoayNis2C2xLFQtpRzzrc4dWxGvotU",
             authDomain: "eatsmenu-62cfa.firebaseapp.com",
@@ -429,265 +210,174 @@
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
         const db = getFirestore(app);
-        const storage = getStorage(app);
-
+        
         let userUid = null;
-        let listaBairrosArray = [];
+        let data = { produtos: [], bairros: [], dias_func: [] };
 
-        // VERIFICA SE O USUÁRIO ESTÁ LOGADO
         onAuthStateChanged(auth, async (user) => {
             if (user) {
                 userUid = user.uid;
-                carregarDadosDoFirebase();
+                await checkPaymentStatus();
+                await loadData();
+                document.getElementById('loading').style.display = 'none';
             } else {
-                // Se não tiver logado, manda pro index.html
-                window.location.href = "index.html";
+                window.location.href = 'index.html';
             }
         });
 
-        // ----------------------------------------------------
-        // LÓGICA DE INTERFACE (ABAS E LINKS) EXPOSTA NO WINDOW
-        // ----------------------------------------------------
-        window.mudarAba = function(abaId, elementoClicado) {
-            // Esconde todas as abas e tira o active dos botoes
-            document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
-            document.querySelectorAll('.sidebar .nav-btn').forEach(btn => btn.classList.remove('active'));
-            
-            // Mostra a aba certa e marca o botão
-            document.getElementById('aba-' + abaId).classList.add('active');
-            elementoClicado.classList.add('active');
+        // --- ATIVAÇÃO AUTOMÁTICA (RETORNO MP) ---
+        async function checkPaymentStatus() {
+            const params = new URLSearchParams(window.location.search);
+            const statusMP = params.get('collection_status');
 
-            // Muda o título e esconde botão nova categoria dependendo da aba
-            const titulo = document.getElementById('titulo-pagina');
-            const btnNovaCat = document.getElementById('btn-header-acao');
-            
-            if(abaId === 'cardapio') {
-                titulo.innerText = "Gestão de Cardápio";
-                btnNovaCat.style.display = 'flex';
-            } else if(abaId === 'loja') {
-                titulo.innerText = "Informações da Loja";
-                btnNovaCat.style.display = 'none';
-            } else if(abaId === 'entregas') {
-                titulo.innerText = "Taxas de Entrega";
-                btnNovaCat.style.display = 'none';
-            } else {
-                titulo.innerText = "EatsMenu";
-                btnNovaCat.style.display = 'none';
-            }
-        };
-
-        window.atualizarLinkTopo = function() {
-            let slug = document.getElementById('loja-slug').value.toLowerCase().replace(/[^a-z0-9-]/g, '');
-            document.getElementById('loja-slug').value = slug; // Força minúsculo e sem espaço
-            
-            const linkBase = `eatsmenu.com.br/${slug}`;
-            const linkCompleto = `https://${linkBase}`;
-            
-            document.getElementById('preview-slug').innerText = slug || 'sua-loja';
-            document.getElementById('texto-link-loja').innerText = linkBase;
-            document.getElementById('link-topo-href').href = linkCompleto;
-        };
-
-        window.copiarLinkDaLoja = function() {
-            const linkTexto = "https://" + document.getElementById('texto-link-loja').innerText;
-            navigator.clipboard.writeText(linkTexto).then(() => alert("Link do Cardápio copiado!"));
-        };
-
-        // Evento de Status da loja (Muda texto de Aberto/Fechado)
-        document.getElementById('loja-status').addEventListener('change', function(e) {
-            const texto = document.getElementById('texto-status-loja');
-            if(e.target.checked) {
-                texto.innerText = "Aberto";
-                texto.style.color = "var(--primary)";
-            } else {
-                texto.innerText = "Fechado";
-                texto.style.color = "var(--danger)";
-            }
-        });
-
-        // ----------------------------------------------------
-        // LÓGICA DE CARREGAR DADOS DO FIREBASE
-        // ----------------------------------------------------
-        async function carregarDadosDoFirebase() {
-            try {
-                const docSnap = await getDoc(doc(db, "lojas", userUid));
-                if (docSnap.exists()) {
-                    const dados = docSnap.data();
-                    
-                    // Preenche Aba Loja
-                    if(dados.loja) {
-                        document.getElementById('loja-nome').value = dados.loja.nome || '';
-                        document.getElementById('loja-slug').value = dados.loja.slug || '';
-                        document.getElementById('loja-whatsapp').value = dados.loja.whatsapp || '';
-                        document.getElementById('loja-msg-fechada').value = dados.loja.msgFechada || '';
-                        
-                        if(dados.loja.status === false) document.getElementById('loja-status').click(); // Atualiza toggle
-                        
-                        if(dados.loja.logoUrl) {
-                            document.getElementById('img-logo-preview').src = dados.loja.logoUrl;
-                            document.getElementById('img-logo-preview').style.display = 'block';
-                            document.getElementById('logo-icon').style.display = 'none';
-                        }
-                        window.atualizarLinkTopo();
-                    }
-
-                    // Preenche Aba Entregas
-                    if(dados.entregas) {
-                        listaBairrosArray = dados.entregas.bairros || [];
-                        atualizarTelaDeBairros();
-                        
-                        if(dados.entregas.retiradaBalcao === false) {
-                            document.getElementById('loja-retirada').checked = false;
-                        }
-                    }
-                }
-            } catch (error) {
-                console.error("Erro ao carregar dados", error);
+            if (statusMP === 'approved') {
+                await updateDoc(doc(db, "lojas", userUid), { 
+                    status_pagamento: 'ativo',
+                    data_ativacao: new Date()
+                });
+                toast("✅ Pagamento confirmado! Painel Liberado.");
+                window.history.replaceState({}, document.title, "admin.html");
             }
         }
 
-        // ----------------------------------------------------
-        // LÓGICA DE SALVAR ABA: LOJA
-        // ----------------------------------------------------
-        window.previewLogoLoja = function(event) {
-            const file = event.target.files[0];
-            if (file) {
-                const reader = new FileReader();
-                reader.onload = function(e) {
-                    document.getElementById('img-logo-preview').src = e.target.result;
-                    document.getElementById('img-logo-preview').style.display = 'block';
-                    document.getElementById('logo-icon').style.display = 'none';
-                }
-                reader.readAsDataURL(file);
-            }
-        };
-
-        window.salvarDadosLojaFirebase = async function() {
-            if(!userUid) return;
-            
-            const btn = document.getElementById('btn-salvar-loja');
-            btn.innerText = "Salvando...";
-            btn.disabled = true;
-
-            try {
-                let logoUrl = document.getElementById('img-logo-preview').src;
-                const inputFile = document.getElementById('input-logo-loja').files[0];
+        async function loadData() {
+            const snap = await getDoc(doc(db, "lojas", userUid));
+            if (snap.exists()) {
+                data = snap.data();
                 
-                // Se o usuário escolheu um arquivo novo, faz upload no Storage
-                if(inputFile) {
-                    const storageRef = ref(storage, `lojas/${userUid}/logo_${Date.now()}`);
-                    const snapshot = await uploadBytes(storageRef, inputFile);
-                    logoUrl = await getDownloadURL(snapshot.ref);
-                } else if (!logoUrl.startsWith('http')) {
-                    logoUrl = ""; // Trata caso não tenha imagem
+                if(data.status_pagamento === 'pendente') {
+                    alert("Aguardando confirmação do pagamento. Se já pagou, verifique se clicou em 'Voltar para o site' no Mercado Pago.");
+                    window.location.href = "index.html";
+                    return;
                 }
 
-                const dadosLoja = {
-                    nome: document.getElementById('loja-nome').value,
-                    slug: document.getElementById('loja-slug').value,
-                    whatsapp: document.getElementById('loja-whatsapp').value,
-                    status: document.getElementById('loja-status').checked,
-                    msgFechada: document.getElementById('loja-msg-fechada').value,
-                    logoUrl: logoUrl
-                };
+                if(!data.produtos) data.produtos = [];
+                if(!data.bairros) data.bairros = [];
+                if(!data.dias_func) data.dias_func = [0,1,2,3,4,5,6];
+                
+                const campos = ['conf-nome','conf-slug','conf-zap','conf-pix-key','conf-pix-name',
+                                'conf-logo','conf-banner','conf-cor'];
+                
+                campos.forEach(id => {
+                    const key = id.replace('conf-','').replace(/-/g,'_');
+                    if(document.getElementById(id)) document.getElementById(id).value = data[key] || "";
+                });
+                
+                document.getElementById('loja-abre').value = data.hora_abre || "18:00";
+                document.getElementById('loja-fecha').value = data.hora_fecha || "23:00";
+                
+                document.querySelectorAll('#days-container input').forEach(chk => {
+                    chk.checked = data.dias_func.includes(parseInt(chk.value));
+                });
 
-                // Salva no Firestore juntando com o que já existe (merge)
-                await setDoc(doc(db, "lojas", userUid), { loja: dadosLoja }, { merge: true });
-                alert("Dados da loja salvos com sucesso!");
-
-            } catch(e) {
-                console.error(e);
-                alert("Erro ao salvar dados.");
-            } finally {
-                btn.innerText = "Salvar Dados da Loja";
-                btn.disabled = false;
+                updateLink(data.slug);
+                renderProdutos();
+                renderBairros();
             }
+        }
+
+        window.salvarLoja = async () => {
+            const update = {
+                nome: document.getElementById('conf-nome').value,
+                slug: document.getElementById('conf-slug').value,
+                whatsapp: document.getElementById('conf-zap').value,
+                pix_key: document.getElementById('conf-pix-key').value,
+                pix_name: document.getElementById('conf-pix-name').value,
+                logo: document.getElementById('conf-logo').value,
+                banner: document.getElementById('conf-banner').value,
+                cor: document.getElementById('conf-cor').value
+            };
+            await updateDoc(doc(db, "lojas", userUid), update);
+            updateLink(update.slug);
+            toast("Dados Salvos!");
         };
 
-        // ----------------------------------------------------
-        // LÓGICA DE SALVAR ABA: ENTREGAS
-        // ----------------------------------------------------
-        window.adicionarBairroNaLista = function() {
+        window.salvarHorario = async () => {
+            const diasSelecionados = [];
+            document.querySelectorAll('#days-container input:checked').forEach(chk => {
+                diasSelecionados.push(parseInt(chk.value));
+            });
+
+            await updateDoc(doc(db, "lojas", userUid), {
+                hora_abre: document.getElementById('loja-abre').value,
+                hora_fecha: document.getElementById('loja-fecha').value,
+                dias_func: diasSelecionados
+            });
+            toast("Horário e Dias Atualizados!");
+        };
+
+        window.addProduto = async () => {
+            const prod = {
+                nome: document.getElementById('prod-nome').value,
+                preco: parseFloat(document.getElementById('prod-preco').value),
+                cat: document.getElementById('prod-cat').value,
+                desc: document.getElementById('prod-desc').value,
+                img: document.getElementById('prod-img').value, // Agora pega o texto URL direto
+                adds: document.getElementById('prod-adds').value
+            };
+            if(!prod.nome || !prod.preco) return toast("Preencha nome e preço", "error");
+            data.produtos.push(prod);
+            await updateDoc(doc(db, "lojas", userUid), { produtos: data.produtos });
+            
+            // Limpa campos
+            document.getElementById('prod-nome').value = "";
+            document.getElementById('prod-preco').value = "";
+            document.getElementById('prod-img').value = "";
+            document.getElementById('prod-desc').value = "";
+            
+            renderProdutos();
+            toast("Produto Adicionado!");
+        };
+
+        window.addBairro = async () => {
             const nome = document.getElementById('bairro-nome').value;
             const taxa = parseFloat(document.getElementById('bairro-taxa').value);
-
-            if(!nome || isNaN(taxa)) return alert("Preencha o nome e o valor da taxa!");
-
-            listaBairrosArray.push({ nome: nome, taxa: taxa });
-            
-            // Limpa os campos
-            document.getElementById('bairro-nome').value = '';
-            document.getElementById('bairro-taxa').value = '';
-            
-            atualizarTelaDeBairros();
+            if(!nome) return toast("Preencha o nome", "error");
+            data.bairros.push({ nome, taxa: taxa || 0 });
+            await updateDoc(doc(db, "lojas", userUid), { bairros: data.bairros });
+            document.getElementById('bairro-nome').value = "";
+            renderBairros();
+            toast("Bairro Adicionado!");
         };
 
-        window.removerBairroDaLista = function(index) {
-            listaBairrosArray.splice(index, 1);
-            atualizarTelaDeBairros();
-        };
-
-        function atualizarTelaDeBairros() {
-            const container = document.getElementById('container-lista-bairros');
-            container.innerHTML = '';
-
-            if(listaBairrosArray.length === 0) {
-                container.innerHTML = '<div style="padding: 20px; text-align: center; color: var(--text-muted);">Nenhum bairro cadastrado ainda.</div>';
-                return;
-            }
-
-            listaBairrosArray.forEach((bairro, index) => {
-                container.innerHTML += `
-                    <div class="bairro-item">
-                        <span class="bairro-nome">${bairro.nome}</span>
-                        <div>
-                            <span class="bairro-taxa">R$ ${bairro.taxa.toFixed(2)}</span>
-                            <button class="btn-icon btn-danger" onclick="removerBairroDaLista(${index})"><i class="fas fa-trash"></i></button>
-                        </div>
-                    </div>
-                `;
+        function renderProdutos() {
+            const div = document.getElementById('lista-produtos');
+            div.innerHTML = "";
+            data.produtos.forEach((p, idx) => {
+                div.innerHTML += `<div class="item-list"><div><strong>${p.nome}</strong><br><small>R$ ${p.preco}</small></div><button class="btn-danger" style="border:none;padding:5px 10px;border-radius:5px;cursor:pointer;" onclick="delItem('produtos', ${idx})">Excluir</button></div>`;
             });
         }
 
-        window.salvarDadosEntregasFirebase = async function() {
-            if(!userUid) return;
-            const btn = document.getElementById('btn-salvar-entregas');
-            btn.innerText = "Salvando...";
-            btn.disabled = true;
+        function renderBairros() {
+            const div = document.getElementById('lista-bairros');
+            div.innerHTML = "";
+            data.bairros.forEach((b, idx) => {
+                div.innerHTML += `<div class="item-list"><div>${b.nome} - R$ ${b.taxa}</div><button class="btn-danger" style="border:none;padding:5px 10px;border-radius:5px;cursor:pointer;" onclick="delItem('bairros', ${idx})">Excluir</button></div>`;
+            });
+        }
 
-            try {
-                const dadosEntregas = {
-                    bairros: listaBairrosArray,
-                    retiradaBalcao: document.getElementById('loja-retirada').checked
-                };
-
-                await setDoc(doc(db, "lojas", userUid), { entregas: dadosEntregas }, { merge: true });
-                alert("Configurações de entrega salvas com sucesso!");
-            } catch(e) {
-                console.error(e);
-                alert("Erro ao salvar entregas.");
-            } finally {
-                btn.innerText = "Salvar Configurações de Entrega";
-                btn.disabled = false;
+        window.delItem = async (tipo, idx) => {
+            if(confirm("Excluir?")) {
+                data[tipo].splice(idx, 1);
+                await updateDoc(doc(db, "lojas", userUid), { [tipo]: data[tipo] });
+                tipo === 'produtos' ? renderProdutos() : renderBairros();
             }
         };
 
-        // ----------------------------------------------------
-        // LÓGICA DO CARDÁPIO (MODAIS E DRAG) MANTIDA DA VERSÃO ANTERIOR
-        // ----------------------------------------------------
-        window.abrirModalCategoria = function() { document.getElementById('modal-categoria').style.display = 'flex'; };
-        window.fecharModalCategoria = function() { document.getElementById('modal-categoria').style.display = 'none'; };
-        window.salvarCategoriaNaTela = function() { fecharModalCategoria(); };
-        
-        window.abrirModalItem = function(n='', d='', p='') { document.getElementById('modal-item').style.display = 'flex'; };
-        window.fecharModalItem = function() { document.getElementById('modal-item').style.display = 'none'; };
-        window.previewImagemItem = function(e) { /* lógica preview */ };
-
-        document.addEventListener("DOMContentLoaded", () => {
-            const el = document.getElementById('lista-categorias-geral');
-            if(el) new Sortable(el, { handle: '.handle-categoria', animation: 150 });
-        });
-
+        function updateLink(slug) {
+            const url = `https://${slug}.eatsmenu.com.br`;
+            document.getElementById('link-loja').href = url;
+            document.getElementById('link-loja').innerText = url;
+        }
+        window.setTab = (tab) => {
+            ['loja', 'produtos', 'entregas'].forEach(t => {
+                document.getElementById('view-'+t).style.display = t === tab ? 'block' : 'none';
+                document.getElementById('tab-btn-'+t).className = t === tab ? 'btn active' : 'btn btn-outline';
+            });
+        }
+        window.limparSlug = (el) => el.value = el.value.toLowerCase().replace(/[^a-z0-9-]/g, '');
+        window.logout = () => signOut(auth).then(() => window.location.href = "index.html");
+        function toast(msg, type="success") { Toastify({ text: msg, style: { background: type==="success"?"#00e676":"#ff1744" } }).showToast(); }
     </script>
 </body>
 </html>
