@@ -3,381 +3,889 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Painel Admin - EatsMenu</title>
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&display=swap" rel="stylesheet">
-    <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css">
+    <title>EatsMenu - Painel Administrativo</title>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&display=swap" rel="stylesheet">
     
     <style>
-        :root { --primary: #00e676; --bg: #050505; --surface: #121212; --border: #333; --text: #fff; }
-        * { box-sizing: border-box; font-family: 'Outfit', sans-serif; margin: 0; padding: 0; outline: none; }
-        body { background: var(--bg); color: var(--text); min-height: 100vh; display: flex; flex-direction: column; }
+        /* ==========================================================================
+           1. VARIÁVEIS E RESET GERAL
+           ========================================================================== */
+        :root { 
+            --primary: #00e676; 
+            --bg-sidebar: #050505; 
+            --bg-content: #f4f7f6; /* Fundo claro para contrastar com os cartões brancos */
+            --surface: #ffffff; 
+            --text-dark: #333333; 
+            --text-muted: #777777;
+            --danger: #ff1744; 
+            --border-color: #e0e0e0;
+        }
         
-        .dash-header { background: var(--surface); padding: 15px 30px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border); }
-        .dash-container { max-width: 900px; margin: 0 auto; padding: 30px 20px; width: 100%; }
+        * { 
+            box-sizing: border-box; 
+            font-family: 'Outfit', sans-serif; 
+            margin: 0; 
+            padding: 0; 
+        }
         
-        .input-group { margin-bottom: 20px; }
-        .input-group label { display: block; margin-bottom: 8px; color: #aaa; font-size: 0.9rem; font-weight: 600; }
-        input[type="text"], input[type="number"], select, textarea { width: 100%; background: #080808; border: 1px solid var(--border); color: #fff; padding: 12px; border-radius: 10px; transition: 0.3s; }
-        input:focus { border-color: var(--primary); }
-        
-        .size-hint { color: #555; font-size: 0.8rem; margin-top: 5px; display: block; }
+        body { 
+            display: flex; 
+            height: 100vh; 
+            background: var(--bg-content); 
+            color: var(--text-dark); 
+            overflow: hidden; 
+        }
 
-        .days-wrapper { display: flex; gap: 10px; flex-wrap: wrap; background: #080808; padding: 15px; border-radius: 10px; border: 1px solid var(--border); }
-        .day-option { display: flex; align-items: center; gap: 8px; cursor: pointer; color: #fff; font-weight: 600; background: #222; padding: 8px 15px; border-radius: 20px; border: 1px solid #333; transition: 0.2s; }
-        .day-option:has(input:checked) { background: rgba(0, 230, 118, 0.2); border-color: var(--primary); color: var(--primary); }
-        .day-option input { display: none; } 
-
-        .btn { background: var(--primary); color: #000; border: none; padding: 12px 25px; border-radius: 10px; font-weight: 800; cursor: pointer; width: 100%; text-transform: uppercase; transition: 0.2s; }
-        .btn:hover { opacity: 0.9; transform: translateY(-2px); }
-        .btn-outline { background: transparent; border: 1px solid #555; color: #ccc; }
-        .btn-outline.active { border-color: var(--primary); color: var(--primary); background: rgba(0,230,118,0.1); }
-        .btn-danger { background: #ff1744; color: white; width: auto; padding: 5px 15px; font-size: 0.8rem; }
+        /* ==========================================================================
+           2. SIDEBAR (MENU LATERAL DARK NEON)
+           ========================================================================== */
+        .sidebar { 
+            width: 260px; 
+            background: var(--bg-sidebar); 
+            border-right: 1px solid #1a1a1a; 
+            display: flex; 
+            flex-direction: column; 
+            color: #ffffff;
+        }
         
-        .btn-download {
-            background: #222; border: 1px solid var(--primary); color: var(--primary);
-            padding: 8px 15px; border-radius: 8px; font-weight: 700; cursor: pointer;
-            text-decoration: none; display: flex; align-items: center; gap: 8px; font-size: 0.9rem;
+        .logo { 
+            padding: 25px; 
+            font-size: 1.6rem; 
+            font-weight: 800; 
+            text-align: center; 
+            border-bottom: 1px solid #1a1a1a; 
+            letter-spacing: 1px; 
+        }
+        
+        .logo span { 
+            color: var(--primary); 
+        }
+        
+        .nav-btn { 
+            padding: 18px 25px; 
+            cursor: pointer; 
+            display: flex; 
+            align-items: center; 
+            gap: 15px; 
+            color: #888888; 
+            transition: 0.3s; 
+            font-weight: 600; 
+            font-size: 1rem; 
+        }
+        
+        .nav-btn:hover { 
+            background: #111111; 
+            color: #ffffff; 
+        }
+        
+        .nav-btn.active { 
+            background: rgba(0, 230, 118, 0.08); 
+            color: var(--primary); 
+            border-left: 4px solid var(--primary); 
+        }
+        
+        .nav-btn i { 
+            width: 20px; 
+            text-align: center; 
+        }
+
+        /* ==========================================================================
+           3. ÁREA DE CONTEÚDO PRINCIPAL
+           ========================================================================== */
+        .content { 
+            flex: 1; 
+            padding: 40px; 
+            overflow-y: auto; 
+        }
+        
+        .header-painel {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+
+        .header-painel h1 {
+            font-size: 1.8rem;
+            color: var(--text-dark);
+        }
+
+        .btn-nova-categoria {
+            background: var(--primary);
+            color: #000000;
+            border: none;
+            padding: 12px 24px;
+            font-size: 1rem;
+            font-weight: 800;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .btn-nova-categoria:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 230, 118, 0.3);
+        }
+
+        /* ==========================================================================
+           4. ESTRUTURA DO CARDÁPIO (CATEGORIAS E ITENS COMO NA CONCORRÊNCIA)
+           ========================================================================== */
+        .categoria-container { 
+            background: var(--surface); 
+            padding: 25px; 
+            border-radius: 12px; 
+            margin-bottom: 25px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.03);
+            border: 1px solid var(--border-color);
+        }
+        
+        .categoria-header { 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center; 
+            margin-bottom: 20px; 
+            border-bottom: 2px solid #f0f0f0; 
+            padding-bottom: 15px; 
+        }
+        
+        .categoria-titulo { 
+            display: flex; 
+            align-items: center; 
+            gap: 12px; 
+        }
+        
+        .categoria-titulo h3 { 
+            margin: 0; 
+            font-size: 1.4rem; 
+            color: var(--text-dark); 
+            font-weight: 800;
+        }
+        
+        .drag-icon { 
+            color: #cccccc; 
+            cursor: grab; 
+            font-size: 1.2rem; 
+        }
+        
+        .drag-icon:active {
+            cursor: grabbing;
+        }
+
+        /* CARD DO ITEM */
+        .item-card { 
+            display: flex; 
+            align-items: center; 
+            background: #ffffff; 
+            padding: 15px 20px; 
+            border-radius: 10px; 
+            border: 1px solid var(--border-color); 
+            margin-bottom: 12px; 
+            transition: all 0.2s;
+        }
+
+        .item-card:hover {
+            border-color: #cccccc;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+        }
+        
+        .item-drag { 
+            margin-right: 20px; 
+        }
+        
+        .item-imagem {
+            width: 70px; 
+            height: 70px; 
+            border-radius: 8px; 
+            overflow: hidden;
+            background: #f0f0f0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .item-imagem img { 
+            width: 100%; 
+            height: 100%; 
+            object-fit: cover; 
+        }
+        
+        .item-dados { 
+            flex: 1; 
+            margin-left: 20px; 
+        }
+        
+        .item-dados h4 { 
+            margin: 0 0 6px 0; 
+            color: var(--text-dark); 
+            font-size: 1.1rem; 
+            font-weight: 600;
+        }
+        
+        .item-dados p { 
+            margin: 0 0 8px 0; 
+            color: var(--text-muted); 
+            font-size: 0.9rem; 
+            line-height: 1.4; 
+        }
+        
+        .item-preco { 
+            font-weight: 800; 
+            color: #000000; 
+            font-size: 1.05rem;
+        }
+
+        /* CONTROLES DO ITEM (BOTÕES E TOGGLE) */
+        .item-controles { 
+            display: flex; 
+            align-items: center; 
+            gap: 20px; 
+        }
+        
+        .btn-icon { 
+            background: none; 
+            border: none; 
+            color: #999999; 
+            cursor: pointer; 
+            font-size: 1.2rem; 
+            transition: 0.2s; 
+        }
+        
+        .btn-icon:hover { 
+            color: var(--primary); 
+        }
+        
+        .btn-danger:hover { 
+            color: var(--danger); 
+        }
+
+        /* TOGGLE SWITCH LIGA/DESLIGA */
+        .toggle-switch { 
+            position: relative; 
+            display: inline-block; 
+            width: 46px; 
+            height: 26px; 
+        }
+        
+        .toggle-switch input { 
+            opacity: 0; 
+            width: 0; 
+            height: 0; 
+        }
+        
+        .slider { 
+            position: absolute; 
+            cursor: pointer; 
+            top: 0; 
+            left: 0; 
+            right: 0; 
+            bottom: 0; 
+            background-color: #cccccc; 
+            transition: .4s; 
+            border-radius: 34px; 
+        }
+        
+        .slider:before { 
+            position: absolute; 
+            content: ""; 
+            height: 20px; 
+            width: 20px; 
+            left: 3px; 
+            bottom: 3px; 
+            background-color: white; 
+            transition: .4s; 
+            border-radius: 50%; 
+        }
+        
+        input:checked + .slider { 
+            background-color: var(--primary); 
+        }
+        
+        input:checked + .slider:before { 
+            transform: translateX(20px); 
+        }
+
+        /* BOTÃO ADICIONAR NOVO ITEM NA CATEGORIA */
+        .btn-novo-item { 
+            width: 100%; 
+            padding: 15px; 
+            background: transparent; 
+            border: 2px dashed #cccccc; 
+            color: var(--text-muted); 
+            border-radius: 10px; 
+            cursor: pointer; 
+            font-weight: 600; 
+            font-size: 1rem;
+            transition: 0.2s; 
+            margin-top: 10px;
+        }
+        
+        .btn-novo-item:hover { 
+            border-color: var(--primary); 
+            color: #000000; 
+            background: rgba(0, 230, 118, 0.1); 
+        }
+
+        /* ==========================================================================
+           5. MODAL DE ADICIONAR / EDITAR ITEM (LADO A LADO)
+           ========================================================================== */
+        .modal-overlay { 
+            display: none; 
+            position: fixed; 
+            inset: 0; 
+            background: rgba(0, 0, 0, 0.7); 
+            z-index: 9999; 
+            justify-content: center; 
+            align-items: center; 
+            backdrop-filter: blur(3px);
+        }
+        
+        .modal-content { 
+            background: var(--surface); 
+            width: 95%; 
+            max-width: 850px; 
+            border-radius: 16px; 
+            overflow: hidden; 
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5); 
+            animation: modalFadeIn 0.3s ease-out forwards;
+        }
+
+        @keyframes modalFadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .modal-header { 
+            padding: 25px 30px; 
+            border-bottom: 1px solid var(--border-color); 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center; 
+            background: #ffffff;
+        }
+        
+        .modal-header h2 { 
+            margin: 0; 
+            font-size: 1.4rem; 
+            color: var(--text-dark); 
+            font-weight: 800;
+        }
+        
+        .close-btn { 
+            background: none; 
+            border: none; 
+            font-size: 1.8rem; 
+            cursor: pointer; 
+            color: #999999; 
+            transition: 0.2s;
+        }
+
+        .close-btn:hover {
+            color: var(--danger);
+        }
+
+        /* CORPO DO MODAL (GRID LADO A LADO) */
+        .modal-body { 
+            display: grid; 
+            grid-template-columns: 1fr 1.2fr; 
+            gap: 30px; 
+            padding: 30px; 
+            background: #ffffff;
+        }
+
+        /* ÁREA DE UPLOAD DE IMAGEM */
+        .upload-area { 
+            border: 2px dashed #cccccc; 
+            border-radius: 12px; 
+            display: flex; 
+            flex-direction: column; 
+            align-items: center; 
+            justify-content: center; 
+            text-align: center; 
+            height: 280px; 
+            cursor: pointer; 
+            background: #fcfcfc; 
+            position: relative; 
+            overflow: hidden; 
+            transition: all 0.3s; 
+        }
+        
+        .upload-area:hover { 
+            border-color: var(--primary); 
+            background: #f0fdf4; 
+        }
+        
+        .upload-icon { 
+            font-size: 3.5rem; 
+            color: #dddddd; 
+            margin-bottom: 15px; 
             transition: 0.3s;
         }
-        .btn-download:hover { background: var(--primary); color: #000; }
 
-        .tabs { display: flex; gap: 10px; margin-bottom: 25px; overflow-x: auto; }
-        .tabs button { flex: 1; white-space: nowrap; }
-
-        .item-list { background: var(--surface); padding: 15px; border-radius: 12px; border: 1px solid var(--border); margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; }
-        
-        /* Box de Dica (ImgBB) */
-        .tip-box { 
-            background: rgba(0,230,118,0.05); border: 1px dashed var(--primary); 
-            padding: 20px; border-radius: 10px; margin-bottom: 20px; 
-            font-size: 0.9rem; color: #ccc; line-height: 1.5;
+        .upload-area:hover .upload-icon {
+            color: var(--primary);
         }
-        .tip-box a { color: var(--primary); font-weight: bold; text-decoration: underline; }
         
-        #loading { position: fixed; inset: 0; background: var(--bg); z-index: 999; display: flex; align-items: center; justify-content: center; }
+        .upload-area p { 
+            margin: 0 0 8px 0; 
+            font-weight: 600; 
+            color: #555555; 
+            font-size: 1.1rem;
+        }
+        
+        .upload-area span { 
+            font-size: 0.85rem; 
+            color: #999999; 
+        }
+        
+        #image-preview { 
+            position: absolute; 
+            inset: 0; 
+            width: 100%; 
+            height: 100%; 
+            object-fit: cover; 
+            display: none; 
+            z-index: 2;
+        }
+
+        .btn-remover-foto {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: rgba(255, 23, 68, 0.9);
+            color: white;
+            border: none;
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            cursor: pointer;
+            z-index: 3;
+            display: none;
+            font-size: 1rem;
+        }
+
+        /* FORMULÁRIO DE DADOS DO ITEM */
+        .form-area { 
+            display: flex; 
+            flex-direction: column; 
+            gap: 20px; 
+        }
+        
+        .form-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .form-group label { 
+            font-weight: 600; 
+            color: #444444; 
+            font-size: 0.95rem; 
+            margin-bottom: 8px; 
+        }
+        
+        .form-group input, .form-group textarea { 
+            width: 100%; 
+            padding: 14px; 
+            border: 1px solid #cccccc; 
+            border-radius: 8px; 
+            box-sizing: border-box; 
+            font-family: inherit; 
+            font-size: 1rem;
+            background: #ffffff;
+            transition: 0.3s;
+        }
+
+        .form-group input:focus, .form-group textarea:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(0, 230, 118, 0.1);
+        }
+
+        .input-preco-wrapper {
+            position: relative;
+            display: flex;
+            align-items: center;
+        }
+
+        .input-preco-wrapper span {
+            position: absolute;
+            left: 15px;
+            color: #777777;
+            font-weight: 600;
+        }
+
+        .input-preco-wrapper input {
+            padding-left: 45px; /* Espaço para o "R$" */
+        }
+
+        /* RODAPÉ DO MODAL (BOTÕES) */
+        .modal-footer { 
+            padding: 20px 30px; 
+            border-top: 1px solid var(--border-color); 
+            background: #f9f9f9; 
+            display: flex; 
+            justify-content: flex-end; 
+            gap: 15px; 
+        }
+        
+        .btn-cancelar { 
+            padding: 12px 25px; 
+            background: transparent; 
+            border: 1px solid #bbbbbb; 
+            border-radius: 8px; 
+            cursor: pointer; 
+            font-weight: 600; 
+            color: #555555; 
+            font-size: 1rem;
+            transition: 0.2s;
+        }
+
+        .btn-cancelar:hover {
+            background: #eeeeee;
+        }
+        
+        .btn-salvar { 
+            padding: 12px 30px; 
+            background: var(--primary); 
+            border: none; 
+            border-radius: 8px; 
+            cursor: pointer; 
+            font-weight: 800; 
+            color: #000000; 
+            font-size: 1rem;
+            transition: 0.2s;
+        }
+        
+        .btn-salvar:hover { 
+            background: #00c853; 
+            transform: translateY(-2px);
+            box-shadow: 0 4px 10px rgba(0, 230, 118, 0.3);
+        }
     </style>
 </head>
 <body>
 
-    <div id="loading"><h3>Carregando Painel...</h3></div>
-
-    <div class="dash-header">
-        <div style="display: flex; align-items: center; gap: 15px;">
-            <h3 style="color:var(--primary)">EatsMenu <span style="color:#fff; font-size:0.8em">Admin</span></h3>
-            <a href="https://www.mediafire.com/file/l8kbvlnfcnkra95/EatsMenu+Setup+1.0.0.exe/file" target="_blank" class="btn-download">
-                <i class="fas fa-download"></i> Baixar Robô
-            </a>
-        </div>
-        <button class="btn btn-danger" onclick="logout()">Sair</button>
+    <div class="sidebar">
+        <div class="logo">EATS<span>MENU</span></div>
+        <div class="nav-btn"><i class="fas fa-home"></i> Início</div>
+        <div class="nav-btn active"><i class="fas fa-book-open"></i> Cardápio</div>
+        <div class="nav-btn"><i class="fas fa-motorcycle"></i> Entregas</div>
+        <div class="nav-btn"><i class="fas fa-cog"></i> Ajustes</div>
     </div>
 
-    <div class="dash-container">
-        <div style="background:#1a1a1a; padding:20px; border-radius:15px; margin-bottom:30px; text-align:center; border:1px dashed var(--primary);">
-            <p style="color:#aaa; margin-bottom:10px;">SEU CARDÁPIO ONLINE:</p>
-            <a id="link-loja" href="#" target="_blank" style="color:var(--primary); font-weight:800; font-size:1.2rem; text-decoration:none;">...</a>
+    <div class="content">
+        
+        <div class="header-painel">
+            <h1>Gestão de Cardápio</h1>
+            <button class="btn-nova-categoria">
+                <i class="fas fa-plus"></i> Nova Categoria
+            </button>
         </div>
 
-        <div class="tabs">
-            <button class="btn active" onclick="setTab('loja')" id="tab-btn-loja">🏪 Loja</button>
-            <button class="btn btn-outline" onclick="setTab('produtos')" id="tab-btn-produtos">🍔 Cardápio</button>
-            <button class="btn btn-outline" onclick="setTab('entregas')" id="tab-btn-entregas">🛵 Entregas</button>
+        <div class="categoria-container">
+            <div class="categoria-header">
+                <div class="categoria-titulo">
+                    <i class="fas fa-grip-vertical drag-icon"></i>
+                    <h3>Pizzas Salgadas</h3>
+                </div>
+                <div class="categoria-acoes">
+                    <button class="btn-icon" title="Editar Categoria"><i class="fas fa-pen"></i></button>
+                    <button class="btn-icon btn-danger" title="Excluir Categoria"><i class="fas fa-trash"></i></button>
+                </div>
+            </div>
+
+            <div class="item-card">
+                <div class="item-drag">
+                    <i class="fas fa-grip-vertical drag-icon"></i>
+                </div>
+                <div class="item-imagem">
+                    <img src="https://via.placeholder.com/150/f0f0f0/cccccc?text=Pizza" alt="Pizza de Calabresa">
+                </div>
+                <div class="item-dados">
+                    <h4>Pizza de Calabresa</h4>
+                    <p>Deliciosa pizza com mussarela de primeira qualidade, calabresa fatiada fina, cebola e azeitonas pretas selecionadas.</p>
+                    <span class="item-preco">R$ 55,00</span>
+                </div>
+                <div class="item-controles">
+                    <label class="toggle-switch" title="Ativar/Desativar no Site">
+                        <input type="checkbox" checked>
+                        <span class="slider"></span>
+                    </label>
+                    <button class="btn-icon" title="Editar Item" onclick="abrirModalItem('Pizza de Calabresa', 'Deliciosa pizza com mussarela...', '55.00')"><i class="fas fa-pen"></i></button>
+                    <button class="btn-icon btn-danger" title="Excluir Item"><i class="fas fa-trash"></i></button>
+                </div>
+            </div>
+
+            <div class="item-card">
+                <div class="item-drag">
+                    <i class="fas fa-grip-vertical drag-icon"></i>
+                </div>
+                <div class="item-imagem">
+                    <i class="fas fa-image" style="font-size: 24px; color: #ccc;"></i>
+                </div>
+                <div class="item-dados">
+                    <h4>Pizza Marguerita</h4>
+                    <p>Mussarela, tomate em rodelas, manjericão fresco e parmesão ralado.</p>
+                    <span class="item-preco">R$ 50,00</span>
+                </div>
+                <div class="item-controles">
+                    <label class="toggle-switch">
+                        <input type="checkbox">
+                        <span class="slider"></span>
+                    </label>
+                    <button class="btn-icon" onclick="abrirModalItem('Pizza Marguerita', 'Mussarela, tomate...', '50.00')"><i class="fas fa-pen"></i></button>
+                    <button class="btn-icon btn-danger"><i class="fas fa-trash"></i></button>
+                </div>
+            </div>
+
+            <button class="btn-novo-item" onclick="abrirModalItem()">
+                <i class="fas fa-plus"></i> Adicionar novo item em Pizzas Salgadas
+            </button>
         </div>
 
-        <div id="view-loja">
-            <div class="input-group"><label>Nome da Loja</label><input type="text" id="conf-nome"></div>
-            <div class="input-group"><label>Link (Slug)</label><input type="text" id="conf-slug" onkeyup="limparSlug(this)"></div>
-            <div class="input-group"><label>WhatsApp (Ex: 55279...)</label><input type="text" id="conf-zap"></div>
-            
-            <div style="background: rgba(0,230,118,0.05); padding: 15px; border-radius: 10px; border: 1px dashed var(--primary); margin-bottom: 20px;">
-                <h4 style="color:var(--primary); margin-bottom: 10px;">Pagamento PIX</h4>
-                <div class="input-group"><label>Chave Pix</label><input type="text" id="conf-pix-key"></div>
-                <div class="input-group"><label>Nome do Beneficiário</label><input type="text" id="conf-pix-name"></div>
-            </div>
-
-            <div class="input-group">
-                <label>Logo (URL)</label>
-                <input type="text" id="conf-logo" placeholder="https://...">
-                <span class="size-hint">Recomendado: 500x500 pixels (Quadrado)</span>
-            </div>
-            
-            <div class="input-group">
-                <label>Banner (URL)</label>
-                <input type="text" id="conf-banner" placeholder="https://...">
-                <span class="size-hint">Recomendado: 1000x300 pixels (Retangular)</span>
-            </div>
-            
-            <div class="input-group">
-                <label>Cor Principal</label>
-                <div style="display:flex; align-items:center; gap:10px; background:#080808; padding:10px; border-radius:10px; border:1px solid #333;">
-                    <input type="color" id="conf-cor" style="width:50px; height:40px; border:none; background:none; cursor:pointer;">
+        <div class="categoria-container">
+            <div class="categoria-header">
+                <div class="categoria-titulo">
+                    <i class="fas fa-grip-vertical drag-icon"></i>
+                    <h3>Bebidas Geladas</h3>
+                </div>
+                <div class="categoria-acoes">
+                    <button class="btn-icon"><i class="fas fa-pen"></i></button>
+                    <button class="btn-icon btn-danger"><i class="fas fa-trash"></i></button>
                 </div>
             </div>
-            
-            <button class="btn" onclick="salvarLoja()">Salvar Dados</button>
+
+            <div class="item-card">
+                <div class="item-drag">
+                    <i class="fas fa-grip-vertical drag-icon"></i>
+                </div>
+                <div class="item-imagem">
+                    <i class="fas fa-image" style="font-size: 24px; color: #ccc;"></i>
+                </div>
+                <div class="item-dados">
+                    <h4>Coca-Cola 2 Litros</h4>
+                    <p>Refrigerante pet 2 litros gelado.</p>
+                    <span class="item-preco">R$ 14,00</span>
+                </div>
+                <div class="item-controles">
+                    <label class="toggle-switch">
+                        <input type="checkbox" checked>
+                        <span class="slider"></span>
+                    </label>
+                    <button class="btn-icon" onclick="abrirModalItem()"><i class="fas fa-pen"></i></button>
+                    <button class="btn-icon btn-danger"><i class="fas fa-trash"></i></button>
+                </div>
+            </div>
+
+            <button class="btn-novo-item" onclick="abrirModalItem()">
+                <i class="fas fa-plus"></i> Adicionar novo item em Bebidas Geladas
+            </button>
         </div>
 
-        <div id="view-produtos" style="display:none;">
-            <div class="tip-box">
-                <i class="fas fa-lightbulb" style="color:var(--primary)"></i> <b>DICA DE IMAGEM:</b><br>
-                Para economizar espaço e deixar seu site rápido, recomendamos hospedar as fotos dos seus pratos no site 
-                <a href="https://imgbb.com/" target="_blank">ImgBB.com</a>. É grátis!<br>
-                1. Faça upload da foto lá.<br>
-                2. Copie o <b>"Link direto"</b>.<br>
-                3. Cole no campo "URL da Imagem" abaixo.
+    </div>
+
+    <div id="modal-item" class="modal-overlay">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="modal-titulo">Adicionar Novo Item</h2>
+                <button class="close-btn" onclick="fecharModalItem()"><i class="fas fa-times"></i></button>
             </div>
-
-            <div style="background:var(--surface); padding:20px; border-radius:15px; margin-bottom:20px; border:1px solid #333;">
-                <h4 style="margin-bottom:15px; color:var(--primary)">+ Novo Produto</h4>
-                
-                <div style="display:grid; grid-template-columns: 2fr 1fr; gap:10px;">
-                    <div class="input-group"><input type="text" id="prod-nome" placeholder="Nome"></div>
-                    <div class="input-group"><input type="number" id="prod-preco" placeholder="Preço"></div>
-                </div>
-                
-                <div class="input-group">
-                    <input type="text" id="prod-cat" placeholder="Categoria (Lanches, Bebidas...)" list="list-cats">
-                    <datalist id="list-cats"><option value="Lanches"><option value="Bebidas"><option value="Porções"></datalist>
-                </div>
-                
-                <div class="input-group"><textarea id="prod-desc" placeholder="Descrição..." rows="2"></textarea></div>
-
-                <div class="input-group">
-                    <label>URL da Imagem</label>
-                    <input type="text" id="prod-img" placeholder="Cole o link da imagem aqui (Ex: https://i.ibb.co/...)">
-                </div>
-                
-                <div style="margin-top:10px; background: #000; padding: 10px; border-radius: 8px;">
-                    <label style="font-size:0.8rem; color:#aaa;">Adicionais (Ex: Bacon:3.00, Ovo:2.00)</label>
-                    <input type="text" id="prod-adds" placeholder="Nome:Preço, Nome:Preço" style="border:none; border-bottom:1px solid #333;">
+            
+            <div class="modal-body">
+                <div class="upload-area" id="drop-zone" onclick="document.getElementById('input-foto-item').click()">
+                    <input type="file" id="input-foto-item" accept="image/png, image/jpeg, image/jpg" hidden>
+                    
+                    <div id="upload-placeholder">
+                        <i class="fas fa-cloud-upload-alt upload-icon"></i>
+                        <p>Clique ou arraste a foto aqui</p>
+                        <span>JPG, PNG (Máx 5MB)</span>
+                    </div>
+                    
+                    <img id="image-preview" src="" alt="Preview da Imagem do Item">
+                    <button class="btn-remover-foto" id="btn-remover-foto" onclick="removerFoto(event)" title="Remover Foto">
+                        <i class="fas fa-trash"></i>
+                    </button>
                 </div>
 
-                <button class="btn" onclick="addProduto()" style="margin-top:15px;">Cadastrar Produto</button>
+                <div class="form-area">
+                    <div class="form-group">
+                        <label>Nome do Item *</label>
+                        <input type="text" id="input-nome-item" placeholder="Ex: X-Bacon Artesanal">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Descrição (Ingredientes)</label>
+                        <textarea id="input-desc-item" rows="4" placeholder="Pão brioche, hambúrguer 160g, muito bacon, queijo cheddar..."></textarea>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Preço de Venda *</label>
+                        <div class="input-preco-wrapper">
+                            <span>R$</span>
+                            <input type="number" id="input-preco-item" placeholder="0.00" step="0.01" min="0">
+                        </div>
+                    </div>
+                </div>
             </div>
-            <div id="lista-produtos"></div>
-        </div>
-
-        <div id="view-entregas" style="display:none;">
-            <div style="background:var(--surface); padding:20px; border-radius:15px; margin-bottom:20px; border:1px solid #333;">
-                <h4 style="margin-bottom:15px; color:var(--primary)">🕒 Horário de Funcionamento</h4>
-                
-                <label style="color:#aaa; font-size:0.9rem; margin-bottom:10px; display:block;">Marque os dias que a loja abre:</label>
-                <div class="days-wrapper" id="days-container">
-                    <label class="day-option"><input type="checkbox" value="0"> Dom</label>
-                    <label class="day-option"><input type="checkbox" value="1"> Seg</label>
-                    <label class="day-option"><input type="checkbox" value="2"> Ter</label>
-                    <label class="day-option"><input type="checkbox" value="3"> Qua</label>
-                    <label class="day-option"><input type="checkbox" value="4"> Qui</label>
-                    <label class="day-option"><input type="checkbox" value="5"> Sex</label>
-                    <label class="day-option"><input type="checkbox" value="6"> Sáb</label>
-                </div>
-
-                <div style="display:flex; gap:10px; margin-top:20px;">
-                    <div style="flex:1"><label>Abertura (HH:MM)</label><input type="time" id="loja-abre"></div>
-                    <div style="flex:1"><label>Fechamento (HH:MM)</label><input type="time" id="loja-fecha"></div>
-                </div>
-                <button class="btn" onclick="salvarHorario()" style="margin-top:10px;">Salvar Configurações</button>
+            
+            <div class="modal-footer">
+                <button class="btn-cancelar" onclick="fecharModalItem()">Cancelar</button>
+                <button class="btn-salvar" onclick="salvarItemFirestore()">Salvar Item</button>
             </div>
-
-            <div style="background:var(--surface); padding:20px; border-radius:15px; margin-bottom:20px; border:1px solid #333;">
-                <h4 style="margin-bottom:15px; color:var(--primary)">🛵 Taxas de Entrega</h4>
-                <div style="display:flex; gap:10px;">
-                    <input type="text" id="bairro-nome" placeholder="Nome do Bairro" style="flex:2;">
-                    <input type="number" id="bairro-taxa" placeholder="Valor R$" style="flex:1;">
-                </div>
-                <button class="btn" onclick="addBairro()" style="margin-top:10px;">Adicionar Bairro</button>
-            </div>
-            <div id="lista-bairros"></div>
         </div>
     </div>
 
-    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js";
-        import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-auth.js";
-        import { getFirestore, doc, getDoc, updateDoc, setDoc } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js";
-        
-        // CONFIGURAÇÃO FIREBASE
-        const firebaseConfig = {
-            apiKey: "AIzaSyBIvmoayNis2C2xLFQtpRzzrc4dWxGvotU",
-            authDomain: "eatsmenu-62cfa.firebaseapp.com",
-            projectId: "eatsmenu-62cfa",
-            storageBucket: "eatsmenu-62cfa.firebasestorage.app",
-            messagingSenderId: "896131512194",
-            appId: "1:896131512194:web:51891cf2bd5a04c6c7819b"
-        };
+    <script>
+        // ELEMENTOS DO DOM PARA O UPLOAD DE IMAGEM
+        const modalItem = document.getElementById('modal-item');
+        const inputFoto = document.getElementById('input-foto-item');
+        const imagePreview = document.getElementById('image-preview');
+        const uploadPlaceholder = document.getElementById('upload-placeholder');
+        const dropZone = document.getElementById('drop-zone');
+        const btnRemoverFoto = document.getElementById('btn-remover-foto');
 
-        const app = initializeApp(firebaseConfig);
-        const auth = getAuth(app);
-        const db = getFirestore(app);
-        
-        let userUid = null;
-        let data = { produtos: [], bairros: [], dias_func: [] };
-
-        onAuthStateChanged(auth, async (user) => {
-            if (user) {
-                userUid = user.uid;
-                await checkPaymentStatus();
-                await loadData();
-                document.getElementById('loading').style.display = 'none';
+        // FUNÇÃO PARA ABRIR O MODAL
+        // Se passar os parâmetros, ele preenche como "Editar". Se não passar, abre vazio como "Novo".
+        function abrirModalItem(nome = '', descricao = '', preco = '') {
+            // Limpa o formulário sempre que abrir
+            document.getElementById('input-nome-item').value = nome;
+            document.getElementById('input-desc-item').value = descricao;
+            document.getElementById('input-preco-item').value = preco;
+            
+            // Define o título do Modal
+            const tituloModal = document.getElementById('modal-titulo');
+            if(nome !== '') {
+                tituloModal.innerText = "Editar Item: " + nome;
             } else {
-                window.location.href = 'index.html';
+                tituloModal.innerText = "Adicionar Novo Item";
             }
-        });
 
-        // --- ATIVAÇÃO AUTOMÁTICA (RETORNO MP) ---
-        async function checkPaymentStatus() {
-            const params = new URLSearchParams(window.location.search);
-            const statusMP = params.get('collection_status');
+            // Limpa a foto anterior
+            limparPreviewImagem();
 
-            if (statusMP === 'approved') {
-                await updateDoc(doc(db, "lojas", userUid), { 
-                    status_pagamento: 'ativo',
-                    data_ativacao: new Date()
-                });
-                toast("✅ Pagamento confirmado! Painel Liberado.");
-                window.history.replaceState({}, document.title, "admin.html");
-            }
+            // Mostra o modal com display flex
+            modalItem.style.display = 'flex';
         }
 
-        async function loadData() {
-            const snap = await getDoc(doc(db, "lojas", userUid));
-            if (snap.exists()) {
-                data = snap.data();
-                
-                if(data.status_pagamento === 'pendente') {
-                    alert("Aguardando confirmação do pagamento. Se já pagou, verifique se clicou em 'Voltar para o site' no Mercado Pago.");
-                    window.location.href = "index.html";
+        // FUNÇÃO PARA FECHAR O MODAL
+        function fecharModalItem() {
+            modalItem.style.display = 'none';
+        }
+
+        // FUNÇÃO PARA LIMPAR A PREVISUALIZAÇÃO DA FOTO
+        function limparPreviewImagem() {
+            inputFoto.value = "";
+            imagePreview.src = "";
+            imagePreview.style.display = 'none';
+            btnRemoverFoto.style.display = 'none';
+            uploadPlaceholder.style.display = 'block';
+        }
+
+        // FUNÇÃO DO BOTÃO DA LIXEIRA DENTRO DA FOTO
+        function removerFoto(event) {
+            // event.stopPropagation() impede que o clique na lixeira abra a janela de escolher arquivo de novo
+            event.stopPropagation(); 
+            limparPreviewImagem();
+        }
+
+        // EVENTO: QUANDO O USUÁRIO ESCOLHE UMA FOTO DO PC
+        inputFoto.addEventListener('change', function(event) {
+            const file = event.target.files[0];
+            
+            if (file) {
+                // Validação de tamanho (5MB)
+                if(file.size > 5 * 1024 * 1024) {
+                    alert("A imagem é muito pesada! O tamanho máximo é 5MB.");
+                    limparPreviewImagem();
                     return;
                 }
 
-                if(!data.produtos) data.produtos = [];
-                if(!data.bairros) data.bairros = [];
-                if(!data.dias_func) data.dias_func = [0,1,2,3,4,5,6];
+                const reader = new FileReader();
                 
-                const campos = ['conf-nome','conf-slug','conf-zap','conf-pix-key','conf-pix-name',
-                                'conf-logo','conf-banner','conf-cor'];
+                reader.onload = function(e) {
+                    // Esconde os textos
+                    uploadPlaceholder.style.display = 'none';
+                    // Mostra a imagem
+                    imagePreview.src = e.target.result;
+                    imagePreview.style.display = 'block';
+                    // Mostra o botão de excluir foto
+                    btnRemoverFoto.style.display = 'flex';
+                }
                 
-                campos.forEach(id => {
-                    const key = id.replace('conf-','').replace(/-/g,'_');
-                    if(document.getElementById(id)) document.getElementById(id).value = data[key] || "";
-                });
-                
-                document.getElementById('loja-abre').value = data.hora_abre || "18:00";
-                document.getElementById('loja-fecha').value = data.hora_fecha || "23:00";
-                
-                document.querySelectorAll('#days-container input').forEach(chk => {
-                    chk.checked = data.dias_func.includes(parseInt(chk.value));
-                });
-
-                updateLink(data.slug);
-                renderProdutos();
-                renderBairros();
+                reader.readAsDataURL(file);
             }
-        }
+        });
 
-        window.salvarLoja = async () => {
-            const update = {
-                nome: document.getElementById('conf-nome').value,
-                slug: document.getElementById('conf-slug').value,
-                whatsapp: document.getElementById('conf-zap').value,
-                pix_key: document.getElementById('conf-pix-key').value,
-                pix_name: document.getElementById('conf-pix-name').value,
-                logo: document.getElementById('conf-logo').value,
-                banner: document.getElementById('conf-banner').value,
-                cor: document.getElementById('conf-cor').value
-            };
-            await updateDoc(doc(db, "lojas", userUid), update);
-            updateLink(update.slug);
-            toast("Dados Salvos!");
-        };
+        // EVENTOS DE ARRASTAR E SOLTAR (DRAG & DROP) NA ÁREA DE UPLOAD
+        dropZone.addEventListener('dragover', function(e) {
+            e.preventDefault();
+            dropZone.style.borderColor = 'var(--primary)';
+            dropZone.style.background = '#f0fdf4';
+        });
 
-        window.salvarHorario = async () => {
-            const diasSelecionados = [];
-            document.querySelectorAll('#days-container input:checked').forEach(chk => {
-                diasSelecionados.push(parseInt(chk.value));
-            });
+        dropZone.addEventListener('dragleave', function(e) {
+            e.preventDefault();
+            dropZone.style.borderColor = '#cccccc';
+            dropZone.style.background = '#fcfcfc';
+        });
 
-            await updateDoc(doc(db, "lojas", userUid), {
-                hora_abre: document.getElementById('loja-abre').value,
-                hora_fecha: document.getElementById('loja-fecha').value,
-                dias_func: diasSelecionados
-            });
-            toast("Horário e Dias Atualizados!");
-        };
-
-        window.addProduto = async () => {
-            const prod = {
-                nome: document.getElementById('prod-nome').value,
-                preco: parseFloat(document.getElementById('prod-preco').value),
-                cat: document.getElementById('prod-cat').value,
-                desc: document.getElementById('prod-desc').value,
-                img: document.getElementById('prod-img').value, // Agora pega o texto URL direto
-                adds: document.getElementById('prod-adds').value
-            };
-            if(!prod.nome || !prod.preco) return toast("Preencha nome e preço", "error");
-            data.produtos.push(prod);
-            await updateDoc(doc(db, "lojas", userUid), { produtos: data.produtos });
+        dropZone.addEventListener('drop', function(e) {
+            e.preventDefault();
+            dropZone.style.borderColor = '#cccccc';
+            dropZone.style.background = '#fcfcfc';
             
-            // Limpa campos
-            document.getElementById('prod-nome').value = "";
-            document.getElementById('prod-preco').value = "";
-            document.getElementById('prod-img').value = "";
-            document.getElementById('prod-desc').value = "";
-            
-            renderProdutos();
-            toast("Produto Adicionado!");
-        };
-
-        window.addBairro = async () => {
-            const nome = document.getElementById('bairro-nome').value;
-            const taxa = parseFloat(document.getElementById('bairro-taxa').value);
-            if(!nome) return toast("Preencha o nome", "error");
-            data.bairros.push({ nome, taxa: taxa || 0 });
-            await updateDoc(doc(db, "lojas", userUid), { bairros: data.bairros });
-            document.getElementById('bairro-nome').value = "";
-            renderBairros();
-            toast("Bairro Adicionado!");
-        };
-
-        function renderProdutos() {
-            const div = document.getElementById('lista-produtos');
-            div.innerHTML = "";
-            data.produtos.forEach((p, idx) => {
-                div.innerHTML += `<div class="item-list"><div><strong>${p.nome}</strong><br><small>R$ ${p.preco}</small></div><button class="btn-danger" style="border:none;padding:5px 10px;border-radius:5px;cursor:pointer;" onclick="delItem('produtos', ${idx})">Excluir</button></div>`;
-            });
-        }
-
-        function renderBairros() {
-            const div = document.getElementById('lista-bairros');
-            div.innerHTML = "";
-            data.bairros.forEach((b, idx) => {
-                div.innerHTML += `<div class="item-list"><div>${b.nome} - R$ ${b.taxa}</div><button class="btn-danger" style="border:none;padding:5px 10px;border-radius:5px;cursor:pointer;" onclick="delItem('bairros', ${idx})">Excluir</button></div>`;
-            });
-        }
-
-        window.delItem = async (tipo, idx) => {
-            if(confirm("Excluir?")) {
-                data[tipo].splice(idx, 1);
-                await updateDoc(doc(db, "lojas", userUid), { [tipo]: data[tipo] });
-                tipo === 'produtos' ? renderProdutos() : renderBairros();
+            if (e.dataTransfer.files.length > 0) {
+                // Pega o arquivo arrastado e joga pro input escondido
+                inputFoto.files = e.dataTransfer.files;
+                
+                // Força o sistema a achar que o arquivo foi clicado e escolhido para rodar o preview
+                const eventChange = new Event('change');
+                inputFoto.dispatchEvent(eventChange);
             }
-        };
+        });
 
-        function updateLink(slug) {
-            const url = `https://${slug}.eatsmenu.com.br`;
-            document.getElementById('link-loja').href = url;
-            document.getElementById('link-loja').innerText = url;
+        // FUNÇÃO DE SALVAMENTO (INTEGRAÇÃO COM FIREBASE)
+        function salvarItemFirestore() {
+            const nome = document.getElementById('input-nome-item').value;
+            const desc = document.getElementById('input-desc-item').value;
+            const preco = document.getElementById('input-preco-item').value;
+            const arquivoFoto = inputFoto.files[0];
+
+            if(!nome || !preco) {
+                alert("Por favor, preencha o Nome e o Preço do item!");
+                return;
+            }
+
+            // Exemplo visual do processo de salvamento
+            const btnSalvar = document.querySelector('.btn-salvar');
+            const textoOriginal = btnSalvar.innerText;
+            btnSalvar.innerText = "Salvando...";
+            btnSalvar.disabled = true;
+
+            /* AQUI ENTRA A SUA LÓGICA DE FIREBASE DO SEU RENDERER.JS:
+               1. Se tiver 'arquivoFoto', fazer upload no Firebase Storage e pegar a URL.
+               2. Chamar o addDoc() ou updateDoc() do Firestore passando:
+                  {
+                      nome: nome,
+                      descricao: desc,
+                      preco: parseFloat(preco),
+                      imagem_url: urlDaFoto (ou null),
+                      ativo: true
+                  }
+            */
+
+            // Simulação de tempo de salvamento para o efeito visual
+            setTimeout(() => {
+                alert("Item '" + nome + "' salvo com sucesso no cardápio!");
+                btnSalvar.innerText = textoOriginal;
+                btnSalvar.disabled = false;
+                fecharModalItem();
+            }, 1000);
         }
-        window.setTab = (tab) => {
-            ['loja', 'produtos', 'entregas'].forEach(t => {
-                document.getElementById('view-'+t).style.display = t === tab ? 'block' : 'none';
-                document.getElementById('tab-btn-'+t).className = t === tab ? 'btn active' : 'btn btn-outline';
-            });
-        }
-        window.limparSlug = (el) => el.value = el.value.toLowerCase().replace(/[^a-z0-9-]/g, '');
-        window.logout = () => signOut(auth).then(() => window.location.href = "index.html");
-        function toast(msg, type="success") { Toastify({ text: msg, style: { background: type==="success"?"#00e676":"#ff1744" } }).showToast(); }
     </script>
 </body>
 </html>
