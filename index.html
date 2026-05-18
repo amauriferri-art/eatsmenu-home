@@ -27,7 +27,6 @@
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Outfit', sans-serif; outline: none; }
         html { scroll-behavior: smooth; }
         
-        /* ADIÇÃO DO FUNDO COM A IMAGEM DO HAMBÚRGUER */
         body { 
             background-color: var(--bg-dark); 
             background-image: linear-gradient(rgba(0, 0, 0, 0.75), rgba(0, 0, 0, 0.9)), url('delicious-gourmet-cheeseburger-with-smoke.jpg');
@@ -101,7 +100,7 @@
         /* HERO SECTION */
         .hero { 
             padding: 160px 5% 80px; text-align: center; min-height: 90vh;
-            background: transparent; /* Removido o gradiente para mostrar a imagem de fundo */
+            background: transparent; 
             display: flex; flex-direction: column; align-items: center;
         }
         .tag-promo { background: rgba(0,230,118,0.1); color: var(--primary); padding: 5px 15px; border-radius: 20px; font-size: 0.8rem; font-weight: 700; margin-bottom: 20px; border: 1px solid rgba(0,230,118,0.3); backdrop-filter: blur(5px); }
@@ -419,10 +418,12 @@
         const auth = getAuth(app);
         const db = getFirestore(app);
 
-        // --- SEUS LINKS DO MERCADO PAGO AQUI ---
-        // IMPORTANTE: Configure a URL de Retorno neles para: https://eatsmenu.com.br/admin.html
-        const LINK_MP_MENSAL = "COLOQUE_AQUI_SEU_LINK_MENSAL"; 
-        const LINK_MP_VITALICIO = "COLOQUE_AQUI_SEU_LINK_VITALICIO"; 
+        // ==========================================
+        // 💰 LINKS DE PAGAMENTO DO MERCADO PAGO
+        // ==========================================
+        // -> Crie seus links no Mercado Pago e cole aqui APENAS O LINK (entre as aspas).
+        const LINK_MP_MENSAL = "COLOQUE_AQUI_O_SEU_LINK_MENSAL_DO_MERCADO_PAGO"; 
+        const LINK_MP_VITALICIO = "COLOQUE_AQUI_O_SEU_LINK_ANUAL_DO_MERCADO_PAGO"; 
 
         let selectedPlan = 'nenhum';
         let novoUsuarioUid = null;
@@ -447,14 +448,12 @@
             }
         })();
 
-        // --- WHATSAPP ATUALIZADO ---
         window.solicitarWhats = () => {
             const phone = "55279995809348";
             const text = encodeURIComponent("Olá! Tenho interesse no sistema EatsMenu, preciso de ajuda.");
             window.open(`https://wa.me/${phone}?text=${text}`, '_blank');
         }
 
-        // --- CONTROLE DOS MODAIS ---
         window.openPlans = () => {
             document.getElementById('auth-modal').style.display = 'none';
             document.getElementById('grid-planos').style.display = 'grid';
@@ -480,7 +479,6 @@
             document.getElementById('auth-title').innerText = tab === 'login' ? 'Acessar Painel' : 'Criar Conta da Loja';
         }
 
-        // --- FIREBASE AUTH ---
         window.fCadastro = () => {
             const nome = document.getElementById('cad-nome').value;
             const slug = document.getElementById('cad-slug').value.toLowerCase().replace(/[^a-z0-9-]/g, '');
@@ -539,22 +537,29 @@
             });
         }
 
-        // --- PAGAMENTO MERCADO PAGO ---
+        // --- PAGAMENTO MERCADO PAGO COM TRAVA DE ALERTA ---
         window.pagarMercadoPago = async (plano) => {
             let linkDestino = (plano === 'vitalicio') ? LINK_MP_VITALICIO : LINK_MP_MENSAL;
 
             if(linkDestino.includes("COLOQUE_AQUI")) {
-                alert("ERRO DE CONFIGURAÇÃO: O dono do site precisa configurar os links do Mercado Pago no arquivo index.html");
+                alert("ALERTA DE SISTEMA: Você precisa colar os links de cobrança oficiais do seu Mercado Pago no arquivo index.html na linha 391 para os clientes conseguirem pagar!");
+                
+                // Volta os modais ao normal para o cliente não ficar preso no loading
+                document.getElementById('auth-modal').style.display = 'flex';
+                document.getElementById('payment-waiting').style.display = 'none';
+                
+                const btn = document.querySelector('#form-cadastro .btn-submit');
+                btn.innerText = "CRIAR CONTA";
+                btn.disabled = false;
+                
                 return;
             }
 
-            // Exibe a tela de carregamento do Mercado Pago
             document.getElementById('auth-modal').style.display = 'none';
             document.getElementById('grid-planos').style.display = 'none';
             document.getElementById('payment-waiting').style.display = 'block';
             document.getElementById('plans-modal').style.display = 'flex';
             
-            // Redireciona
             setTimeout(() => {
                 window.location.href = linkDestino;
             }, 1500);
@@ -582,7 +587,6 @@
                             notify("Sua conta possui um pagamento pendente.", "error");
                             novoUsuarioUid = cred.user.uid; 
                             
-                            // Se a loja já tiver um plano atrelado, manda pagar de novo
                             if(dados.plano && dados.plano !== 'gratis' && dados.plano !== 'nenhum') {
                                 window.pagarMercadoPago(dados.plano);
                             } else {
